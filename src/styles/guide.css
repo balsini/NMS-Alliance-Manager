@@ -35,3 +35,6 @@
 .guide-form-example .station-dialog { margin: 0; max-height: none; }
 .guide-tabs-example { margin: 12px 0; overflow-x: auto; }
 .guide-tabs-example { margin: 12px 0; overflow-x: auto; }
+.guide-tab-name { color: var(--lime); }
+.guide-page h4 { margin: 14px 0 4px; font-size: 16px; }
+.guide-page h5 { margin: 12px 0 4px; font-size: 14px; }

@@ -5,6 +5,7 @@ import { readAccessData } from "@/lib/access-store";
 import { ArrowLeft, CirclePlus, Compass, Crosshair, Eclipse, FileText, Hammer, Info, LogOut, Mail, MailCheck, Orbit, Pencil, Reply, RotateCcw, Search, Siren, Trash2, Trophy, UserRound, X, type LucideIcon } from "lucide-react";
 import { ExplorerBuilderStationExamples, RangerStationExamples } from "./station-examples";
 import { BuilderMissionExamples, ExplorerMissionExamples, RangerMissionExamples } from "./mission-examples";
+import { MissionTabsExample } from "./mission-tabs-example";
 import { StationTabsExample } from "./station-tabs-example";
 import { AddressValidationExample } from "./address-validation-example";
 import { StationFormExample } from "./station-form-example";
@@ -154,32 +155,33 @@ export default async function GuideRoute() {
       <AddressValidationExample sample={sample} />
       <p>«{translate("it", "common.add")}» resta disattivo finché l&apos;indirizzo non è valido e il controllo su Server Pianeti non è concluso.</p>
       <h3>La lista delle stazioni</h3>
+      <h4 style={{ color: "var(--lime)" }}>Tab</h4>
       <p>In cima alla pagina Stazioni, i tab filtrano la lista; il numero accanto a ogni tab indica quante stazioni contiene. I tab senza stazioni non compaiono.</p>
       <StationTabsExample />
       <ul>
-        <li><strong>{translate("it", "stations.filter_all")}</strong>: tutte le stazioni dell&apos;alleanza.</li>
-        <li><strong>{translate("it", "stations.my_stations")}</strong>: le stazioni di cui sei scopritore.</li>
-        <li><strong>{translate("it", "common.pending_status_label")}</strong>: stazioni senza nessuna missione collegata.</li>
-        <li><strong>{translate("it", "stations.filter_in_mission")}</strong>: stazioni con almeno una missione collegata non ancora completata.</li>
-        <li><strong>{translate("it", "stations.filter_my_missions")}</strong>: stazioni con una missione assegnata a te.</li>
-        <li><strong>{translate("it", "stations.filter_mission_completed")}</strong>: stazioni con missioni collegate, tutte completate.</li>
+        <li><strong className="guide-tab-name">{translate("it", "stations.filter_all")}</strong>: tutte le stazioni dell&apos;alleanza.</li>
+        <li><strong className="guide-tab-name">{translate("it", "stations.my_stations")}</strong>: le stazioni di cui sei scopritore.</li>
+        <li><strong className="guide-tab-name">{translate("it", "common.pending_status_label")}</strong>: stazioni senza nessuna missione collegata.</li>
+        <li><strong className="guide-tab-name">{translate("it", "stations.filter_in_mission")}</strong>: stazioni con almeno una missione collegata non ancora completata.</li>
+        <li><strong className="guide-tab-name">{translate("it", "stations.filter_my_missions")}</strong>: stazioni con una missione assegnata a te.</li>
+        <li><strong className="guide-tab-name">{translate("it", "stations.filter_mission_completed")}</strong>: stazioni con missioni collegate, tutte completate.</li>
       </ul>
-      <h3 style={{ color: "#5fd68a" }}>Ranger</h3>
+      <h4 style={{ color: "#5fd68a" }}>Ranger</h4>
       <ul>
         <li>Vede tutte le stazioni e filtra per Tutte, Le mie stazioni, In attesa, In missione, Le mie missioni (solo se ne ha) e Missione completata; cerca per portale, proprietario, galassia o note.</li>
         <li>«Aggiungi stazione»: indirizzo portale, galassia, nome (max 80 caratteri), note (max 1000). Solo per sé.</li>
         <li>Sulle proprie stazioni: spunta le voci Ranger, modifica nome e note, elimina (solo senza missioni collegate), crea una missione per Esploratori/Costruttori.</li>
       </ul>
-      <h4>Esempi di card</h4>
+      <h5>Esempi di card</h5>
       <p>I pulsanti che un Ranger può trovare sulla card di una stazione, in base a chi la possiede e alle missioni collegate.</p>
       {sample && <RangerStationExamples sample={sample} />}
-      <h3><span style={{ color: "#4d9bff" }}>Esploratori</span> e <span style={{ color: "#ffb45d" }}>Costruttori</span></h3>
+      <h4><span style={{ color: "#4d9bff" }}>Esploratori</span> e <span style={{ color: "#ffb45d" }}>Costruttori</span></h4>
       <ul>
         <li>Vedono tutte le stazioni; possono modificare ed eliminare (se senza missioni) solo quelle di cui sono proprietari, non quelle di altri.</li>
         <li>Creano una missione per la <strong>propria specializzazione</strong> da una stazione: viene assegnata a loro. Non è possibile se la specializzazione è già coperta o se esiste già un altro pianeta dello stesso sistema.</li>
         <li>Se la missione esiste già, un&apos;icona apre le missioni collegate; se è di un altro membro compare l&apos;icona «+» barrata.</li>
       </ul>
-      <h4>Esempi di card</h4>
+      <h5>Esempi di card</h5>
       <p>I pulsanti che un Esploratore o un Costruttore può trovare sulla card di una stazione.</p>
       {sample && <ExplorerBuilderStationExamples sample={sample} />}
     </section>
@@ -196,17 +198,28 @@ export default async function GuideRoute() {
         <li>Spunta le tue voci e usa «{translate("it", "missions.complete_mission")}».</li>
         <li>Una missione completata si può riaprire con «{translate("it", "missions.reopen_mission")}».</li>
       </ul>
-      <h3 style={{ color: "#4d9bff" }}>Esploratori</h3>
-      <h4>Esempi di card</h4>
+      <h3>La lista delle missioni</h3>
+      <h4 style={{ color: "var(--lime)" }}>Tab</h4>
+      <p>In cima alla pagina Missioni, i tab filtrano la lista; il numero accanto a ogni tab indica quante missioni contiene. I tab senza missioni non compaiono.</p>
+      <MissionTabsExample />
+      <ul>
+        <li><strong className="guide-tab-name">{translate("it", "common.all")}</strong>: tutte le missioni per la tua specializzazione prese in carico da te o non ancora assegnate.</li>
+        <li><strong className="guide-tab-name">{translate("it", "missions.status_in_progress")}</strong>: missioni già iniziate da te.</li>
+        <li><strong className="guide-tab-name">{translate("it", "missions.pending_assigned")}</strong>: missioni in attesa assegnate a te, che non hai ancora iniziato.</li>
+        <li><strong className="guide-tab-name">{translate("it", "missions.pending_unassigned")}</strong>: missioni in attesa per la tua specializzazione che nessuno ha ancora preso in carico.</li>
+        <li><strong className="guide-tab-name">{translate("it", "missions.status_completed")}</strong>: missioni concluse da te.</li>
+      </ul>
+      <h4 style={{ color: "#4d9bff" }}>Esploratori</h4>
+      <h5>Esempi di card</h5>
       <p>Le schede missione che un Esploratore può trovare, dalla presa in carico alla chiusura.</p>
       <ExplorerMissionExamples sample={sample} />
-      <h3 style={{ color: "#ffb45d" }}>Costruttori</h3>
-      <h4>Esempi di card</h4>
+      <h4 style={{ color: "#ffb45d" }}>Costruttori</h4>
+      <h5>Esempi di card</h5>
       <p>Le schede missione che un Costruttore può trovare, dalla presa in carico alla chiusura.</p>
       <BuilderMissionExamples sample={sample} />
-      <h3 style={{ color: "#5fd68a" }}>Ranger</h3>
+      <h4 style={{ color: "#5fd68a" }}>Ranger</h4>
       <p>Facoltativo: le voci Ranger (stazione riscattata, sistema rinominato) sono già disponibili allo scopritore del sistema sulla scheda stazione, quindi non serve una missione per spuntarle.</p>
-      <h4>Esempi di card</h4>
+      <h5>Esempi di card</h5>
       <p>Le schede missione che un Ranger può trovare, dalla presa in carico alla chiusura.</p>
       <RangerMissionExamples sample={sample} />
     </section>
