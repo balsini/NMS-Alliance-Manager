@@ -66,7 +66,7 @@ export function StationCardExtended({ station, member, canSeeAll, canCreateMissi
                   {station.hasMissions
                     ? canSeeAll || station.canOpenOwnSpecialtyMission
                       ? <Link aria-label={t("planet.open_missions_for_planet_portal", { portal: station.portal })} className="member-icon-action station-missions-link" data-tooltip={t("missions.open_associated_missions")} href={`/missions?search=${encodeURIComponent(station.portal)}`}><Crosshair size={14} /></Link>
-                      : !canSeeAll && member.specialty === "ranger" ? null : <span className="station-mission-lock">{t("missions.associated_mission")}</span>
+                      : null
                     : (canSeeAll || station.ownerId === member.publicId) && <button aria-label={t("stations.remove_portal_portal_in_galaxy_from_owner_s_archive", { portal: station.portal, galaxy: galaxyLabel(station.galaxy), owner: stationOwnerName(station) })} className="member-icon-action delete-member" data-tooltip={t("stations.delete_station")} onClick={() => onRemove(station)} type="button"><Trash2 size={14} /></button>}
                   {canEditStation && <button aria-label={t("stations.edit_station_portal", { portal: station.portal })} className="member-icon-action station-edit-action" data-tooltip={t("stations.edit_station")} onClick={() => onEdit(station)} type="button"><Pencil size={14} /></button>}
                   {station.note && <button aria-label={t("stations.view_notes_for_station", { station: stationDisplayName })} className="member-icon-action station-notes-action" data-tooltip={t("stations.view_station_notes")} onClick={() => onViewNote(station)} type="button"><FileText size={14} /></button>}

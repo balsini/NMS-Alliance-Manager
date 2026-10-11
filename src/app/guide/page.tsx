@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CirclePlus, Compass, Crosshair, Eclipse, FileText, Hammer, Info, LogOut, MailCheck, Orbit, Pencil, Reply, RotateCcw, Search, Siren, Trash2, UserRound, X, type LucideIcon } from "lucide-react";
-import { RangerStationExamples } from "./station-examples";
+import { ExplorerBuilderStationExamples, RangerStationExamples } from "./station-examples";
 import { readRandomAlmanacPlanet } from "@/lib/almanac-store";
 import { auth } from "@/auth";
 import { GoogleLogin } from "@/components/pages/google-login";
@@ -31,8 +31,9 @@ const buttons: ReadonlyArray<{ label: string; specialty: ReadonlyArray<"ranger" 
   { label: "Vai alla stazione", specialty: ["ranger", "explorer", "builder"], icon: Orbit, color: "#6cb4ff", meaning: "Porta alla scheda stazione collegata." },
   { label: "Vai alle missioni collegate", specialty: ["ranger", "explorer", "builder"], icon: Crosshair, color: "#72d1c4", meaning: "Porta alla scheda missione collegata." },
   { label: "Crea missione dalla stazione", specialty: ["ranger"], icon: CirclePlus, color: "#72d1c4", meaning: "Crea una missione per il sistema di una propria stazione, per Esploratori e/o Costruttori non preassegnata" },
-  { label: "Crea missione dalla stazione", specialty: ["builder", "explorer"], icon: CirclePlus, color: "#72d1c4", meaning: "Crea una missione per il sistema per la propria specializzazione, già assegnata a se stessi." },
-  { label: "Missione già in corso per la tua categoria", specialty: ["ranger", "explorer", "builder"], icon: CirclePlus, color: "#4f6f6a", crossed: true, meaning: "Al posto di «Crea missione dalla stazione» se esiste già una missione per la tua specializzazione su quel sistema." },
+  { label: "Crea missione dalla stazione", specialty: ["builder", "explorer"], icon: CirclePlus, color: "#72d1c4", meaning: "Crea una missione per il sistema per la propria specializzazione, assegnata a se stessi." },
+  { label: "Missione già in corso per la tua categoria", specialty: ["ranger"], icon: CirclePlus, color: "#4f6f6a", crossed: true, meaning: "Al posto di «Crea missione dalla stazione» se esistono gia' missioni per Esploratori e Costruttori su quel sistema." },
+  { label: "Missione già in corso per la tua categoria", specialty: ["explorer", "builder"], icon: CirclePlus, color: "#4f6f6a", crossed: true, meaning: "Al posto di «Crea missione dalla stazione» se esiste già una missione per la tua specializzazione su quel sistema." },
   { label: "Vai al pianeta", specialty: ["ranger", "explorer", "builder"], icon: Eclipse, color: "#b48cf2", meaning: "Porta al pianeta collegato." },
   { label: "Note di missione o stazione", specialty: ["ranger", "explorer", "builder"], icon: FileText, color: "#e4b478", meaning: "Mostra le note scritte su una missione o una stazione." },
   { label: "Note del pianeta", specialty: ["ranger", "explorer", "builder"], icon: Info, color: "#ff8400", meaning: "Mostra le note condivise sul pianeta." },
@@ -145,10 +146,13 @@ export default async function GuideRoute() {
       <h2><span style={{ color: "#4d9bff" }}>Esploratore</span> e <span style={{ color: "#ffb45d" }}>Costruttore</span></h2>
       <h3>Stazioni</h3>
       <ul>
-        <li>Vedono tutte le stazioni ma non ne registrano né modificano di altrui.</li>
+        <li>Vedono tutte le stazioni; possono modificare ed eliminare (se senza missioni) solo quelle inserite da loro, non quelle di altri.</li>
         <li>Creano una missione per la <strong>propria specializzazione</strong> da una stazione: viene assegnata a loro. Non è possibile se la specializzazione è già coperta o se esiste già un altro pianeta dello stesso sistema.</li>
-        <li>Se la missione esiste già, un&apos;icona apre le missioni collegate; se è di un altro membro compare «missione associata».</li>
+        <li>Se la missione esiste già, un&apos;icona apre le missioni collegate; se è di un altro membro compare l&apos;icona «+» barrata.</li>
       </ul>
+      <h4>Esempi di card</h4>
+      <p>I pulsanti che un Esploratore o un Costruttore può trovare sulla card di una stazione.</p>
+      {sample && <ExplorerBuilderStationExamples sample={sample} />}
       <h3>Missioni</h3>
       <ul>
         <li>Vedono le missioni per «Tutti», per la propria specializzazione o «Esploratore + Costruttore». Se una missione ha un assegnatario, la vede solo lui.</li>
