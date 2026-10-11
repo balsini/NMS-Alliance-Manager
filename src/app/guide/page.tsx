@@ -5,6 +5,7 @@ import { readAccessData } from "@/lib/access-store";
 import { ArrowLeft, CirclePlus, Compass, Crosshair, Eclipse, FileText, Hammer, Info, LogOut, Mail, MailCheck, Orbit, Pencil, Reply, RotateCcw, Search, Siren, Trash2, Trophy, UserRound, X, type LucideIcon } from "lucide-react";
 import { ExplorerBuilderStationExamples, RangerStationExamples } from "./station-examples";
 import { BuilderMissionExamples, ExplorerMissionExamples, RangerMissionExamples } from "./mission-examples";
+import { StationFormExample } from "./station-form-example";
 import { guideStationInit } from "./station-init";
 
 export const dynamic = "force-dynamic";
@@ -134,21 +135,18 @@ export default async function GuideRoute() {
       </ul>
     </section>
 
-    <section id="missioni-funzionamento">
-      <h2>Come funziona una missione</h2>
-      <p>Una missione riguarda un sistema (portale a 12 glifi o codice a 8 glifi) e una galassia. Stati: <strong>In attesa → In corso → Completata</strong>.</p>
-      <p>Le voci spuntate fanno salire l&apos;avanzamento fino all&apos;80%; il 100% si raggiunge con «Completa missione», attivo solo quando le tue voci sono tutte spuntate.</p>
-    </section>
-
     <section id="stazioni">
       <h2 style={{ color: "#6cb4ff" }}>Stazioni</h2>
       <h3>Creare una stazione</h3>
       <ul>
         <li>Usa «{translate("it", "stations.add_station")}» nella pagina Stazioni.</li>
-        <li>Indica indirizzo portale, galassia, nome (max 80 caratteri) e note (max 1000).</li>
-        <li>La stazione è tua: ne sei il proprietario. Solo i moderatori possono inserirne una per un altro membro, ad esempio un utente offline, indicandolo come proprietario.</li>
-        <li>Non puoi inserire due volte lo stesso portale per lo stesso proprietario, né un altro pianeta dello stesso sistema.</li>
+        <li>Indica la galassia e l&apos;indirizzo portale.</li>
+        <li>Il nome viene calcolato in base ai glifi, ma puoi modificarlo (max 80 caratteri).</li>
+        <li>Note (max 1000 caratteri): se ritieni che ci siano informazioni importanti da condividere con chi ci andrà in missione.</li>
+        <li>Diventi lo scopritore della stazione.</li>
+        <li>Non puoi inserire una stazione per un sistema già presente.</li>
       </ul>
+      <StationFormExample sample={sample} />
       <h3 style={{ color: "#5fd68a" }}>Ranger</h3>
       <ul>
         <li>Vede tutte le stazioni e filtra per Tutte, Le mie stazioni, In attesa, In missione, Le mie missioni (solo se ne ha) e Missione completata; cerca per portale, proprietario, galassia o note.</li>
@@ -171,6 +169,9 @@ export default async function GuideRoute() {
 
     <section id="missioni">
       <h2 style={{ color: "#72d1c4" }}>Missioni</h2>
+      <h3>Come funziona una missione</h3>
+      <p>Una missione riguarda un sistema (portale a 12 glifi o codice a 8 glifi) e una galassia. Stati: <strong>In attesa → In corso → Completata</strong>.</p>
+      <p>Le voci spuntate fanno salire l&apos;avanzamento fino all&apos;80%; oltre, fino al 100%, lo porti tu a piacere con il cursore, ma non è necessario. «{translate("it", "missions.complete_mission")}» si attiva quando le tue voci sono tutte spuntate e completa la missione anche senza arrivare al 100%.</p>
       <p>Ogni membro vede le missioni per la propria specializzazione (Ranger, Esploratori o Costruttori) che sono libere o prese in carico da lui.</p>
       <ul>
         <li>«{translate("it", "missions.claim")}» su una missione libera: diventa «In corso» e visibile sul tab «Le mie missioni».</li>

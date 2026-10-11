@@ -126,7 +126,7 @@
 .message-participants strong.current-member { color: var(--lime); }
 .message-reply-form .field textarea { min-height: 82px; resize: vertical; }
 .message-reply-form .field > span { color: #fff; }
-.station-add-form .portal-field { margin-bottom: 0; }
+.station-add-form .portal-field { margin: 14px 0; }
 .planet-mission-card-copy .glyph-strip { max-width: max-content; }
 .station-list-cards .station-portal-code > .glyph-strip { grid-column: 1; grid-row: 1; }
 .create-station-mission { color: #72d1c4; }

@@ -348,7 +348,7 @@ export const translations: TranslationCatalog = {
     "stations.my_stations": "My stations",
     "stations.register_portals_for_systems_you_have_discovered": "Register portals for systems you have discovered.",
     "stations.12_portal_glyphs": "12 portal glyphs",
-    "stations.system_portal_code": "SYSTEM / PORTAL CODE",
+    "stations.system_portal_code": "PORTAL",
     "stations.find_member_s_stations": "Find {member}'s stations",
     "stations.incomplete_code_count_of_12_glyphs": "Incomplete code · {count} of 12 glyphs",
     "stations.nms_glyphs_hex_address": "NMS GLYPHS · HEX ADDRESS",

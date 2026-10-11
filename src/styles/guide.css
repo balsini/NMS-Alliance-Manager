@@ -31,3 +31,5 @@
   .guide-root .banner-add[data-tooltip]:hover::after,
   .guide-root .banner-add[data-tooltip]:focus-visible::after { opacity: 1; transform: translateY(0); }
 }
+.guide-form-example { max-width: 560px; margin: 16px 0; }
+.guide-form-example .station-dialog { margin: 0; max-height: none; }

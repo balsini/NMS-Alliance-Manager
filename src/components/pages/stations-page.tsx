@@ -473,6 +473,26 @@ export function StationsPage({ currentMember, alliance, missionCount, initialSea
               <button aria-label={t("common.close")} className="icon-button" onClick={closeStationDialog} type="button"><X size={18} /></button>
           </div>
           <form className="station-add-form" onSubmit={addStation}>
+            {!creatingFromMission && !editingStation?.hasMissions && <label className="field station-galaxy-select">
+              <span>{t("stations.galaxy")}</span>
+              <select onChange={(event) => {
+                setGalaxy(Number(event.target.value));
+                setStationName("");
+                setPlanetType("");
+                setStationNameEdited(false);
+                setValidation({ valid: false, lookup: null });
+              }} value={galaxy}>
+                {galaxyNames.map((name, index) => <option key={index} value={index}>{name}</option>)}
+              </select>
+            </label>}
+            {!creatingFromMission && !editingStation?.hasMissions && <SystemAddressField address={portal} galaxy={galaxy} onChange={(value) => {
+              setPortal(value);
+              setStationName("");
+              setPlanetType("");
+              setStationNameEdited(false);
+              setError("");
+              setValidation({ valid: false, lookup: null });
+            }} onLookupResolved={handleStationLookup} onStateChange={setValidation} />}
             <label className="field full-field station-name-field">
               <span>{t("stations.station_name")} <small>{t("common.editable_max_80_characters")}</small></span>
               <input
@@ -496,26 +516,6 @@ export function StationsPage({ currentMember, alliance, missionCount, initialSea
                 value={stationNote}
               />
             </label>
-            {!creatingFromMission && !editingStation?.hasMissions && <SystemAddressField address={portal} galaxy={galaxy} onChange={(value) => {
-              setPortal(value);
-              setStationName("");
-              setPlanetType("");
-              setStationNameEdited(false);
-              setError("");
-              setValidation({ valid: false, lookup: null });
-            }} onLookupResolved={handleStationLookup} onStateChange={setValidation} />}
-            {!creatingFromMission && !editingStation?.hasMissions && <label className="field station-galaxy-select">
-              <span>{t("stations.galaxy")}</span>
-              <select onChange={(event) => {
-                setGalaxy(Number(event.target.value));
-                setStationName("");
-                setPlanetType("");
-                setStationNameEdited(false);
-                setValidation({ valid: false, lookup: null });
-              }} value={galaxy}>
-                {galaxyNames.map((name, index) => <option key={index} value={index}>{name}</option>)}
-              </select>
-            </label>}
             {canSeeAll && <label className="field">
               <span>{t("stations.station_owner")}</span>
               <select onChange={(event) => setStationOwnerId(event.target.value)} required value={stationOwnerId}>

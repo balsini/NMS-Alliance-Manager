@@ -348,7 +348,7 @@ export const translations: TranslationCatalog = {
     "stations.my_stations": "Le mie stazioni",
     "stations.register_portals_for_systems_you_have_discovered": "Registra i portali dei sistemi che hai scoperto.",
     "stations.12_portal_glyphs": "12 glifi portale",
-    "stations.system_portal_code": "CODICE SISTEMA / PORTALE",
+    "stations.system_portal_code": "PORTALE",
     "stations.find_member_s_stations": "Cerca stazioni di {member}",
     "stations.incomplete_code_count_of_12_glyphs": "Codice incompleto · {count} di 12 glifi",
     "stations.nms_glyphs_hex_address": "GLIFI NMS · INDIRIZZO ESADECIMALE",
