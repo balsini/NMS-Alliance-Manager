@@ -76,11 +76,44 @@ export default async function GuideRoute() {
     <Hero settings={alliance} subtitle="Cosa puoi fare, pagina per pagina" title="Guida">
       <Link className="banner-add" data-tooltip="Torna all'app" href="/"><ArrowLeft size={17} /> <span className="banner-add-label">Torna all&apos;app</span></Link>
     </Hero>
+    <nav aria-label="Indice della guida" className="guide-index">
+      <strong>Indice</strong>
+      <ul>
+        <li><a className="guide-index-basics" href="#nozioni-di-base"><Info aria-hidden="true" size={15} />Nozioni di base</a>
+          <ul>
+            <li><a href="#sezioni">Sezioni</a></li>
+            <li><a href="#specializzazioni">Specializzazioni</a></li>
+            <li><a href="#legenda">Legenda dei pulsanti</a></li>
+            <li><a href="#pulsanti-comuni">Pulsanti generali</a></li>
+            <li><a href="#primo-accesso">Primo accesso e profilo</a></li>
+          </ul>
+        </li>
+        <li><a className="guide-index-stations" href="#stazioni"><Orbit aria-hidden="true" size={15} />Stazioni</a>
+          <ul>
+            <li><a href="#stazioni-funzionamento">Come funziona una stazione</a></li>
+            <li><a href="#stazioni-creazione">Creare una stazione</a></li>
+            <li><a href="#stazioni-lista">La lista delle stazioni</a></li>
+          </ul>
+        </li>
+        <li><a className="guide-index-missions" href="#missioni"><Crosshair aria-hidden="true" size={15} />Missioni</a>
+          <ul>
+            <li><a href="#missioni-funzionamento">Come funziona una missione</a></li>
+            <li><a href="#missioni-lista">La lista delle missioni</a></li>
+          </ul>
+        </li>
+        <li><a className="guide-index-planets" href="#pianeti"><Eclipse aria-hidden="true" size={15} />Pianeti</a>
+          <ul>
+            <li><a href="#pianeti-funzionamento">Come funziona un pianeta</a></li>
+            <li><a href="#pianeti-lista">La lista dei pianeti</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
     <LocaleProvider fixedLocale="it">
     <main className="guide-page">
 
     <section id="nozioni-di-base">
-      <h2>Nozioni di base</h2>
+      <h2><Info aria-hidden="true" size={20} />Nozioni di base</h2>
 
       <section id="sezioni">
         <h3>Sezioni</h3>
@@ -149,8 +182,8 @@ export default async function GuideRoute() {
 
     </section>
 
-    <section id="stazioni">      <h2 style={{ color: "#6cb4ff" }}>Stazioni</h2>
-      <h3>Come funziona una stazione</h3>
+    <section id="stazioni">      <h2 style={{ color: "#6cb4ff" }}><Orbit aria-hidden="true" size={20} />Stazioni</h2>
+      <h3 id="stazioni-funzionamento">Come funziona una stazione</h3>
       <p>Una stazione è un sistema stellare dell&apos;alleanza, identificato da un indirizzo portale e da una galassia. Da una stazione possono partire le missioni.</p>
       <ul>
         <li>Chi la inserisce ne è lo <strong>scopritore</strong>: solo lui può modificarne nome e note, spuntare le voci Ranger ed eliminarla (solo se non ha missioni collegate).</li>
@@ -158,7 +191,7 @@ export default async function GuideRoute() {
         <li>Lo stato del sistema è un elenco di voci da spuntare, una per specializzazione: Ranger, Esploratori e Costruttori.</li>
         <li>Le missioni collegate alla stazione ne determinano lo stato: In attesa, In missione o Missione completata.</li>
       </ul>
-      <h3>Creare una stazione</h3>
+      <h3 id="stazioni-creazione">Creare una stazione</h3>
       <ul>
         <li>Usa «{translate("it", "stations.add_station")}» nella pagina Stazioni.</li>
         <li>Indica la galassia e l&apos;indirizzo portale.</li>
@@ -172,7 +205,7 @@ export default async function GuideRoute() {
       <p>Mentre inserisci i glifi, il messaggio sotto il portale ti guida passo per passo.</p>
       <AddressValidationExample sample={sample} />
       <p>«{translate("it", "common.add")}» resta disattivo finché l&apos;indirizzo non è valido e il controllo su Server Pianeti non è concluso.</p>
-      <h3>La lista delle stazioni</h3>
+      <h3 id="stazioni-lista">La lista delle stazioni</h3>
       <h4 style={{ color: "var(--lime)" }}>Tab</h4>
       <p>In cima alla pagina Stazioni, i tab filtrano la lista; il numero accanto a ogni tab indica quante stazioni contiene. I tab senza stazioni non compaiono.</p>
       <StationTabsExample />
@@ -205,8 +238,8 @@ export default async function GuideRoute() {
     </section>
 
     <section id="missioni">
-      <h2 style={{ color: "#72d1c4" }}>Missioni</h2>
-      <h3>Come funziona una missione</h3>
+      <h2 style={{ color: "#72d1c4" }}><Crosshair aria-hidden="true" size={20} />Missioni</h2>
+      <h3 id="missioni-funzionamento">Come funziona una missione</h3>
       <p>Una missione parte da una stazione. Stati: <strong>In attesa → In corso → Completata</strong>.</p>
       <p>Le voci spuntate fanno salire l&apos;avanzamento fino all&apos;80%; oltre, fino al 100%, lo porti tu a piacere con il cursore, ma non è necessario. «{translate("it", "missions.complete_mission")}» si attiva quando le tue voci sono tutte spuntate e puoi completare la missione anche senza arrivare al 100%.</p>
       <p>Ogni membro vede le missioni per la propria specializzazione (Ranger, Esploratori o Costruttori) che sono libere o prese in carico da lui.</p>
@@ -216,7 +249,7 @@ export default async function GuideRoute() {
         <li>Spunta le tue voci e usa «{translate("it", "missions.complete_mission")}».</li>
         <li>Una missione completata si può riaprire con «{translate("it", "missions.reopen_mission")}».</li>
       </ul>
-      <h3>La lista delle missioni</h3>
+      <h3 id="missioni-lista">La lista delle missioni</h3>
       <h4 style={{ color: "var(--lime)" }}>Tab</h4>
       <p>In cima alla pagina Missioni, i tab filtrano la lista; il numero accanto a ogni tab indica quante missioni contiene. I tab senza missioni non compaiono.</p>
       <MissionTabsExample />
@@ -243,15 +276,15 @@ export default async function GuideRoute() {
     </section>
 
     <section id="pianeti">
-      <h2 style={{ color: "#b48cf2" }}>Pianeti</h2>
-      <h3>Come funziona un pianeta</h3>
+      <h2 style={{ color: "#b48cf2" }}><Eclipse aria-hidden="true" size={20} />Pianeti</h2>
+      <h3 id="pianeti-funzionamento">Come funziona un pianeta</h3>
       <p>Ogni pianeta è legato a un sistema stellare e, se esiste, a una stazione associata. La sezione raccoglie i dati di Almanac e li presenta in una lista facile da filtrare.</p>
       <ul>
         <li>La scheda del pianeta mostra il nome del pianeta, il numero, il sistema, la galassia, la stazione collegata e i dati di ambiente (razza, clima, acqua, sentinelle, conflitto, ecc.).</li>
         <li>Se il pianeta è collegato a una stazione, puoi aprire la stazione direttamente oppure raggiungere la scheda del pianeta per leggere le note condivise o lanciare un&apos;aiuto.</li>
         <li>Le informazioni sono raggruppate per sistema/stazione, così puoi vedere subito tutti i pianeti legati a una stessa stazione e scorrere le loro caratteristiche.</li>
       </ul>
-      <h3>La lista dei pianeti</h3>
+      <h3 id="pianeti-lista">La lista dei pianeti</h3>
       <h4 style={{ color: "var(--lime)" }}>Ricerca e filtri</h4>
       <p>La barra di ricerca trova i pianeti usando i dati indicizzati da Almanac, il nome Almanac e l&apos;indirizzo portale. Per mostrare i filtri, clicca il pulsante con l&apos;icona a cursori a destra della ricerca; cliccalo di nuovo per richiuderli.</p>
       <PlanetFiltersExample />
@@ -280,13 +313,13 @@ export default async function GuideRoute() {
     </section>
 
     <section id="pagine">
-      <h2>Pagina per pagina</h2>
-      <h3>Stazioni</h3><p>Elenco delle stazioni con stato dei sistemi, note e azioni (vedi sopra per specializzazione).</p>
-      <h3>Missioni</h3><p>Filtri per stato (Tutte, In corso, In attesa, Completate). Ogni scheda mostra pianeta, galassia, specializzazione richiesta, scopritore, assegnatario, priorità e avanzamento. Il titolo apre il dettaglio pianeta, i nomi aprono il profilo del membro.</p>
-      <h3>Dettaglio pianeta</h3><p>Dati del pianeta e, con l&apos;icona sirena, invio di una richiesta d&apos;aiuto.</p>
-      <h3>Classifica</h3><p>Posizione dei membri (stazioni scoperte, missioni completate, voci spuntate) e totali dell&apos;alleanza. Sola lettura.</p>
-      <h3>Richieste d&apos;aiuto</h3><p>Elenco delle richieste di tutti con le risposte. Si inviano dalla scheda di un pianeta (max 2000 caratteri, con conferma). Tutti possono rispondere; elimini solo le tue.</p>
-      <h3>Messaggi</h3><p>Si scrive dal profilo di un membro approvato e non offline, solo su un pianeta o una missione (per il resto Telegram o Discord). Puoi rispondere, segnare come letto ed eliminare i messaggi di cui sei mittente o destinatario.</p>
+      <h2><FileText aria-hidden="true" size={20} />Pagina per pagina</h2>
+      <h3 id="pagine-stazioni">Stazioni</h3><p>Elenco delle stazioni con stato dei sistemi, note e azioni (vedi sopra per specializzazione).</p>
+      <h3 id="pagine-missioni">Missioni</h3><p>Filtri per stato (Tutte, In corso, In attesa, Completate). Ogni scheda mostra pianeta, galassia, specializzazione richiesta, scopritore, assegnatario, priorità e avanzamento. Il titolo apre il dettaglio pianeta, i nomi aprono il profilo del membro.</p>
+      <h3 id="pagine-dettaglio-pianeta">Dettaglio pianeta</h3><p>Dati del pianeta e, con l&apos;icona sirena, invio di una richiesta d&apos;aiuto.</p>
+      <h3 id="pagine-classifica">Classifica</h3><p>Posizione dei membri (stazioni scoperte, missioni completate, voci spuntate) e totali dell&apos;alleanza. Sola lettura.</p>
+      <h3 id="pagine-richieste-aiuto">Richieste d&apos;aiuto</h3><p>Elenco delle richieste di tutti con le risposte. Si inviano dalla scheda di un pianeta (max 2000 caratteri, con conferma). Tutti possono rispondere; elimini solo le tue.</p>
+      <h3 id="pagine-messaggi">Messaggi</h3><p>Si scrive dal profilo di un membro approvato e non offline, solo su un pianeta o una missione (per il resto Telegram o Discord). Puoi rispondere, segnare come letto ed eliminare i messaggi di cui sei mittente o destinatario.</p>
     </section>
   </main>
   </LocaleProvider>

@@ -52,8 +52,8 @@ export function PlanetListExampleView({
           </div>
         </figure>
       </div>
-      <h5>Scheda pianeta</h5>
-      <p>La scheda di dettaglio che si apre selezionando un pianeta nella pagina Pianeti.</p>
+      <h4 style={{ color: "var(--lime)" }}>Scheda pianeta</h4>
+      <p>La stessa scheda si apre cliccando una card pianeta, il nome di una missione nella pagina Missioni o il nome di una stazione nella pagina Stazioni.</p>
       {detailsOpen && (
         <PlanetCard
           galaxy={planet.galaxy}

@@ -1,8 +1,20 @@
 .guide-page { max-width: 880px; margin: 0 auto; padding: 32px 20px 64px; color: var(--ink); font-size: 14px; line-height: 1.6; }
+.guide-index { max-width: 880px; margin: 0 auto; padding: 18px 20px 0; color: var(--muted); }
+.guide-index > strong { display: block; margin-bottom: 8px; font-size: 12px; }
+.guide-index ul { margin: 0; padding-left: 24px; }
+.guide-index ul ul { padding-left: 22px; list-style-type: circle; }
+.guide-index li { padding: 2px 0; }
+.guide-index a { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 12px; text-underline-offset: 3px; }
+.guide-index > ul > li > a { font-size: 14px; font-weight: 600; }
+.guide-index > ul > li > .guide-index-basics { color: var(--ink); }
+.guide-index > ul > li > .guide-index-stations { color: #6cb4ff; }
+.guide-index > ul > li > .guide-index-missions { color: #72d1c4; }
+.guide-index > ul > li > .guide-index-planets { color: #b48cf2; }
+.guide-index a:hover, .guide-index a:focus-visible { color: var(--lime); }
 .guide-header a { color: var(--muted); font-size: 12px; }
 .guide-header h1 { margin: 12px 0 6px; font-size: 28px; }
 .guide-page section { margin-top: 32px; }
-.guide-page h2 { margin: 0 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--line); font-size: 20px; }
+.guide-page h2 { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--line); font-size: 20px; }
 .guide-page h3 { margin: 16px 0 4px; font-size: 18px; }
 .guide-page section > ul { margin: 8px 0; padding-left: 20px; list-style: disc; }
 .guide-page code { color: var(--muted); font-size: 12px; }
