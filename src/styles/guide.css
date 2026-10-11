@@ -31,6 +31,7 @@
 .guide-icon-crossed::before { content: ""; position: absolute; left: 4px; right: 4px; top: 50%; height: 2px; background: currentColor; transform: rotate(-45deg); }
 .guide-icon-empty { visibility: hidden; }
 .guide-examples { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin: 20px 0; }
+.guide-validation-examples { max-width: 560px; grid-template-columns: minmax(0, 1fr); }
 .guide-example { margin: 0; }
 .guide-example figcaption { margin-bottom: 6px; color: #d0d4d0; font-size: 13px; }
 .guide-examples .planet-mission-list { grid-template-columns: minmax(0, 1fr); }
