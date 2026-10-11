@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { Settings2, LayoutList, LogOut, UserRound } from "lucide-react";
 import type { AllianceMember, AllianceSettings } from "@/lib/access-store";
 import { useLocale } from "@/components/providers/locale-provider";
@@ -16,6 +17,7 @@ export function Header({ currentMember, settings, sectionTitle = "Missions", onA
   onProfileSaved?: (profile: Partial<AllianceMember>) => void;
 }>) {
   const { t } = useLocale();
+  const router = useRouter();
   const [savingView, setSavingView] = useState(false);
   useEffect(() => {
     document.title = settings.name.trim() || "NMS Alliance Manager";
@@ -33,6 +35,7 @@ export function Header({ currentMember, settings, sectionTitle = "Missions", onA
   }, [settings.logoUrl, settings.name]);
 
   async function toggleSimpleView() {
+    const enablingSimpleView = !currentMember.simpleView;
     setSavingView(true);
     try {
       const response = await fetch("/api/profile", {
@@ -45,10 +48,15 @@ export function Header({ currentMember, settings, sectionTitle = "Missions", onA
           discordName: currentMember.discordName ?? "",
           platforms: currentMember.platforms,
           specialty: currentMember.specialty,
-          simpleView: !currentMember.simpleView,
+          simpleView: enablingSimpleView,
         }),
       });
       if (response.ok) {
+        const extendedViewOnlyRoutes = ["/users", "/offline-players"];
+        if (enablingSimpleView && extendedViewOnlyRoutes.some((route) => window.location.pathname === route || window.location.pathname.startsWith(`${route}/`))) {
+          router.replace("/stations");
+          return;
+        }
         window.location.reload();
         return;
       }

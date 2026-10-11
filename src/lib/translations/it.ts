@@ -672,6 +672,10 @@ export const translations: TranslationCatalog = {
     "system.system_data_unavailable": "Dati di sistema non disponibili",
   },
   errors: {
+    "errors.signal_lost": "Segnale perso",
+    "errors.page_not_found": "Coordinate fuori rotta",
+    "errors.page_not_found_description": "La pagina che stai cercando non esiste oppure non è più disponibile. Ricalibra il navigatore e torna nello spazio conosciuto.",
+    "errors.return_to_first_page": "Torna alle stazioni",
     "errors.another_planet_from_system_already_registered": "È già registrato un altro pianeta dello stesso sistema in questa galassia.",
     "errors.data_error": "Errore dati",
     "errors.upload_failed": "Caricamento non riuscito.",

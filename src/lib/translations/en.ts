@@ -672,6 +672,10 @@ export const translations: TranslationCatalog = {
     "system.system_data_unavailable": "System data unavailable",
   },
   errors: {
+    "errors.signal_lost": "Signal lost",
+    "errors.page_not_found": "Coordinates off course",
+    "errors.page_not_found_description": "The page you are looking for does not exist or is no longer available. Recalibrate the navigator and return to known space.",
+    "errors.return_to_first_page": "Return to stations",
     "errors.another_planet_from_system_already_registered": "Another planet from this system is already registered in this galaxy.",
     "errors.data_error": "Data error",
     "errors.upload_failed": "Upload failed.",
