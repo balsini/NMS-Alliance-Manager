@@ -3,7 +3,7 @@
 .guide-header h1 { margin: 12px 0 6px; font-size: 28px; }
 .guide-page section { margin-top: 32px; }
 .guide-page h2 { margin: 0 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--line); font-size: 20px; }
-.guide-page h3 { margin: 16px 0 4px; font-size: 15px; }
+.guide-page h3 { margin: 16px 0 4px; font-size: 18px; }
 .guide-page section > ul { margin: 8px 0; padding-left: 20px; list-style: disc; }
 .guide-page code { color: var(--muted); font-size: 12px; }
 .guide-table-wrap { overflow-x: auto; }
@@ -33,3 +33,5 @@
 }
 .guide-form-example { max-width: 560px; margin: 16px 0; }
 .guide-form-example .station-dialog { margin: 0; max-height: none; }
+.guide-tabs-example { margin: 12px 0; overflow-x: auto; }
+.guide-tabs-example { margin: 12px 0; overflow-x: auto; }

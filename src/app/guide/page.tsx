@@ -5,6 +5,7 @@ import { readAccessData } from "@/lib/access-store";
 import { ArrowLeft, CirclePlus, Compass, Crosshair, Eclipse, FileText, Hammer, Info, LogOut, Mail, MailCheck, Orbit, Pencil, Reply, RotateCcw, Search, Siren, Trash2, Trophy, UserRound, X, type LucideIcon } from "lucide-react";
 import { ExplorerBuilderStationExamples, RangerStationExamples } from "./station-examples";
 import { BuilderMissionExamples, ExplorerMissionExamples, RangerMissionExamples } from "./mission-examples";
+import { StationTabsExample } from "./station-tabs-example";
 import { AddressValidationExample } from "./address-validation-example";
 import { StationFormExample } from "./station-form-example";
 import { guideStationInit } from "./station-init";
@@ -152,6 +153,17 @@ export default async function GuideRoute() {
       <p>Mentre inserisci i glifi, il messaggio sotto il portale ti guida passo per passo.</p>
       <AddressValidationExample sample={sample} />
       <p>«{translate("it", "common.add")}» resta disattivo finché l&apos;indirizzo non è valido e il controllo su Server Pianeti non è concluso.</p>
+      <h3>La lista delle stazioni</h3>
+      <p>In cima alla pagina Stazioni, i tab filtrano la lista; il numero accanto a ogni tab indica quante stazioni contiene. I tab senza stazioni non compaiono.</p>
+      <StationTabsExample />
+      <ul>
+        <li><strong>{translate("it", "stations.filter_all")}</strong>: tutte le stazioni dell&apos;alleanza.</li>
+        <li><strong>{translate("it", "stations.my_stations")}</strong>: le stazioni di cui sei scopritore.</li>
+        <li><strong>{translate("it", "common.pending_status_label")}</strong>: stazioni senza nessuna missione collegata.</li>
+        <li><strong>{translate("it", "stations.filter_in_mission")}</strong>: stazioni con almeno una missione collegata non ancora completata.</li>
+        <li><strong>{translate("it", "stations.filter_my_missions")}</strong>: stazioni con una missione assegnata a te.</li>
+        <li><strong>{translate("it", "stations.filter_mission_completed")}</strong>: stazioni con missioni collegate, tutte completate.</li>
+      </ul>
       <h3 style={{ color: "#5fd68a" }}>Ranger</h3>
       <ul>
         <li>Vede tutte le stazioni e filtra per Tutte, Le mie stazioni, In attesa, In missione, Le mie missioni (solo se ne ha) e Missione completata; cerca per portale, proprietario, galassia o note.</li>
