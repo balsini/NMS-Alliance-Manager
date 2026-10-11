@@ -67,7 +67,7 @@ Le voci spuntate fanno salire la percentuale fino a un massimo dell'80%. Il 100%
 Scopre i sistemi e registra le **stazioni**.
 
 **Stazioni**
-- Vede tutte le stazioni dell'alleanza e può filtrare per "Tutte", "Mie stazioni", "In attesa", "In missione", "Mie missioni" (solo se hai missioni assegnate su quella stazione) e "Missione completata", oltre a cercare per portale, proprietario, galassia o note.
+- Vede tutte le stazioni dell'alleanza e può filtrare per "Tutte", "Mie stazioni", "In attesa", "In missione", "Le mie missioni" (solo se hai missioni assegnate su quella stazione) e "Missione completata", oltre a cercare per portale, proprietario, galassia o note.
 - Registra una nuova stazione con "Aggiungi stazione": indirizzo portale, galassia, nome (max 80 caratteri) e note (max 1000). Può registrare solo per sé.
 - Sulle **proprie** stazioni può:
   - spuntare le voci Ranger (Stazione riscattata, Sistema rinominato);
