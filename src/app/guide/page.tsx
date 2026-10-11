@@ -300,7 +300,7 @@ export default async function GuideRoute() {
     <section id="pianeti">
       <h2 style={{ color: "#b48cf2" }}><Eclipse aria-hidden="true" size={20} />Pianeti</h2>
       <h3 id="pianeti-funzionamento">Come funziona un pianeta</h3>
-      <p>Ogni pianeta è legato a un sistema stellare e, se esiste, a una stazione associata. La sezione raccoglie i dati di Almanac e li presenta in una lista facile da filtrare.</p>
+      <p>Ogni pianeta è legato a un sistema stellare e, se esiste, a una stazione associata. La sezione raccoglie i dati di Server Pianeti e li presenta in una lista facile da filtrare.</p>
       <ul>
         <li>La scheda del pianeta mostra il nome del pianeta, il numero, il sistema, la galassia, la stazione collegata e i dati di ambiente (razza, clima, acqua, sentinelle, conflitto, ecc.).</li>
         <li>Se il pianeta è collegato a una stazione, puoi aprire la stazione direttamente oppure raggiungere la scheda del pianeta per leggere le note condivise o lanciare un&apos;aiuto.</li>
@@ -308,7 +308,7 @@ export default async function GuideRoute() {
       </ul>
       <h3 id="pianeti-lista">La lista dei pianeti</h3>
       <h4 id="pianeti-ricerca-filtri" style={{ color: "var(--lime)" }}>Ricerca e filtri</h4>
-      <p>La barra di ricerca trova i pianeti usando i dati indicizzati da Almanac, il nome Almanac e l&apos;indirizzo portale. Per mostrare i filtri, clicca il pulsante con l&apos;icona a cursori a destra della ricerca; cliccalo di nuovo per richiuderli.</p>
+      <p>La barra di ricerca trova i pianeti usando i dati indicizzati da Server Pianeti, il nome del pianeta e l&apos;indirizzo portale. Per mostrare i filtri, clicca il pulsante con l&apos;icona a cursori a destra della ricerca; cliccalo di nuovo per richiuderli.</p>
       <PlanetFiltersExample />
       <p>I filtri restringono ulteriormente i risultati. Le opzioni nei menu dipendono dai dati presenti nell&apos;archivio.</p>
       <h5>Esempio con i filtri aperti</h5>
@@ -330,7 +330,7 @@ export default async function GuideRoute() {
       <PlanetStationHeadingExample planet={planetExample} />
       
      <h4 id="pianeti-lista-pianeti" style={{ color: "var(--lime)" }}>I pianeti</h4>
-      <p>Ogni scheda mostra il nome Almanac o il numero del pianeta, l&apos;indirizzo portale con i glifi e i dati Almanac disponibili. Selezionando la scheda si apre il dettaglio del pianeta.</p>
+      <p>Ogni scheda mostra il nome restituito da Server Pianeti o il numero del pianeta, l&apos;indirizzo portale con i glifi e i dati disponibili. Selezionando la scheda si apre il dettaglio del pianeta.</p>
       <PlanetListExample planet={planetExample} />
     </section>
 
