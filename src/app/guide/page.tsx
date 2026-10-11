@@ -140,6 +140,14 @@ export default async function GuideRoute() {
 
     <section id="stazioni">
       <h2 style={{ color: "#6cb4ff" }}>Stazioni</h2>
+      <h3>Come funziona una stazione</h3>
+      <p>Una stazione è un sistema stellare dell&apos;alleanza, identificato da un indirizzo portale e da una galassia. Da una stazione possono partire le missioni.</p>
+      <ul>
+        <li>Chi la inserisce ne è lo <strong>scopritore</strong>: solo lui può modificarne nome e note, spuntare le voci Ranger ed eliminarla (solo se non ha missioni collegate).</li>
+        <li>La scheda mostra il pianeta con i dati di Server Pianeti (se il pianeta è registrato), il nome, la galassia, lo scopritore e le note.</li>
+        <li>Lo stato del sistema è un elenco di voci da spuntare, una per specializzazione: Ranger, Esploratori e Costruttori.</li>
+        <li>Le missioni collegate alla stazione ne determinano lo stato: In attesa, In missione o Missione completata.</li>
+      </ul>
       <h3>Creare una stazione</h3>
       <ul>
         <li>Usa «{translate("it", "stations.add_station")}» nella pagina Stazioni.</li>
@@ -189,8 +197,8 @@ export default async function GuideRoute() {
     <section id="missioni">
       <h2 style={{ color: "#72d1c4" }}>Missioni</h2>
       <h3>Come funziona una missione</h3>
-      <p>Una missione riguarda un sistema (portale a 12 glifi o codice a 8 glifi) e una galassia. Stati: <strong>In attesa → In corso → Completata</strong>.</p>
-      <p>Le voci spuntate fanno salire l&apos;avanzamento fino all&apos;80%; oltre, fino al 100%, lo porti tu a piacere con il cursore, ma non è necessario. «{translate("it", "missions.complete_mission")}» si attiva quando le tue voci sono tutte spuntate e completa la missione anche senza arrivare al 100%.</p>
+      <p>Una missione parte da una stazione. Stati: <strong>In attesa → In corso → Completata</strong>.</p>
+      <p>Le voci spuntate fanno salire l&apos;avanzamento fino all&apos;80%; oltre, fino al 100%, lo porti tu a piacere con il cursore, ma non è necessario. «{translate("it", "missions.complete_mission")}» si attiva quando le tue voci sono tutte spuntate e puoi completare la missione anche senza arrivare al 100%.</p>
       <p>Ogni membro vede le missioni per la propria specializzazione (Ranger, Esploratori o Costruttori) che sono libere o prese in carico da lui.</p>
       <ul>
         <li>«{translate("it", "missions.claim")}» su una missione libera: diventa «In corso» e visibile sul tab «Le mie missioni».</li>
