@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { CirclePlus, Compass, Crosshair, Eclipse, FileText, Hammer, Info, LogOut, Mail, MailCheck, Orbit, Pencil, Reply, RotateCcw, Search, Siren, Trash2, Trophy, UserRound, X, type LucideIcon } from "lucide-react";
+import { Hero } from "@/components/layout/hero";
+import { readAccessData } from "@/lib/access-store";
+import { ArrowLeft, CirclePlus, Compass, Crosshair, Eclipse, FileText, Hammer, Info, LogOut, Mail, MailCheck, Orbit, Pencil, Reply, RotateCcw, Search, Siren, Trash2, Trophy, UserRound, X, type LucideIcon } from "lucide-react";
 import { ExplorerBuilderStationExamples, RangerStationExamples } from "./station-examples";
 import { readRandomAlmanacPlanet } from "@/lib/almanac-store";
 
@@ -49,20 +51,20 @@ const sections = [
   { name: "Stazioni", icon: Orbit, color: "#6cb4ff", tasks: "Consulti o aggiungi stazioni spaziali, crei le missioni per quel sistema" },
   { name: "Missioni", icon: Crosshair, color: "#72d1c4", tasks: "Consulti le missioni disponibili per te, prendi in carico quelle libere o inizi quelle assegnate, spunta le tue voci e completa la missione" },
   { name: "Pianeti", icon: Eclipse, color: "#b48cf2", tasks: "Consulti e filtri per proprietà i pianeti dell'archivio e trovi la stazione associata" },
-  { name: "Classifica", icon: Trophy, color: "#e040c8", tasks: "Vedi la posizione dei membri e i totali dell'alleanza. Sola lettura." },
-  { name: "Richieste d'aiuto", icon: Siren, color: "#f5c518", tasks: "Consulti le richieste di tutti e rispondi. Le richieste si inviano dalla scheda di un pianeta." },
-  { name: "Messaggi", icon: Mail, color: "#8f9bff", tasks: "Leggi e rispondi ai messaggi privati, segnali come letti o li elimini. Si scrivono dal profilo di un membro, su una stazione o una missione." },
+  { name: "Classifica", icon: Trophy, color: "#e040c8", tasks: "Vedi la posizione dei membri e i totali dell'alleanza." },
+  { name: "Richieste d'aiuto", icon: Siren, color: "#f5c518", tasks: "Consulti le richieste di tutti e rispondi. Le richieste si inviano dalla scheda di un pianeta" },
+  { name: "Messaggi", icon: Mail, color: "#8f9bff", tasks: "Leggi e rispondi ai messaggi privati, segnali come letti o li elimini. Si scrivono dal profilo di un membro, su una stazione o una missione" },
 ];
 
 export default async function GuideRoute() {
+  const { alliance } = await readAccessData();
   const sample = await readRandomAlmanacPlanet();
 
-  return <main className="guide-page">
-    <header className="guide-header">
-      <Link href="/">← Torna all&apos;app</Link>
-      <h1>Guida – Vista semplice</h1>
-      <p>In vista semplice tutti hanno gli stessi permessi, anche moderatori e admin: cambia solo la specializzazione scelta nel profilo.</p>
-    </header>
+  return <>
+    <Hero settings={alliance} subtitle="Cosa puoi fare, pagina per pagina" title="Guida">
+      <Link className="banner-add" href="/"><ArrowLeft size={17} /> <span className="banner-add-label">Torna all&apos;app</span></Link>
+    </Hero>
+    <main className="guide-page">
 
 
     <section id="sezioni">
@@ -178,5 +180,6 @@ export default async function GuideRoute() {
       <h3>Richieste d&apos;aiuto</h3><p>Elenco delle richieste di tutti con le risposte. Si inviano dalla scheda di un pianeta (max 2000 caratteri, con conferma). Tutti possono rispondere; elimini solo le tue.</p>
       <h3>Messaggi</h3><p>Si scrive dal profilo di un membro approvato e non offline, solo su un pianeta o una missione (per il resto Telegram o Discord). Puoi rispondere, segnare come letto ed eliminare i messaggi di cui sei mittente o destinatario.</p>
     </section>
-  </main>;
+  </main>
+  </>;
 }
