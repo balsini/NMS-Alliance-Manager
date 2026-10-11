@@ -198,7 +198,6 @@ export default async function GuideRoute() {
           <li>Accedi con Google. L&apos;account resta <strong>in attesa</strong> finché un moderatore o un admin non lo approva; nel frattempo puoi solo completare il profilo.</li>
           <li>Profilo: nome in gioco, codice amico NMS (13 caratteri alfanumerici, i trattini sono ignorati), una o più piattaforme, specializzazione, contatti Telegram/Discord opzionali.</li>
           <li>Senza profilo completo non puoi prendere missioni né ricevere assegnazioni.</li>
-          <li>Non disponibili in vista semplice: Utenti, Giocatori offline, Pianeti, gestione completa delle missioni, export Excel, impostazioni dell&apos;alleanza.</li>
         </ul>
       </section>
 
@@ -209,8 +208,8 @@ export default async function GuideRoute() {
       <p>Una stazione è un sistema stellare dell&apos;alleanza, identificato da un indirizzo portale e da una galassia. Da una stazione possono partire le missioni.</p>
       <ul>
         <li>Chi la inserisce ne è lo <strong>scopritore</strong>: solo lui può modificarne nome e note, spuntare le voci Ranger ed eliminarla (solo se non ha missioni collegate).</li>
-        <li>La scheda mostra il pianeta con i dati di Server Pianeti (se il pianeta è registrato), il nome, la galassia, lo scopritore e le note.</li>
-        <li>Lo stato del sistema è un elenco di voci da spuntare, una per specializzazione: Ranger, Esploratori e Costruttori.</li>
+        <li>La scheda mostra il pianeta con i dati di Server Pianeti (se il pianeta è presente nel server), il nome, la galassia, lo scopritore e le note.</li>
+        <li>La scheda stazione ha due voci da spuntare: Stazione riscattata e Sistema rinominato.</li>
         <li>Le missioni collegate alla stazione ne determinano lo stato: In attesa, In missione o Missione completata.</li>
       </ul>
       <h3 id="stazioni-creazione">Creare una stazione</h3>
