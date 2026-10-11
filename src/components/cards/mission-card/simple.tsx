@@ -11,7 +11,7 @@ import { MissionSystemProgress } from "@/components/shared/mission-system-progre
 import { isMissionAssignee, targetSpecialtyNames, MissionRowAction, MissionStationLink, AssigneeCell, DiscovererCell, MissionProgress, MissionNotesButton, PlanetNotesButton, MissionPlanetThumbnail, NewMissionRibbon } from "@/components/cards/mission-card/parts";
 import type { MissionCardProps } from "@/components/cards/mission-card/parts";
 
-export function MissionCardSimple({ onReopen, onStart, mission, systemStatuses, currentMember, canManage, stationOwners, stationOwnersLoaded, requestedSpecialty, onCreateRangerMission, members, onEdit, onDeleteMission, onOpenPlanet, onClaim, onComplete, onToggleSystemStatus, onUpdateProgress, onViewNotes, onViewPlanetNotes, onOpenProfile, getDiscovererImage }: MissionCardProps) {
+export function MissionCardSimple({ onReopen, onStart, mission, systemStatuses, currentMember, canManage, stationOwners, stationOwnersLoaded, requestedSpecialty, onCreateRangerMission, members, onEdit, onDeleteMission, onOpenPlanet, onClaim, onComplete, onToggleSystemStatus, onUpdateProgress, onViewNotes, onViewPlanetNotes, onOpenProfile, getDiscovererImage, planetImageUrl }: MissionCardProps) {
   const { t } = useLocale();
   const statuses = systemStatuses[planetSystemStatusKey(mission.systemAddress, mission.galaxy)] ?? [];
   const locked = (mission.status === "completed" && (currentMember.simpleView === true || !canManage));
@@ -22,7 +22,7 @@ export function MissionCardSimple({ onReopen, onStart, mission, systemStatuses, 
     <NewMissionRibbon mission={mission} />
     <div className="mission-card-heading">
       <div className="mission-name-cell">
-        <MissionPlanetThumbnail mission={mission} />
+        <MissionPlanetThumbnail imageUrl={planetImageUrl} mission={mission} />
         <div>
           <span className={`mission-galaxy${(mission.galaxy ?? 0) !== 0 ? " mission-galaxy-alert" : ""}`} data-tooltip={(mission.galaxy ?? 0) !== 0 ? t("missions.galaxy_portals_warning") : undefined} tabIndex={(mission.galaxy ?? 0) !== 0 ? 0 : undefined}>{(mission.galaxy ?? 0) !== 0 && <AlertTriangle size={9} />}{galaxyLabel(mission.galaxy ?? 0)}</span>
           <div className="mission-title-with-info">

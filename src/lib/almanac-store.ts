@@ -65,15 +65,6 @@ export async function readAlmanacResponse(portalCode: string, galaxy: number): P
   return index[portalCode.toUpperCase()]?.[String(galaxy)] ?? null;
 }
 
-export async function readRandomAlmanacPlanet(): Promise<Readonly<{ portal: string; galaxy: number; response: AlmanacResponse }> | null> {
-  const index = await readAlmanacIndex();
-  const entries = Object.entries(index).flatMap(([portal, galaxies]) => Object.entries(galaxies).flatMap(([galaxy, response]) => {
-    const galaxyIndex = Number(galaxy);
-    return galaxyIndex >= 0 && galaxyIndex <= 255 ? [{ portal, galaxy: galaxyIndex, response }] : [];
-  }));
-  return entries.length > 0 ? entries[Math.floor(Math.random() * entries.length)] : null;
-}
-
 export async function readAlmanacResponses(portalCodes: string[]): Promise<Record<string, CachedAlmanacPlanet[]>> {
   const index = await readAlmanacIndex();
   return Object.fromEntries(portalCodes.map((portalCode) => {

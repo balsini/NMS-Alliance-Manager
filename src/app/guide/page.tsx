@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { Hero } from "@/components/layout/hero";
+import { translate } from "@/lib/translations";
 import { readAccessData } from "@/lib/access-store";
 import { ArrowLeft, CirclePlus, Compass, Crosshair, Eclipse, FileText, Hammer, Info, LogOut, Mail, MailCheck, Orbit, Pencil, Reply, RotateCcw, Search, Siren, Trash2, Trophy, UserRound, X, type LucideIcon } from "lucide-react";
 import { ExplorerBuilderStationExamples, RangerStationExamples } from "./station-examples";
-import { readRandomAlmanacPlanet } from "@/lib/almanac-store";
+import { BuilderMissionExamples, ExplorerMissionExamples, RangerMissionExamples } from "./mission-examples";
+import { guideStationInit } from "./station-init";
 
 export const dynamic = "force-dynamic";
 
@@ -58,7 +60,7 @@ const sections = [
 
 export default async function GuideRoute() {
   const { alliance } = await readAccessData();
-  const sample = await readRandomAlmanacPlanet();
+  const sample = guideStationInit;
 
   return <div className="guide-root">
     <Hero settings={alliance} subtitle="Cosa puoi fare, pagina per pagina" title="Guida">
@@ -138,9 +140,16 @@ export default async function GuideRoute() {
       <p>Le voci spuntate fanno salire l&apos;avanzamento fino all&apos;80%; il 100% si raggiunge con «Completa missione», attivo solo quando le tue voci sono tutte spuntate.</p>
     </section>
 
-    <section id="ranger">
-      <h2 style={{ color: "#5fd68a" }}>Ranger</h2>
-      <h3>Stazioni</h3>
+    <section id="stazioni">
+      <h2 style={{ color: "#6cb4ff" }}>Stazioni</h2>
+      <h3>Creare una stazione</h3>
+      <ul>
+        <li>Usa «{translate("it", "stations.add_station")}» nella pagina Stazioni.</li>
+        <li>Indica indirizzo portale, galassia, nome (max 80 caratteri) e note (max 1000).</li>
+        <li>La stazione è tua: ne sei il proprietario. Solo i moderatori possono inserirne una per un altro membro, ad esempio un utente offline, indicandolo come proprietario.</li>
+        <li>Non puoi inserire due volte lo stesso portale per lo stesso proprietario, né un altro pianeta dello stesso sistema.</li>
+      </ul>
+      <h3 style={{ color: "#5fd68a" }}>Ranger</h3>
       <ul>
         <li>Vede tutte le stazioni e filtra per Tutte, Le mie stazioni, In attesa, In missione, Le mie missioni (solo se ne ha) e Missione completata; cerca per portale, proprietario, galassia o note.</li>
         <li>«Aggiungi stazione»: indirizzo portale, galassia, nome (max 80 caratteri), note (max 1000). Solo per sé.</li>
@@ -149,13 +158,7 @@ export default async function GuideRoute() {
       <h4>Esempi di card</h4>
       <p>I pulsanti che un Ranger può trovare sulla card di una stazione, in base a chi la possiede e alle missioni collegate.</p>
       {sample && <RangerStationExamples sample={sample} />}
-      <h3>Missioni</h3>
-      <p>Vede quelle per «Tutti» o per i Ranger, può iniziare quelle assegnate a sé e spuntare le proprie voci.</p>
-    </section>
-
-    <section id="esploratore-costruttore">
-      <h2><span style={{ color: "#4d9bff" }}>Esploratore</span> e <span style={{ color: "#ffb45d" }}>Costruttore</span></h2>
-      <h3>Stazioni</h3>
+      <h3><span style={{ color: "#4d9bff" }}>Esploratori</span> e <span style={{ color: "#ffb45d" }}>Costruttori</span></h3>
       <ul>
         <li>Vedono tutte le stazioni; possono modificare ed eliminare (se senza missioni) solo quelle di cui sono proprietari, non quelle di altri.</li>
         <li>Creano una missione per la <strong>propria specializzazione</strong> da una stazione: viene assegnata a loro. Non è possibile se la specializzazione è già coperta o se esiste già un altro pianeta dello stesso sistema.</li>
@@ -164,11 +167,30 @@ export default async function GuideRoute() {
       <h4>Esempi di card</h4>
       <p>I pulsanti che un Esploratore o un Costruttore può trovare sulla card di una stazione.</p>
       {sample && <ExplorerBuilderStationExamples sample={sample} />}
-      <h3>Missioni</h3>
+    </section>
+
+    <section id="missioni">
+      <h2 style={{ color: "#72d1c4" }}>Missioni</h2>
+      <p>Ogni membro vede le missioni per la propria specializzazione (Ranger, Esploratori o Costruttori) che sono libere o prese in carico da lui.</p>
       <ul>
-        <li>Vedono le missioni per «Tutti», per la propria specializzazione o «Esploratore + Costruttore». Se una missione ha un assegnatario, la vede solo lui.</li>
-        <li>«Prendi» su una missione libera (diventa «In corso»); «Inizia» su una assegnata ma in attesa; poi spunta le voci e «Completa». Una missione completata si può riaprire.</li>
+        <li>«{translate("it", "missions.claim")}» su una missione libera: diventa «In corso» e visibile sul tab «Le mie missioni».</li>
+        <li>«{translate("it", "missions.start_mission")}» su una missione assegnata ma in attesa.</li>
+        <li>Spunta le tue voci e usa «{translate("it", "missions.complete_mission")}».</li>
+        <li>Una missione completata si può riaprire con «{translate("it", "missions.reopen_mission")}».</li>
       </ul>
+      <h3 style={{ color: "#4d9bff" }}>Esploratori</h3>
+      <h4>Esempi di card</h4>
+      <p>Le schede missione che un Esploratore può trovare, dalla presa in carico alla chiusura.</p>
+      <ExplorerMissionExamples sample={sample} />
+      <h3 style={{ color: "#ffb45d" }}>Costruttori</h3>
+      <h4>Esempi di card</h4>
+      <p>Le schede missione che un Costruttore può trovare, dalla presa in carico alla chiusura.</p>
+      <BuilderMissionExamples sample={sample} />
+      <h3 style={{ color: "#5fd68a" }}>Ranger</h3>
+      <p>Facoltativo: le voci Ranger (stazione riscattata, sistema rinominato) sono già disponibili allo scopritore del sistema sulla scheda stazione, quindi non serve una missione per spuntarle.</p>
+      <h4>Esempi di card</h4>
+      <p>Le schede missione che un Ranger può trovare, dalla presa in carico alla chiusura.</p>
+      <RangerMissionExamples sample={sample} />
     </section>
 
     <section id="pagine">

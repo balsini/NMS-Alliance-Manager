@@ -306,14 +306,15 @@ export function MemberAvatar({ image, label }: Readonly<{ image?: string; label:
   </span>;
 }
 
-export function MissionPlanetThumbnail({ mission }: Readonly<{ mission: Mission }>) {
-  const [imageUrl, setImageUrl] = useState("");
+export function MissionPlanetThumbnail({ mission, imageUrl: fixedImageUrl }: Readonly<{ mission: Mission; imageUrl?: string }>) {
+  const [fetchedImageUrl, setImageUrl] = useState("");
+  const imageUrl = fixedImageUrl ?? fetchedImageUrl;
   const [imageFailed, setImageFailed] = useState(false);
   const address = mission.systemAddress ?? "";
   const validPortalAddress = /^[0-9a-f]{12}$/i.test(address);
 
   useEffect(() => {
-    if (!validPortalAddress || !Number.isInteger(mission.galaxy) || mission.galaxy < 0 || mission.galaxy > 255) return;
+    if (fixedImageUrl !== undefined || !validPortalAddress || !Number.isInteger(mission.galaxy) || mission.galaxy < 0 || mission.galaxy > 255) return;
     const controller = new AbortController();
     const params = new URLSearchParams({ address, galaxy: String(mission.galaxy) });
 
@@ -336,7 +337,7 @@ export function MissionPlanetThumbnail({ mission }: Readonly<{ mission: Mission 
       });
 
     return () => controller.abort();
-  }, [address, mission.galaxy, validPortalAddress]);
+  }, [address, fixedImageUrl, mission.galaxy, validPortalAddress]);
 
   const completed = mission.status === "completed";
   if (imageUrl && !imageFailed) {
@@ -380,5 +381,6 @@ export type MissionCardProps = Readonly<{
   onViewPlanetNotes: (notes: PlanetNotes) => void;
   onOpenProfile: (memberId: string, context: MemberMessageContext) => void;
   getDiscovererImage: (memberId?: string) => string | undefined;
+  planetImageUrl?: string;
 }>;
 
