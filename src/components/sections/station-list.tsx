@@ -45,7 +45,7 @@ export function StationList({ stations, visibleStations, loading, member, canSee
   const { t } = useLocale();
   return (
           <section aria-label={t("stations.my_space_stations")} className="station-list-section">
-            <div className="toolbar members-toolbar station-toolbar">
+            <div className="toolbar members-toolbar station-toolbar sticky-list-controls">
                 <Tabs className="member-filter-tabs" items={[
                   { key: "all", label: t("stations.filter_all"), count: stationCounts.all, selected: activeStationTab === "all" && stationFilter === "all", onSelect: () => { onTabChange("all"); onFilterChange("all"); } },
                   ...(canChooseStationView ? [{ key: "mine", label: t("stations.my_stations"), count: ownStationCount, selected: activeStationTab === "mine", onSelect: () => onTabChange("mine") }] : []),

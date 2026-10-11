@@ -37,7 +37,8 @@
 .banner-add { height: 50px; margin-left: auto; align-self: flex-end; padding: 9px 16px; color: #fff; border: 2px solid #ff8400; background: transparent; font-size: 16px; font-weight: 400; letter-spacing: 2px; line-height: 14px; }
 .banner-add:hover { color: #fff; border-color: var(--lime); background-color: var(--lime); }
 .alliance-pulse { width: 8px; height: 8px; border-radius: 50%; background: #6b9c6c; box-shadow: 0 0 0 4px #6b9c6c22; }
-.toolbar { min-height: 47px; display: flex; align-items: stretch; justify-content: space-between; border-bottom: 1px solid #dfe4dc; }
+.toolbar { min-height: 47px; display: flex; align-items: stretch; justify-content: space-between; border-bottom: 1px solid #303a3d; background: #0a0f11; }
+.main-panel .sticky-list-controls { position: sticky; z-index: 11; top: 61px; align-self: start; border-bottom: 1px solid #303a3d; background: #0a0f11; box-shadow: 0 0 30px 0 rgba(0, 0, 0, 1); }
 .filter-tabs, .toolbar-actions { display: flex; align-items: center; }
 .filter-tabs { gap: 19px; }
 .filter-tab { height: 47px; position: relative; display: flex; align-items: center; gap: 7px; padding: 0; color: #858e87; border: 0; background: transparent; cursor: pointer; font-size: 10px; white-space: nowrap; }
@@ -259,6 +260,14 @@
 @media (max-width: 720px) {
   .sidebar-compact ~ .main-panel .filter-tab { font-size: 12px; }
 }
+
+  @media (max-width: 950px) {
+    .sidebar-compact ~ .main-panel .sticky-list-controls { top: 53px; }
+  }
+
+  @media (max-width: 720px) {
+    .main-panel .sticky-list-controls { top: 53px; }
+  }
 
 .sidebar-compact { overflow: visible; }
 @media (max-width: 950px) {

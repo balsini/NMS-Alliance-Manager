@@ -97,7 +97,6 @@
 .portal-decode-invalid { background: #1a2124; }
 .portal-decode-invalid .portal-decode-progress { background: #3b2928; }
 .portal-decode-invalid .portal-decode-progress > span { background: #ef8067; }
-.portal-errors { display: grid; gap: 3px; margin: 6px 0 0; padding-left: 15px; color: #ef8067; font-size: 9px; }
 .field-hint { margin: 0; color: #69766c; font-size: 9px; }
 .form-error { display: flex; align-items: center; gap: 7px; margin: 14px 0 0; color: #ef8067; font-size: 10px; }
 .action-spacer { flex: 1; }
@@ -202,7 +201,6 @@
 .mission-dialog .address-incomplete { color: #e4b478; }
 .mission-dialog .address-valid { color: #72d1c4; }
 .mission-dialog .address-invalid { color: #ef8067; }
-.mission-dialog .portal-errors { color: #ef8067; }
 .mission-dialog .badge--protected { color: #a4adae; border-color: #354044; background: #1a2124; }
 @media (max-width: 1080px) {
   .content-wrap { padding-right: 25px; padding-left: 25px; }

@@ -129,7 +129,6 @@ export function PortalValidation({ address, decoded, lookup, id = "portal-addres
         </span>
       </output>
       {address.length > 0 && <PortalBreakdown address={address} decoded={decoded} lookup={lookup} />}
-      {decoded && decoded.errors.length > 0 && <ul className="portal-errors">{decoded.errors.map((message) => <li key={message}>{t(message)}</li>)}</ul>}
     </div>
   );
 }

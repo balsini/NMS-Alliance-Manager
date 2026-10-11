@@ -283,6 +283,7 @@ export function MessagesPage({ currentMember, alliance, missionCount, stationCou
       <Header currentMember={member} onAdminOpen={() => setAdminOpen(true)} onProfileOpen={() => setProfileOpen(true)} onProfileSaved={(profile) => setMember((current) => ({ ...current, ...profile }))} sectionTitle="messages.messages" settings={settings} />
       <Hero settings={settings} subtitle={t("messages.page_description")} title="messages.messages" />
       <main className="content-wrap messages-page">
+        <div className="sticky-list-controls">
         <Tabs className="member-filter-tabs" items={(["received", "sent", ...(isAdmin ? ["all" as const] : [])] as MessageTab[]).filter((key) => key === tab || key === "received" || (key === "sent" ? sentMessages.length : messages.length) > 0).map((key) => ({
           key,
           label: t(`messages.tab_${key}`),
@@ -294,6 +295,7 @@ export function MessagesPage({ currentMember, alliance, missionCount, stationCou
             setExpandedMessageIds(new Set());
           },
         }))} label={t("messages.messages")} />
+        </div>
         <MessageList empty={messageTree.length === 0} emptyLabel={t("messages.no_messages")} error={error} loading={loading}>{messageTree.map(renderMessage)}</MessageList>
       </main>
     </section>

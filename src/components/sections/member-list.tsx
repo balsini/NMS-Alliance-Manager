@@ -41,7 +41,7 @@ export function MemberList({ members, counts, filter, onFilterChange, search, on
   else if (filter === "pending") emptyMessage = t("auth.there_are_no_requests_awaiting_approval");
   return (
       <section className="members-list-section">
-        <div className="toolbar members-toolbar">
+        <div className="toolbar members-toolbar sticky-list-controls">
           <Tabs className="member-filter-tabs" items={(["pending", "approved", "blocked", "all"] as MemberFilter[]).filter((status) => status === "all" || status === filter || counts[status] > 0).map((status) => ({ key: status, label: t(status === "all" ? "common.all" : statusLabels[status]), count: counts[status], selected: filter === status, onSelect: () => onFilterChange(status) }))} label={t("members.filter_users_by_status")} />
           <div className="toolbar-actions member-toolbar-actions">
             <label className="search-field member-search"><Search size={15} /><input aria-label={t("members.search_users")} onChange={(event) => onSearchChange(event.target.value)} placeholder={t("common.search_name_email_or_code")} value={search} /></label>

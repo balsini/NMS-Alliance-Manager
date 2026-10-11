@@ -127,7 +127,7 @@ export function MissionList({
 
   return (
     <section className="mission-section">
-      <div className="toolbar">
+      <div className="toolbar sticky-list-controls">
         <Tabs items={(["all", "in_progress", "pending_assigned", "pending_unassigned", "completed"] as MissionFilter[]).filter((item) => item === "all" || item === filter || counts[item] > 0).map((item) => ({ key: item, label: t(missionFilterLabels[item]), count: counts[item], selected: filter === item, onSelect: () => onFilterChange(item) }))} label={t("common.filter_by_status")} />
         <div className="toolbar-actions">
           {onScopeChange && <button aria-label={t(showAll ? "missions.showing_all" : "missions.showing_mine")} aria-pressed={showAll} className={showAll ? "member-icon-action scope-toggle selected" : "member-icon-action scope-toggle"} data-tooltip={t(showAll ? "missions.showing_all" : "missions.showing_mine")} onClick={() => onScopeChange(!showAll)} type="button">{showAll ? <Eye size={15} /> : <EyeOff size={15} />}</button>}
