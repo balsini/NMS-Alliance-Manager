@@ -254,7 +254,7 @@
 }
 
 @media (max-width: 720px) {
-  .sidebar-compact ~ .main-panel .toolbar-actions:not(.station-toolbar-actions):not(.member-toolbar-actions) > :not(.search-field) { display: none; }
+  .sidebar-compact ~ .main-panel .toolbar-actions:not(.station-toolbar-actions):not(.member-toolbar-actions):not(.mission-toolbar-actions) > :not(.search-field) { display: none; }
 }
 
 @media (max-width: 720px) {

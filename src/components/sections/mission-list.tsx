@@ -129,9 +129,9 @@ export function MissionList({
     <section className="mission-section">
       <div className="toolbar sticky-list-controls">
         <Tabs items={(["all", "in_progress", "pending_assigned", "pending_unassigned", "completed"] as MissionFilter[]).filter((item) => item === "all" || item === filter || counts[item] > 0).map((item) => ({ key: item, label: t(missionFilterLabels[item]), count: counts[item], selected: filter === item, onSelect: () => onFilterChange(item) }))} label={t("common.filter_by_status")} />
-        <div className="toolbar-actions">
+        <div className="toolbar-actions mission-toolbar-actions">
+          <label className="search-field"><Search size={15} /><input aria-label={t("planet.search_missions_planets_users_or_mission_type")} onChange={(event) => onSearchChange(event.target.value)} placeholder={t("members.search_missions_users_or_type")} ref={searchInput} value={search} /></label>
           {onScopeChange && <button aria-label={t(showAll ? "missions.showing_all" : "missions.showing_mine")} aria-pressed={showAll} className={showAll ? "member-icon-action scope-toggle selected" : "member-icon-action scope-toggle"} data-tooltip={t(showAll ? "missions.showing_all" : "missions.showing_mine")} onClick={() => onScopeChange(!showAll)} type="button">{showAll ? <Eye size={15} /> : <EyeOff size={15} />}</button>}
-          {<label className="search-field"><Search size={15} /><input aria-label={t("planet.search_missions_planets_users_or_mission_type")} onChange={(event) => onSearchChange(event.target.value)} placeholder={t("members.search_missions_users_or_type")} ref={searchInput} value={search} /></label>}
         </div>
       </div>
       <div className="mission-card-grid">
