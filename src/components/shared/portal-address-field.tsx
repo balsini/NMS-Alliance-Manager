@@ -80,7 +80,8 @@ function PortalBreakdown({ address, decoded, lookup }: Readonly<{
   );
 }
 
-function PortalValidation({ address, decoded, lookup }: Readonly<{
+export function PortalValidation({ address, decoded, lookup, id = "portal-address-validation" }: Readonly<{
+  id?: string;
   address: string;
   decoded: ReturnType<typeof decodePortalAddress>;
   lookup: SystemAddressLookup | null;
@@ -119,7 +120,7 @@ function PortalValidation({ address, decoded, lookup }: Readonly<{
   }
 
   return (
-    <div aria-live="polite" id="portal-address-validation">
+    <div aria-live="polite" id={id}>
       <output className={`address-validation ${statusClass}`}>
         {statusIcon}{statusText}
         {lookupLink && <a href="https://nmsalmanac.com" rel="noreferrer" target="_blank">NMS Almanac</a>}

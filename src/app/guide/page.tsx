@@ -5,6 +5,7 @@ import { readAccessData } from "@/lib/access-store";
 import { ArrowLeft, CirclePlus, Compass, Crosshair, Eclipse, FileText, Hammer, Info, LogOut, Mail, MailCheck, Orbit, Pencil, Reply, RotateCcw, Search, Siren, Trash2, Trophy, UserRound, X, type LucideIcon } from "lucide-react";
 import { ExplorerBuilderStationExamples, RangerStationExamples } from "./station-examples";
 import { BuilderMissionExamples, ExplorerMissionExamples, RangerMissionExamples } from "./mission-examples";
+import { AddressValidationExample } from "./address-validation-example";
 import { StationFormExample } from "./station-form-example";
 import { guideStationInit } from "./station-init";
 
@@ -147,6 +148,10 @@ export default async function GuideRoute() {
         <li>Non puoi inserire una stazione per un sistema già presente.</li>
       </ul>
       <StationFormExample sample={sample} />
+      <h4>Controlli sull&apos;indirizzo</h4>
+      <p>Mentre inserisci i glifi, il messaggio sotto il portale ti guida passo per passo.</p>
+      <AddressValidationExample sample={sample} />
+      <p>«{translate("it", "common.add")}» resta disattivo finché l&apos;indirizzo non è valido e il controllo su NMS Almanac non è concluso.</p>
       <h3 style={{ color: "#5fd68a" }}>Ranger</h3>
       <ul>
         <li>Vede tutte le stazioni e filtra per Tutte, Le mie stazioni, In attesa, In missione, Le mie missioni (solo se ne ha) e Missione completata; cerca per portale, proprietario, galassia o note.</li>

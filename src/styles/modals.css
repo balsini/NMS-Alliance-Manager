@@ -31,7 +31,7 @@
 .revoke-approval:hover { border-color: #ef8067; background: #3a2522; }
 .admin-feedback { display: flex; align-items: flex-start; gap: 6px; margin: 12px 0 0; font-size: 10px; line-height: 1.4; }
 .admin-success { color: #48744f; }
-.admin-error { color: #a64f3f; }
+.admin-error { color: #ef8067; }
 .profile-required-banner { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 0 0 14px; padding: 13px 15px; border: 1px solid #594126; border-left: 3px solid var(--lime); background: linear-gradient(110deg, #211b14 0%, #171e21 72%); box-shadow: 0 8px 22px #0003; }
 .profile-required-banner > span { display: grid; gap: 3px; }
 .profile-required-banner strong { color: #f3bd72; font-family: var(--font-accent); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }

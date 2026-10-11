@@ -48,7 +48,7 @@
 .planet-card-attribution { color: #879188; font-size: 9px; }
 .planet-card-attribution a { color: #46744e; text-decoration: underline; text-underline-offset: 2px; }
 .planet-card-message { margin: 0; color: #68756c; font-size: 11px; line-height: 1.5; }
-.planet-card-error { color: #a64f3f; }
+.planet-card-error { color: #ef8067; }
 .planet-search-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
 .planet-search-row .planet-search { flex: 1; }
 .planet-filters-toggle { width: 37px; height: 37px; position: relative; display: grid; flex: 0 0 37px; place-items: center; color: #a4adae; border: 1px solid #394548; border-radius: 3px; background: #171e21; cursor: pointer; }

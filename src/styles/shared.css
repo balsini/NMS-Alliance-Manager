@@ -80,24 +80,24 @@
 .glyph-keypad button:disabled { cursor: default; opacity: .45; }
 .glyph-keypad img { width: 24px; height: 24px; object-fit: contain; filter: brightness(0) saturate(100%) invert(1) opacity(.9); }
 .address-validation { min-height: 15px; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0; font-size: 9px; line-height: 1.4; }
-.address-incomplete { color: #955d37; }
-.address-valid { color: #46744e; }
-.address-invalid { color: #a64f3f; }
-.portal-decode { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); margin-top: 7px; overflow: hidden; border: 1px solid #dce3d9; }
-.portal-decode-segment { min-width: 0; padding: 7px 5px; border-right: 1px solid #dce3d9; }
+.address-incomplete { color: #e4b478; }
+.address-valid { color: #72d1c4; }
+.address-invalid { color: #ef8067; }
+.portal-decode { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); margin-top: 7px; overflow: hidden; border: 1px solid #354044; }
+.portal-decode-segment { min-width: 0; padding: 7px 5px; border-right: 1px solid #354044; }
 .portal-decode-segment:last-child { border-right: 0; }
-.portal-decode-progress { height: 6px; overflow: hidden; background: #f2e8be; }
-.portal-decode-progress > span { height: 100%; display: block; background: #d0a52a; transition: width .16s ease-out; }
-.portal-decode-incomplete { background: #fbf8ed; }
-.portal-decode-valid { background: #f1f7ef; }
-.portal-decode-valid .portal-decode-progress { background: #dcebd9; }
-.portal-decode-valid .portal-decode-progress > span { background: #4f8b56; }
-.portal-decode-invalid { background: #fbf1ef; }
-.portal-decode-invalid .portal-decode-progress { background: #efd6d2; }
-.portal-decode-invalid .portal-decode-progress > span { background: #bd514a; }
-.portal-errors { display: grid; gap: 3px; margin: 6px 0 0; padding-left: 15px; color: #9d5243; font-size: 9px; }
+.portal-decode-progress { height: 6px; overflow: hidden; background: #352719; }
+.portal-decode-progress > span { height: 100%; display: block; background: #e4b478; transition: width .16s ease-out; }
+.portal-decode-incomplete { background: #1a2124; }
+.portal-decode-valid { background: #1a2124; }
+.portal-decode-valid .portal-decode-progress { background: #23352c; }
+.portal-decode-valid .portal-decode-progress > span { background: #72d1c4; }
+.portal-decode-invalid { background: #1a2124; }
+.portal-decode-invalid .portal-decode-progress { background: #3b2928; }
+.portal-decode-invalid .portal-decode-progress > span { background: #ef8067; }
+.portal-errors { display: grid; gap: 3px; margin: 6px 0 0; padding-left: 15px; color: #ef8067; font-size: 9px; }
 .field-hint { margin: 0; color: #69766c; font-size: 9px; }
-.form-error { display: flex; align-items: center; gap: 7px; margin: 14px 0 0; color: #ae594c; font-size: 10px; }
+.form-error { display: flex; align-items: center; gap: 7px; margin: 14px 0 0; color: #ef8067; font-size: 10px; }
 .action-spacer { flex: 1; }
 .delete-button, .quiet-button { height: 34px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 0 10px; border: 1px solid #e0e5dd; background: transparent; cursor: pointer; font-size: 10px; }
 .delete-button { margin-right: auto; color: #ae6254; border-color: #efdcd6; }
