@@ -305,7 +305,7 @@ body:has(.sidebar-compact) .planet-notes-list li { font-size: 17px; }
   .main-panel.main-panel .planet-station-link { align-self: flex-start; }
 }
 
-.main-panel .planet-sticky-filters { position: sticky; top: 61px; z-index: 9; max-height: calc(100vh - 61px); margin-bottom: 12px; background: var(--paper); box-shadow: 0 0 30px 0 rgba(0, 0, 0, 1); }
+.main-panel .planet-sticky-filters { position: sticky; top: 61px; z-index: 9; max-height: calc(100vh - 61px); margin-bottom: 12px; border-bottom: 1px solid #303a3d; background: var(--paper); box-shadow: 0 0 30px 0 rgba(0, 0, 0, 1); }
 .main-panel .planet-sticky-filters > .planet-search-row { margin-bottom: 12px; padding-top: 10px; }
 @media (max-width: 720px) {
   .main-panel .planet-sticky-filters { top: 53px; max-height: calc(100vh - 53px); }
