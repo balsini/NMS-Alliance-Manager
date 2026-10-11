@@ -1,13 +1,21 @@
 "use client";
 
+import { useState } from "react";
 import {
   PlanetDestinationCard,
   type PlanetDestination,
 } from "@/components/cards/planet-destination-card";
+import { PlanetCard } from "@/components/modals/planet-card";
 
 export function PlanetListExampleView({
   planet,
-}: Readonly<{ planet: PlanetDestination }>) {
+  planetData,
+}: Readonly<{
+  planet: PlanetDestination;
+  planetData: Readonly<Record<string, unknown>>;
+}>) {
+  const [detailsOpen, setDetailsOpen] = useState(true);
+
   return (
     <div className="guide-example">
       <div className="guide-examples">
@@ -44,6 +52,24 @@ export function PlanetListExampleView({
           </div>
         </figure>
       </div>
+      <h5>Scheda pianeta</h5>
+      <p>La scheda di dettaglio che si apre selezionando un pianeta nella pagina Pianeti.</p>
+      {detailsOpen && (
+        <PlanetCard
+          galaxy={planet.galaxy}
+          initialPlanetPortal={planet.planetPortal}
+          initialPlanetData={planetData}
+          onClose={() => setDetailsOpen(false)}
+          inlinePreview
+          portal={planet.portal}
+          title={planet.station?.name ?? planet.title ?? "Pianeta"}
+        />
+      )}
+      {!detailsOpen && (
+        <button className="primary-button" onClick={() => setDetailsOpen(true)} type="button">
+          Mostra di nuovo la scheda pianeta
+        </button>
+      )}
     </div>
   );
 }

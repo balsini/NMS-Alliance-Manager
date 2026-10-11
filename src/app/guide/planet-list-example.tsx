@@ -85,5 +85,5 @@ export async function createPlanetListExamplePlanet(): Promise<PlanetDestination
 }
 
 export function PlanetListExample({ planet }: Readonly<{ planet: PlanetDestination }>) {
-  return <PlanetListExampleView planet={planet} />;
+  return <PlanetListExampleView planet={planet} planetData={guideStationInit.response} />;
 }

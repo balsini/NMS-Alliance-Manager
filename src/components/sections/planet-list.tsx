@@ -28,7 +28,7 @@ export function PlanetStationHeading({ station, planets, renderedAt }: Readonly<
       </div>
       {station && <Link
         aria-label={t("planet.open_station_in_stations", { station: station.name || station.portal })}
-        className="member-icon-action planet-station-link"
+        className="member-icon-action member-station-filter planet-station-link"
         data-tooltip={t("planet.open_station_in_stations", { station: station.name || station.portal })}
         href={`/stations?search=${encodeURIComponent(station.portal)}`}
       ><Orbit aria-hidden="true" size={15} /></Link>}

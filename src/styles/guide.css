@@ -40,3 +40,5 @@
 .guide-page h4 { margin: 14px 0 4px; font-size: 16px; }
 .guide-page h5 { margin: 12px 0 4px; font-size: 14px; }
 .guide-page .planet-mission-card-copy code { color: var(--lime); font-size: 9px; }
+.guide-page .planet-backdrop-inline { position: static; z-index: auto; display: block; overflow: visible; padding: 0; background: transparent; backdrop-filter: none; }
+.guide-page .planet-backdrop-inline .planet-dialog { width: min(760px, 100%); max-height: none; margin: 0; animation: none; }

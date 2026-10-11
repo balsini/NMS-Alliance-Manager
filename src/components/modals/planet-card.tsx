@@ -5,7 +5,7 @@ import { GlyphStrip } from "@/components/shared/portal-address-field";
 import { galaxyLabel } from "@/lib/galaxies";
 import { useLocale } from "@/components/providers/locale-provider";
 
-type PlanetRecord = Record<string, unknown>;
+type PlanetRecord = Readonly<Record<string, unknown>>;
 type PlanetEntry = Readonly<{ portal: string; planet: PlanetRecord }>;
 
 const systemAttributes = [
@@ -123,19 +123,23 @@ function PlanetResources({ carries }: Readonly<{ carries: unknown[] }>) {
   );
 }
 
-export function PlanetCard({ portal, galaxy, title: cardTitle, contextLabel, missionDescription, initialPlanetPortal, onClose }: Readonly<{
+export function PlanetCard({ portal, galaxy, title: cardTitle, contextLabel, missionDescription, initialPlanetPortal, initialPlanetData, inlinePreview = false, onClose }: Readonly<{
   portal: string;
   galaxy: number;
   title: string;
   contextLabel?: string;
   missionDescription?: string;
   initialPlanetPortal?: string;
+  initialPlanetData?: PlanetRecord;
+  inlinePreview?: boolean;
   onClose: () => void;
 }>) {
   const { t } = useLocale();
-  const [planetEntries, setPlanetEntries] = useState<PlanetEntry[]>([]);
+  const [planetEntries, setPlanetEntries] = useState<PlanetEntry[]>(() =>
+    initialPlanetData ? [{ portal: initialPlanetPortal ?? portal, planet: initialPlanetData }] : [],
+  );
   const [selectedPortal, setSelectedPortal] = useState(initialPlanetPortal ?? portal);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!initialPlanetData);
   const [error, setError] = useState("");
   const [helpOpen, setHelpOpen] = useState(false);
   const [helpBody, setHelpBody] = useState("");
@@ -145,6 +149,8 @@ export function PlanetCard({ portal, galaxy, title: cardTitle, contextLabel, mis
   const [helpSent, setHelpSent] = useState(false);
 
   useEffect(() => {
+    if (initialPlanetData) return;
+
     const controller = new AbortController();
 
     async function loadSystemPlanets() {
@@ -204,7 +210,7 @@ export function PlanetCard({ portal, galaxy, title: cardTitle, contextLabel, mis
 
     void loadSystemPlanets();
     return () => controller.abort();
-  }, [galaxy, initialPlanetPortal, portal]);
+  }, [galaxy, initialPlanetData, initialPlanetPortal, portal]);
 
   async function sendHelpRequest(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -247,8 +253,8 @@ export function PlanetCard({ portal, galaxy, title: cardTitle, contextLabel, mis
   const carries = Array.isArray(planet?.carries) ? planet.carries : [];
 
   return (
-    <div className="dialog-backdrop planet-backdrop">
-      <dialog aria-labelledby="planet-card-title" aria-modal="true" className="mission-dialog planet-dialog" open>
+    <div className={`dialog-backdrop planet-backdrop${inlinePreview ? " planet-backdrop-inline" : ""}`}>
+      <dialog aria-labelledby="planet-card-title" aria-modal={inlinePreview ? undefined : true} className="mission-dialog planet-dialog" open>
         <div className="dialog-heading">
           <div>
             <span className="eyebrow">{t("planet.details_eyebrow")} <span>·</span> {galaxyLabel(galaxy).toUpperCase()}</span>
