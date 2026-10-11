@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
-import { GoogleLogin } from "@/components/pages/google-login";
+import { LoginScreen } from "@/components/pages/login-screen";
+import { getMissingAuthConfiguration } from "@/lib/local-auth";
 import { PlanetsPage } from "@/components/pages/planets-page";
 import { PendingApproval } from "@/components/pages/pending-approval";
 import { getCurrentMember, hasRole } from "@/lib/authorization";
@@ -72,17 +73,16 @@ async function fillEmptyMissionSystemLabels(results: Awaited<ReturnType<typeof l
 export default async function PlanetsRoute() {
   const accessData = await readAccessData();
   const { alliance } = accessData;
-  const missingConfiguration = ["AUTH_SECRET", "AUTH_GOOGLE_ID", "AUTH_GOOGLE_SECRET", "ALLIANCE_ADMIN_EMAIL"]
-    .filter((key) => !process.env[key]);
+  const missingConfiguration = getMissingAuthConfiguration();
   if (missingConfiguration.length > 0) {
-    return <GoogleLogin allianceLogoUrl={alliance.logoUrl} allianceName={alliance.name} missingConfiguration={missingConfiguration} />;
+    return <LoginScreen allianceLogoUrl={alliance.logoUrl} allianceName={alliance.name} missingConfiguration={missingConfiguration} />;
   }
 
   const session = await auth();
-  if (!session?.user?.email) return <GoogleLogin allianceLogoUrl={alliance.logoUrl} allianceName={alliance.name} />;
+  if (!session?.user?.email) return <LoginScreen allianceLogoUrl={alliance.logoUrl} allianceName={alliance.name} />;
 
   const member = await getCurrentMember({ allowPending: true, allowBlocked: true });
-  if (!member) return <GoogleLogin allianceLogoUrl={alliance.logoUrl} allianceName={alliance.name} />;
+  if (!member) return <LoginScreen allianceLogoUrl={alliance.logoUrl} allianceName={alliance.name} />;
   if (member.membershipStatus !== "approved") return <PendingApproval member={member} />;
 
   const canManage = hasRole(member, "moderator");

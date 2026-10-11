@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
-import { GoogleLogin } from "@/components/pages/google-login";
+import { LoginScreen } from "@/components/pages/login-screen";
+import { getMissingAuthConfiguration } from "@/lib/local-auth";
 import { HelpRequestsPage } from "@/components/pages/help-requests-page";
 import { PendingApproval } from "@/components/pages/pending-approval";
 import { getCurrentMember } from "@/lib/authorization";
@@ -13,17 +14,16 @@ export default async function HelpRequestsRoute() {
   const accessData = await readAccessData();
   const allianceName = accessData.alliance.name;
   const allianceLogoUrl = accessData.alliance.logoUrl;
-  const missingConfiguration = ["AUTH_SECRET", "AUTH_GOOGLE_ID", "AUTH_GOOGLE_SECRET", "ALLIANCE_ADMIN_EMAIL"]
-    .filter((key) => !process.env[key]);
+  const missingConfiguration = getMissingAuthConfiguration();
   if (missingConfiguration.length > 0) {
-    return <GoogleLogin allianceLogoUrl={allianceLogoUrl} allianceName={allianceName} missingConfiguration={missingConfiguration} />;
+    return <LoginScreen allianceLogoUrl={allianceLogoUrl} allianceName={allianceName} missingConfiguration={missingConfiguration} />;
   }
 
   const session = await auth();
-  if (!session?.user?.email) return <GoogleLogin allianceLogoUrl={allianceLogoUrl} allianceName={allianceName} />;
+  if (!session?.user?.email) return <LoginScreen allianceLogoUrl={allianceLogoUrl} allianceName={allianceName} />;
 
   const member = await getCurrentMember({ allowPending: true, allowBlocked: true });
-  if (!member) return <GoogleLogin allianceLogoUrl={allianceLogoUrl} allianceName={allianceName} />;
+  if (!member) return <LoginScreen allianceLogoUrl={allianceLogoUrl} allianceName={allianceName} />;
   if (member.membershipStatus !== "approved") return <PendingApproval member={member} />;
 
   const isModerator = member.role === "admin" || member.role === "moderator";

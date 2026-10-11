@@ -11,6 +11,8 @@
 .login-panel > p { margin: 0 0 24px; color: #b4bfbe; font-size: 12px; line-height: 1.6; }
 .google-login-button { width: 100%; height: 44px; display: flex; align-items: center; justify-content: center; gap: 10px; color: #0d1215; border: 0; border-radius: 3px; background: #f1eee7; cursor: pointer; font-size: 12px; font-weight: 700; }
 .google-login-button:hover { background: #fff; }
+.local-login { width: 100%; display: grid; gap: 8px; }
+.local-login-note { color: #f0dba1; font-size: 10px; text-transform: uppercase; letter-spacing: .1em; }
 .login-panel > small { margin-top: 16px; color: var(--muted); font-size: 9px; }
 .auth-setup-note { width: 100%; min-height: 40px; display: flex; align-items: center; gap: 8px; padding: 0 10px; color: #f0dba1; border: 1px solid #706548; background: #413c2c; font-size: 10px; }
 .auth-config-list { display: grid; gap: 5px; margin: 12px 0 0; padding-left: 18px; color: #c6d0c7; font-family: "SFMono-Regular", Consolas, monospace; font-size: 9px; }

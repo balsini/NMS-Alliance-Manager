@@ -617,6 +617,7 @@ export const translations: TranslationCatalog = {
     "planet.sky": "Cielo",
   },
   auth: {
+    "auth.local_development_accounts": "Account di sviluppo locale",
     "auth.access_blocked": "Accesso bloccato",
     "auth.account_blocked": "Account bloccato",
     "auth.request_pending": "Richiesta in attesa",

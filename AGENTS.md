@@ -13,7 +13,7 @@ npm run build   # Production build (also runs the TypeScript type check)
 
 There is no test suite. Verify changes with `npm run lint` and `npm run build`.
 
-Local auth needs `.env.local` (see `.env.example`): `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTH_URL=http://localhost:3000/api/auth`, `ALLIANCE_ADMIN_EMAIL`. If any of these is missing, pages render the Google login screen listing what's missing. The configured admin email is auto-approved.
+Local auth needs `.env.local` (see `.env.example`). The quick option is `LOCAL_AUTH=true`: the login screen then offers fixed development accounts (`src/lib/local-auth.ts`: admin, moderator, and one normal user per specialty), each pre-approved with a complete profile, no Google variables are needed, and storage is forced to `data/`. `isLocalAuthEnabled()` ignores the flag when `NODE_ENV=production` or `VERCEL` is set, so it never affects a build or deploy. For real Google login, set `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTH_URL=http://localhost:3000/api/auth`, `ALLIANCE_ADMIN_EMAIL`. If any of these is missing (and local mode is off), pages render the login screen listing what's missing; the list comes from `getMissingAuthConfiguration()`. The configured admin email is auto-approved.
 
 ## Architecture
 
@@ -29,7 +29,7 @@ There is no database. Each domain has a `*-store.ts` module in `src/lib/` (`stor
 
 ### Auth and authorization
 
-- `src/auth.ts` configures Auth.js. Server code calls `getCurrentMember()` (`src/lib/authorization.ts`), which also **registers the member on first login** (`registerMember`). It returns `null` for offline, blocked or pending members unless the caller passes `allowPending`/`allowBlocked`.
+- `src/auth.ts` configures Auth.js (Google, plus a `local` credentials provider when `LOCAL_AUTH` is active). Server code calls `getCurrentMember()` (`src/lib/authorization.ts`), which also **registers the member on first login** (`registerMember`). It returns `null` for offline, blocked or pending members unless the caller passes `allowPending`/`allowBlocked`.
 - Roles are `user < moderator < admin`, checked with `hasRole(member, "moderator")`. Membership status is `pending | approved | blocked`; operational endpoints require `approved`.
 - **Simple view:** when an admin or moderator enables `simpleView`, `getCurrentMember` downgrades `role` to `"user"` (the real role is kept in `displayRole`), so the server enforces user-level permissions too.
 - Every API route handler (`src/app/api/**/route.ts`) does its own session and role checks (`runtime = "nodejs"`, `dynamic = "force-dynamic"`). Mission creation has specialty-specific rules (Ranger/Explorer/Builder) in `src/app/api/missions/route.ts`.
