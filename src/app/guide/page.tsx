@@ -2,11 +2,6 @@ import Link from "next/link";
 import { CirclePlus, Compass, Crosshair, Eclipse, FileText, Hammer, Info, LogOut, MailCheck, Orbit, Pencil, Reply, RotateCcw, Search, Siren, Trash2, UserRound, X, type LucideIcon } from "lucide-react";
 import { ExplorerBuilderStationExamples, RangerStationExamples } from "./station-examples";
 import { readRandomAlmanacPlanet } from "@/lib/almanac-store";
-import { auth } from "@/auth";
-import { GoogleLogin } from "@/components/pages/google-login";
-import { PendingApproval } from "@/components/pages/pending-approval";
-import { readAccessData } from "@/lib/access-store";
-import { getCurrentMember } from "@/lib/authorization";
 
 export const dynamic = "force-dynamic";
 
@@ -50,15 +45,6 @@ const specialties = [
 ];
 
 export default async function GuideRoute() {
-  const accessData = await readAccessData();
-  const allianceName = accessData.alliance.name;
-  const allianceLogoUrl = accessData.alliance.logoUrl;
-  const session = await auth();
-  if (!session?.user?.email) return <GoogleLogin allianceLogoUrl={allianceLogoUrl} allianceName={allianceName} />;
-  const member = await getCurrentMember({ allowPending: true, allowBlocked: true });
-  if (!member) return <GoogleLogin allianceLogoUrl={allianceLogoUrl} allianceName={allianceName} />;
-  if (member.membershipStatus !== "approved") return <PendingApproval member={member} />;
-
   const sample = await readRandomAlmanacPlanet();
 
   return <main className="guide-page">
