@@ -39,9 +39,16 @@ const buttons: ReadonlyArray<{ label: string; specialty: ReadonlyArray<"ranger" 
 ];
 
 const specialties = [
-  { name: "Ranger", icon: Compass, color: "#5fd68a", tasks: "Stazione riscattata, Sistema rinominato" },
-  { name: "Esploratore", icon: Search, color: "#4d9bff", tasks: "Mappato, Pianeti classificati, Dati caricati" },
-  { name: "Costruttore", icon: Hammer, color: "#ffb45d", tasks: "Edifici costruiti, Basi caricate" },
+  { name: "Ranger", icon: Compass, color: "#6cb4ff", tasks: "Stazione aggiunta, Stazione riscattata, Sistema rinominato" },
+  { name: "Esploratore", icon: Search, color: "#4d9bff", tasks: "Stazione aggiunta, Mappato, Pianeti classificati, Dati caricati" },
+  { name: "Costruttore", icon: Hammer, color: "#ffb45d", tasks: "Stazione aggiunta, Edifici costruiti, Basi caricate" },
+];
+
+
+const sections = [
+  { name: "Stazioni", icon: Orbit, color: "#5fd68a", tasks: "Consulti o aggiungi stazioni spaziali, crei le missioni per quel sistema" },
+  { name: "Missioni", icon: Crosshair, color: "#72d1c4", tasks: "Consulti le missioni disponibili per te, prendi in carico quelle libere o inizi quelle assegnate, spunta le tue voci e completa la missione" },
+  { name: "Pianeti", icon: Eclipse, color: "#b48cf2", tasks: "Consulti e filtri per proprietà i pianeti dell'archivio e trovi la stazione associata" },
 ];
 
 export default async function GuideRoute() {
@@ -54,10 +61,23 @@ export default async function GuideRoute() {
       <p>In vista semplice tutti hanno gli stessi permessi, anche moderatori e admin: cambia solo la specializzazione scelta nel profilo.</p>
     </header>
 
-    <section id="specializzazioni">
-      <h2>Colori delle specializzazioni</h2>
+
+    <section id="sezioni">
+      <h2>Sezioni</h2>
       <div className="guide-table-wrap"><table className="guide-table">
-        <thead><tr><th>Specializzazione</th><th>Icona</th><th>Voci da spuntare</th></tr></thead>
+        <thead><tr><th>Sezioni</th><th>Icona</th><th>A cosa serve</th></tr></thead>
+        <tbody>{sections.map((section) => <tr key={section.name}>
+          <td><strong style={{ color: section.color }}>{section.name}</strong></td>
+          <td><span className="guide-icon" style={{ color: section.color, borderColor: section.color }}><section.icon size={16} /></span></td>
+          <td>{section.tasks}</td>
+        </tr>)}</tbody>
+      </table></div>
+    </section>
+
+    <section id="specializzazioni">
+      <h2>Specializzazioni</h2>
+      <div className="guide-table-wrap"><table className="guide-table">
+        <thead><tr><th>Specializzazione</th><th>Icona</th><th>Compiti</th></tr></thead>
         <tbody>{specialties.map((specialty) => <tr key={specialty.name}>
           <td><strong style={{ color: specialty.color }}>{specialty.name}</strong></td>
           <td><span className="guide-icon" style={{ color: specialty.color, borderColor: specialty.color }}><specialty.icon size={16} /></span></td>
