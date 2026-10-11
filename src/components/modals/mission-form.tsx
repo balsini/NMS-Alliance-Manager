@@ -245,6 +245,25 @@ export function MissionForm({
           <button aria-label={t("common.close")} className="icon-button" onClick={onClose} type="button"><X size={18} /></button>
         </div>
         <form className={[simplified && "mission-form-simplified", hideAddress && "mission-form-hide-address", minimal && "mission-form-minimal"].filter(Boolean).join(" ") || undefined} onSubmit={submit}>
+          <label className="field full-field mission-galaxy-field">
+            <span>{t("stations.galaxy")} <b>{galaxyLabel(form.galaxy)}</b></span>
+            <select aria-label={t("stations.galaxy")} onChange={(event) => {
+              update("galaxy", Number(event.target.value));
+              update("stationOwnerMemberId", undefined);
+              update("stationOwnerName", undefined);
+              resetAlmanacSystemData();
+              setAddressValidation((current) => ({ ...current, lookup: null }));
+            }} required value={form.galaxy}>
+              {galaxyNames.map((name, index) => <option key={index} value={index}>{name}</option>)}
+            </select>
+          </label>
+          <SystemAddressField address={form.systemAddress} galaxy={form.galaxy} onChange={(value) => {
+            update("systemAddress", value);
+            update("stationOwnerMemberId", undefined);
+            update("stationOwnerName", undefined);
+            resetAlmanacSystemData();
+            setAddressValidation({ valid: false, lookup: null });
+          }} onLookupResolved={handleSystemLookup} onStateChange={setAddressValidation} />
           <label className="field full-field">
             <span>{t("missions.mission_name")}</span>
             <input autoFocus maxLength={120} onChange={(event) => {
@@ -256,13 +275,6 @@ export function MissionForm({
             <span>{t("common.objective")}</span>
             <textarea onChange={(event) => update("description", event.target.value)} placeholder={t("common.details_and_completion_criteria")} rows={3} value={form.description} />
           </label>
-          <SystemAddressField address={form.systemAddress} galaxy={form.galaxy} onChange={(value) => {
-            update("systemAddress", value);
-            update("stationOwnerMemberId", undefined);
-            update("stationOwnerName", undefined);
-            resetAlmanacSystemData();
-            setAddressValidation({ valid: false, lookup: null });
-          }} onLookupResolved={handleSystemLookup} onStateChange={setAddressValidation} />
           <div className="form-grid">
             <label className="field">
               <span>{t("system.system_sector_name")} <small>{t("common.optional")}</small></span>
@@ -270,18 +282,6 @@ export function MissionForm({
                 update("system", event.target.value);
                 update("systemLabelFromAlmanac", false);
               }} placeholder={t("common.a_label_to_identify_it")} value={form.system} />
-            </label>
-            <label className="field mission-galaxy-field">
-              <span>{t("stations.galaxy")} <b>{galaxyLabel(form.galaxy)}</b></span>
-              <select aria-label={t("stations.galaxy")} onChange={(event) => {
-                update("galaxy", Number(event.target.value));
-                update("stationOwnerMemberId", undefined);
-                update("stationOwnerName", undefined);
-                resetAlmanacSystemData();
-                setAddressValidation((current) => ({ ...current, lookup: null }));
-              }} required value={form.galaxy}>
-                {galaxyNames.map((name, index) => <option key={index} value={index}>{name}</option>)}
-              </select>
             </label>
             {!hideSpecialty && <label className="field mission-for-field">
               <span>{t("missions.mission_for")}</span>
@@ -331,12 +331,11 @@ export function MissionForm({
                 <input max={100} min={0} onChange={(event) => update("progress", Number(event.target.value))} type="range" value={form.progress} />
               </label>
             )}
-            {!hideSystemStatus && <fieldset className="system-status-fieldset system-status-visible">
+            {!hideSystemStatus && currentPlanetKey && <fieldset className="system-status-fieldset system-status-visible">
               <legend>{t("planet.system_status_shared_by_planet")}</legend>
-              {!currentPlanetKey && <p className="field-hint">{t("planet.enter_a_valid_portal_address_to_manage_planet_status")}</p>}
               {systemStatusesLoading && <p className="field-hint">{t("planet.loading_planet_status")}</p>}
               {systemStatusesError && <p className="form-error"><CircleAlert size={14} />{t(systemStatusesError)}</p>}
-              {currentPlanetKey && !systemStatusesLoading && loadedStatusErrorKey !== currentPlanetKey && (
+              {!systemStatusesLoading && loadedStatusErrorKey !== currentPlanetKey && (
                 <div className="system-status-options">
                   {missionSystemStatuses.filter((status) => !simplified || missionSystemStatusRoles[status] === simplifiedStatusRole).map((status) => (
                     <label className={`system-status-option system-status-option-${status === "data_error" ? "error" : missionSystemStatusRoles[status]}`} key={status}>

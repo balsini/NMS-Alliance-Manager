@@ -100,7 +100,7 @@ export const translations: TranslationCatalog = {
     "common.block_email": "Blocca {email}",
     "common.details_and_completion_criteria": "Dettagli e criteri di completamento",
     "common.delete_email": "Elimina {email}",
-    "common.e_g_map_the_sector": "Es. Mappare il settore",
+    "common.e_g_map_the_sector": "Es. Nome sistema o Mappare il sistema",
     "common.a_label_to_identify_it": "Etichetta per riconoscerlo",
     "common.day": "Giorno",
     "common.list": "Lista",

@@ -135,7 +135,7 @@
 .mission-action-button { color: #72d1c4; border-color: #315b55; border-radius: 3px; background: #192a29; transition: color .15s, border-color .15s, background-color .15s; }
 .mission-action-button:hover { border-color: #72d1c4; background: #203835; }
 .mission-dialog { position: relative; inset: auto; justify-self: center; align-self: center; width: min(560px, 100%); max-height: calc(100vh - 44px); overflow-y: auto; margin: 0; padding: 25px; color: var(--ink); border: 1px solid #354044; background: #111719; box-shadow: 0 22px 80px #0009; animation: dialog-in .18s ease-out both; }
-.mission-form-simplified .mission-notes-field, .mission-form-minimal .mission-for-field, .mission-form-minimal .mission-status-field { display: none; }
+.mission-form-simplified .mission-notes-field, .mission-form-simplified .mission-galaxy-field, .mission-form-minimal .mission-for-field, .mission-form-minimal .mission-status-field { display: none; }
 .mission-form-hide-address .mission-galaxy-field,
 .mission-form-hide-address .mission-progress-field { display: none; }
 .mission-role-progress { display: grid; gap: 4px; }
@@ -146,6 +146,7 @@
 .mission-role-progress-builder > span b { color: #ffb45d; }
 .mission-role-progress-builder input[type="range"] { accent-color: #ffb45d; }
 .mission-dialog .mission-progress-field input[type="range"] {  color-scheme: dark; }
+.mission-dialog .mission-progress-field { grid-column: span 2; }
 .mission-table-loading { height: 100px; }
 .mission-cards-loading { grid-column: 1 / -1; }
 .profile-required-banner .claim-button { min-height: 32px; padding: 0 12px; color: #171a1a; border: 1px solid var(--lime); background: var(--lime); transition: background-color .15s, border-color .15s; }
