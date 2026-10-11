@@ -176,10 +176,6 @@ export async function PATCH(request: Request) {
     if (!currentStation) {
       return NextResponse.json({ error: "stations.error_station_not_found_in_owner_archive" }, { status: 404 });
     }
-    const creatorMemberId = currentStation.createdByMemberId ?? currentOwner.publicId;
-    if (!isModerator && creatorMemberId !== member.publicId) {
-      return NextResponse.json({ error: "stations.error_cannot_edit_another_member_s_station" }, { status: 403 });
-    }
     const hasAssociatedMission = missions.some((mission) =>
       mission.systemAddress.toUpperCase() === currentPortal && mission.galaxy === currentGalaxy,
     );

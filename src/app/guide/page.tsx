@@ -157,7 +157,7 @@ export default async function GuideRoute() {
       <h2><span style={{ color: "#4d9bff" }}>Esploratore</span> e <span style={{ color: "#ffb45d" }}>Costruttore</span></h2>
       <h3>Stazioni</h3>
       <ul>
-        <li>Vedono tutte le stazioni; possono modificare ed eliminare (se senza missioni) solo quelle inserite da loro, non quelle di altri.</li>
+        <li>Vedono tutte le stazioni; possono modificare ed eliminare (se senza missioni) solo quelle di cui sono proprietari, non quelle di altri.</li>
         <li>Creano una missione per la <strong>propria specializzazione</strong> da una stazione: viene assegnata a loro. Non è possibile se la specializzazione è già coperta o se esiste già un altro pianeta dello stesso sistema.</li>
         <li>Se la missione esiste già, un&apos;icona apre le missioni collegate; se è di un altro membro compare l&apos;icona «+» barrata.</li>
       </ul>

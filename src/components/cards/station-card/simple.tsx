@@ -20,8 +20,7 @@ export function StationCardSimple({ station, member, canSeeAll, canCreateMission
               const createdTime = station.createdAt ? Date.parse(station.createdAt) : Number.NaN;
               const isNewStation = !station.hasMissions && Number.isFinite(createdTime) && renderedAt - createdTime < 7 * 24 * 60 * 60 * 1000;
               const newRibbon = isNewStation && <span className="station-new-ribbon-clip"><span className="station-new-ribbon">{t("stations.new_badge")}</span></span>;
-              const canEditStation = canSeeAll ||
-                (station.createdByMemberId ?? station.ownerId) === member.publicId;
+              const canEditStation = canSeeAll || station.ownerId === member.publicId;
               const canCreateMission = canCreateMissionFromStation(station, member, canCreateMissions);
               const stationOwner = <StationOwnerCell onOpenProfile={(memberId) => onOpenProfile({
                 memberId,

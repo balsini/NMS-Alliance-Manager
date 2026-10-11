@@ -42,8 +42,8 @@ type Scenario = Readonly<{
 const explorer: AllianceMember = { ...ranger, publicId: "guide-explorer", name: "Esploratore", nmsName: "Esploratore", specialty: "explorer" };
 
 const explorerScenarios: Scenario[] = [
-  { title: "Tua stazione (inserita da te), senza missioni associate", own: true, hasMissions: false, available: true, note: false },
-  { title: "Tua stazione (inserita da te), senza missioni associate, con note", own: true, hasMissions: false, available: true, note: true },
+  { title: "Tua stazione (sei il proprietario), senza missioni associate", own: true, hasMissions: false, available: true, note: false },
+  { title: "Tua stazione (sei il proprietario), senza missioni associate, con note", own: true, hasMissions: false, available: true, note: true },
   { title: "Stazione di un altro, senza missioni per la tua specializzazione: puoi crearne una per te", own: false, hasMissions: false, available: true, note: false },
   { title: "Missione per la tua specializzazione libera o assegnata a te", own: false, hasMissions: true, available: false, canOpen: true, note: false },
   { title: "Missione per la tua specializzazione già in corso assegnata ad un altro", own: false, hasMissions: true, available: false, canOpen: false, note: false },
@@ -116,7 +116,6 @@ function StationExamples({ member, sample, scenarios }: Readonly<{ member: Allia
           galaxy: sample.galaxy,
           ownerId: scenario.own ? member.publicId : otherId,
           ownerName: scenario.own ? "Tu" : "Altro membro",
-          createdByMemberId: scenario.own ? member.publicId : otherId,
           createdAt: "2020-01-01T00:00:00.000Z",
           note: scenario.note ? "Esempio di nota della stazione." : undefined,
           planet: { galaxy: sample.galaxy, response: sample.response },
