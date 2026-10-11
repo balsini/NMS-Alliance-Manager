@@ -48,7 +48,10 @@ export function Header({ currentMember, settings, sectionTitle = "Missions", onA
           simpleView: !currentMember.simpleView,
         }),
       });
-      if (response.ok) onProfileSaved?.(await response.json() as Partial<AllianceMember>);
+      if (response.ok) {
+        window.location.reload();
+        return;
+      }
     } finally {
       setSavingView(false);
     }

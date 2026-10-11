@@ -12,7 +12,7 @@ import { useLocale } from "@/components/providers/locale-provider";
 
 export type CachedPlanet = Readonly<{ galaxy: number; response: Record<string, unknown> }>;
 export type StationMissionStatus = "none" | "in_progress" | "completed";
-export type StationFilter = "all" | "pending" | "in_progress" | "completed" | "notes";
+export type StationFilter = "all" | "pending" | "in_progress" | "my_missions" | "completed" | "notes";
 export type StationEntry = Readonly<{
   portal: string;
   galaxy: number;
@@ -27,6 +27,7 @@ export type StationEntry = Readonly<{
   planet: CachedPlanet | null;
   hasMissions: boolean;
   canOpenOwnSpecialtyMission: boolean;
+  hasAssignedMission: boolean;
   missionStatus: StationMissionStatus;
   availableSpecialties: MissionSpecialty[];
 }>;
@@ -87,6 +88,7 @@ export function parseStations(value: unknown): StationEntry[] {
       planet,
       hasMissions: station.hasMissions === true,
       canOpenOwnSpecialtyMission: station.canOpenOwnSpecialtyMission === true,
+      hasAssignedMission: station.hasAssignedMission === true,
       missionStatus: station.missionStatus === "in_progress" || station.missionStatus === "completed"
         ? station.missionStatus
         : "none",

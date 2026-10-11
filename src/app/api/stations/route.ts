@@ -279,6 +279,7 @@ async function readStations(member: AllianceMember) {
       planet: almanacByPortal[station.portal]?.find((entry) => entry.galaxy === station.galaxy)?.response ?? null,
       hasMissions: matchingMissions.length > 0,
       canOpenOwnSpecialtyMission,
+      hasAssignedMission: matchingMissions.some((mission) => mission.assignedMemberId === member.publicId),
       missionStatus: matchingMissions.length === 0
         ? "none"
         : matchingMissions.every((mission) => mission.status === "completed")

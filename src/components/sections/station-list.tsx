@@ -51,7 +51,7 @@ export function StationList({ stations, visibleStations, loading, member, canSee
                   ...(canChooseStationView ? [{ key: "mine", label: t("stations.my_stations"), count: ownStationCount, selected: activeStationTab === "mine", onSelect: () => onTabChange("mine") }] : []),
                   ...visibleStationFilters.filter((status) => status !== "all").map((status) => ({
                     key: status,
-                    label: t(status === "pending" ? "common.pending_status_label" : status === "in_progress" ? "stations.filter_in_mission" : status === "completed" ? "stations.filter_mission_completed" : "stations.filter_with_notes"),
+                    label: t(status === "pending" ? "common.pending_status_label" : status === "in_progress" ? "stations.filter_in_mission" : status === "my_missions" ? "stations.filter_my_missions" : status === "completed" ? "stations.filter_mission_completed" : "stations.filter_with_notes"),
                     count: stationCounts[status],
                     selected: activeStationTab === "all" && stationFilter === status,
                     onSelect: () => { onTabChange("all"); onFilterChange(status); },

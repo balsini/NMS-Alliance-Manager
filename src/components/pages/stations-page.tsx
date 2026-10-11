@@ -99,16 +99,19 @@ export function StationsPage({ currentMember, alliance, missionCount, initialSea
     all: searchableStations.length,
     pending: searchableStations.filter((station) => station.missionStatus === "none").length,
     in_progress: searchableStations.filter((station) => station.missionStatus === "in_progress").length,
+    my_missions: searchableStations.filter((station) => station.hasAssignedMission).length,
     completed: searchableStations.filter((station) => station.missionStatus === "completed").length,
     notes: searchableStations.filter((station) => Boolean(station.note?.trim())).length,
   };
-  const visibleStationFilters = (["all", "pending", "in_progress", "completed", ...(canSeeAll ? ["notes" as const] : [])] as StationFilter[])
+  const visibleStationFilters = (["all", "pending", "in_progress", ...(canSeeAll ? [] : ["my_missions" as const]), "completed", ...(canSeeAll ? ["notes" as const] : [])] as StationFilter[])
     .filter((status) => status === "all" || status === stationFilter || stationCounts[status] > 0);
   const statusFilteredStations = stationFilter === "all"
     ? searchableStations
     : stationFilter === "notes"
       ? canSeeAll ? searchableStations.filter((station) => Boolean(station.note?.trim())) : searchableStations
-      : searchableStations.filter((station) => station.missionStatus === (stationFilter === "pending" ? "none" : stationFilter));
+      : stationFilter === "my_missions"
+        ? searchableStations.filter((station) => station.hasAssignedMission)
+        : searchableStations.filter((station) => station.missionStatus === (stationFilter === "pending" ? "none" : stationFilter));
   const ownDiscoveredStations = stationCandidates.filter((station) => station.ownerId === pageMember.publicId);
   const visibleStations = sortByCreatedAtDescending(activeStationTab === "mine" ? ownDiscoveredStations : statusFilteredStations);
 
