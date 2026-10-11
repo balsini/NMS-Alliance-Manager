@@ -58,6 +58,10 @@
 .station-planet-unknown { color: #879188; font-size: 9px; }
 .station-actions { display: flex; align-items: center; justify-content: flex-end; gap: 5px; }
 .station-missions-link { color: #72d1c4; }
+.member-icon-action.create-station-mission:not(.station-mission-disabled) { color: #72d1c4; }
+.member-icon-action.create-station-mission:not(.station-mission-disabled):hover { border-color: #72d1c4; background: #1f3a37; }
+.station-actions .member-icon-action.delete-member { color: #ef8067; }
+.station-actions .member-icon-action.delete-member:hover:not(:disabled) { border-color: #ef8067; background: #3a2724; }
 .station-actions [data-tooltip] { position: relative; }
 .station-actions [data-tooltip]::after { position: absolute; z-index: 30; right: 0; bottom: calc(100% + 7px); padding: 6px 8px; color: #f1eee7; border: 1px solid #394548; border-radius: 3px; background: #111719; box-shadow: 0 4px 14px #0008; content: attr(data-tooltip); font-size: 9px; font-weight: 500; line-height: 1.2; opacity: 0; pointer-events: none; text-transform: none; transform: translateY(3px); transition: opacity .12s, transform .12s; white-space: nowrap; }
 .station-actions [data-tooltip]:hover::after,

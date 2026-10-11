@@ -4,25 +4,28 @@
 
 Le icone sono indicate con il nome della libreria Lucide, i colori sono quelli dei pulsanti nell'app. I pulsanti portano da una sezione all'altra o aprono un dettaglio.
 
-| Pulsante | Icona | Colore |
-|---|---|---|
-| Vai alla [stazione](#stazioni) | `Orbit` | Blu `#6cb4ff` |
-| Vai alle [missioni](#missioni) collegate | `Crosshair` | Verde acqua `#72d1c4` |
-| Crea missione dalla stazione | `CirclePlus` | Verde acqua `#72d1c4` |
-| Vai al [pianeta](#dettaglio-pianeta) (dalle richieste d'aiuto) | `Eclipse` | Viola `#b48cf2` |
-| Note della missione o della stazione | `FileText` | Arancio chiaro `#e4b478` |
-| Note del pianeta | `Info` | Arancione `#ff8400` |
-| Richiedi [aiuto](#richieste-daiuto) per il pianeta | `Siren` | Giallo `#f5c518` |
+| Pulsante | Icona |
+|---|---|
+| Vai alla [stazione](#stazioni) | `Orbit` |
+| Vai alle [missioni](#missioni) collegate | `Crosshair` |
+| Crea missione dalla stazione | `CirclePlus` |
+| Vai al [pianeta](#dettaglio-pianeta) (dalle richieste d'aiuto) | `Eclipse` |
+| Note della missione o della stazione | `FileText` |
+| Note del pianeta | `Info` |
+| Richiedi intervento Ranger | `Compass` |
+| Richiedi intervento Esploratori | `Search` |
+| Richiedi intervento Costruttori | `Hammer` |
+| Richiedi [aiuto](#richieste-daiuto) per il pianeta | `Siren` |
 
 Note e richieste d'aiuto **non** hanno lo stesso colore: le note sono arancioni, la richiesta d'aiuto è gialla.
 
 Colori delle specializzazioni:
 
-| Colore | Specializzazione |
+| Specializzazione | Icona |
 |---|---|
-| Verde `#5fd68a` | [Ranger](#ranger) |
-| Blu `#4d9bff` | [Esploratore](#esploratore-e-costruttore) |
-| Arancione `#ffb45d` | [Costruttore](#esploratore-e-costruttore) |
+| [Ranger](#ranger) | `Compass` |
+| [Esploratore](#esploratore-e-costruttore) | `Search` |
+| [Costruttore](#esploratore-e-costruttore) | `Hammer` |
 
 <a id="1-concetti-generali"></a>
 

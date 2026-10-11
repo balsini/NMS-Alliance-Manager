@@ -1,0 +1,23 @@
+.guide-page { max-width: 880px; margin: 0 auto; padding: 32px 20px 64px; color: var(--ink); font-size: 14px; line-height: 1.6; }
+.guide-header a { color: var(--muted); font-size: 12px; }
+.guide-header h1 { margin: 12px 0 6px; font-size: 28px; }
+.guide-page section { margin-top: 32px; }
+.guide-page h2 { margin: 0 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--line); font-size: 20px; }
+.guide-page h3 { margin: 16px 0 4px; font-size: 15px; }
+.guide-page ul { padding-left: 20px; }
+.guide-page code { color: var(--muted); font-size: 12px; }
+.guide-table-wrap { overflow-x: auto; }
+.guide-table { width: 100%; border-collapse: collapse; }
+.guide-table th, .guide-table td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+.guide-table th { color: var(--muted); font-size: 12px; font-weight: 600; }
+.guide-icon { width: 28px; height: 28px; display: inline-grid; place-items: center; vertical-align: middle; border: 1px solid; border-radius: 3px; background: #1a2124; }
+.guide-swatch { width: 12px; height: 12px; display: inline-block; vertical-align: middle; border-radius: 3px; }
+.guide-icon { position: relative; }
+.guide-icon-crossed::before { content: ""; position: absolute; left: 4px; right: 4px; top: 50%; height: 2px; background: currentColor; transform: rotate(-45deg); }
+.guide-table td > .guide-icon + .guide-icon { margin-left: 4px; }
+.guide-icon-empty { visibility: hidden; }
+.guide-examples { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin: 12px 0; }
+.guide-example { margin: 0; }
+.guide-example figcaption { margin-bottom: 6px; color: #d0d4d0; font-size: 13px; }
+.guide-example .station-list-cards { display: block; margin-top: 0; }
+.guide-example .station-card-footer .station-actions { margin-left: auto; justify-content: flex-end; }
