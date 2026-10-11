@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CirclePlus, Compass, Crosshair, Eclipse, FileText, Hammer, Info, LogOut, MailCheck, Orbit, Pencil, Reply, RotateCcw, Search, Siren, Trash2, UserRound, X, type LucideIcon } from "lucide-react";
+import { CirclePlus, Compass, Crosshair, Eclipse, FileText, Hammer, Info, LogOut, Mail, MailCheck, Orbit, Pencil, Reply, RotateCcw, Search, Siren, Trash2, Trophy, UserRound, X, type LucideIcon } from "lucide-react";
 import { ExplorerBuilderStationExamples, RangerStationExamples } from "./station-examples";
 import { readRandomAlmanacPlanet } from "@/lib/almanac-store";
 
@@ -39,16 +39,19 @@ const buttons: ReadonlyArray<{ label: string; specialty: ReadonlyArray<"ranger" 
 ];
 
 const specialties = [
-  { name: "Ranger", icon: Compass, color: "#6cb4ff", tasks: "Stazione aggiunta, Stazione riscattata, Sistema rinominato" },
+  { name: "Ranger", icon: Compass, color: "#5fd68a", tasks: "Stazione aggiunta, Stazione riscattata, Sistema rinominato" },
   { name: "Esploratore", icon: Search, color: "#4d9bff", tasks: "Stazione aggiunta, Mappato, Pianeti classificati, Dati caricati" },
   { name: "Costruttore", icon: Hammer, color: "#ffb45d", tasks: "Stazione aggiunta, Edifici costruiti, Basi caricate" },
 ];
 
 
 const sections = [
-  { name: "Stazioni", icon: Orbit, color: "#5fd68a", tasks: "Consulti o aggiungi stazioni spaziali, crei le missioni per quel sistema" },
+  { name: "Stazioni", icon: Orbit, color: "#6cb4ff", tasks: "Consulti o aggiungi stazioni spaziali, crei le missioni per quel sistema" },
   { name: "Missioni", icon: Crosshair, color: "#72d1c4", tasks: "Consulti le missioni disponibili per te, prendi in carico quelle libere o inizi quelle assegnate, spunta le tue voci e completa la missione" },
   { name: "Pianeti", icon: Eclipse, color: "#b48cf2", tasks: "Consulti e filtri per proprietà i pianeti dell'archivio e trovi la stazione associata" },
+  { name: "Classifica", icon: Trophy, color: "#e040c8", tasks: "Vedi la posizione dei membri e i totali dell'alleanza. Sola lettura." },
+  { name: "Richieste d'aiuto", icon: Siren, color: "#f5c518", tasks: "Consulti le richieste di tutti e rispondi. Le richieste si inviano dalla scheda di un pianeta." },
+  { name: "Messaggi", icon: Mail, color: "#8f9bff", tasks: "Leggi e rispondi ai messaggi privati, segnali come letti o li elimini. Si scrivono dal profilo di un membro, su una stazione o una missione." },
 ];
 
 export default async function GuideRoute() {
