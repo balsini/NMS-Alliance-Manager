@@ -20,6 +20,7 @@
 .guide-examples { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin: 20px 0; }
 .guide-example { margin: 0; }
 .guide-example figcaption { margin-bottom: 6px; color: #d0d4d0; font-size: 13px; }
+.guide-examples .planet-mission-list { grid-template-columns: minmax(0, 1fr); }
 .guide-example .station-list-cards { display: block; margin-top: 0; }
 .guide-example .station-card-footer .station-actions { margin-left: auto; justify-content: flex-end; }
 .guide-example .mission-card-grid { grid-template-columns: 1fr; margin-top: 0; }
@@ -38,3 +39,4 @@
 .guide-tab-name { color: var(--lime); }
 .guide-page h4 { margin: 14px 0 4px; font-size: 16px; }
 .guide-page h5 { margin: 12px 0 4px; font-size: 14px; }
+.guide-page .planet-mission-card-copy code { color: var(--lime); font-size: 9px; }

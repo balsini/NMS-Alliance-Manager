@@ -37,8 +37,9 @@ function browserLocale(): Locale {
   return navigator.languages.some((language) => language.toLowerCase().startsWith("en")) ? "en" : "it";
 }
 
-export function LocaleProvider({ children }: Readonly<{ children: ReactNode }>) {
-  const locale = useSyncExternalStore(subscribeToLocale, currentBrowserLocale, serverLocale);
+export function LocaleProvider({ children, fixedLocale }: Readonly<{ children: ReactNode; fixedLocale?: Locale }>) {
+  const selectedLocale = useSyncExternalStore(subscribeToLocale, currentBrowserLocale, serverLocale);
+  const locale = fixedLocale ?? selectedLocale;
 
   function setLocale(nextLocale: Locale) {
     window.localStorage.setItem(preferenceKey, nextLocale);

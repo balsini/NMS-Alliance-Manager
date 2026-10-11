@@ -10,6 +10,11 @@ import { StationTabsExample } from "./station-tabs-example";
 import { AddressValidationExample } from "./address-validation-example";
 import { StationFormExample } from "./station-form-example";
 import { guideStationInit } from "./station-init";
+import { PlanetFiltersExample } from "./planet-filters-example";
+import { createPlanetListExamplePlanet, PlanetListExample } from "./planet-list-example";
+import { PlanetStationHeadingExample } from "./planet-station-heading-example";
+import { emptyPlanetFilterValues } from "@/components/forms/planet-filters";
+import { LocaleProvider } from "@/components/providers/locale-provider";
 
 export const dynamic = "force-dynamic";
 
@@ -65,81 +70,86 @@ const sections = [
 export default async function GuideRoute() {
   const { alliance } = await readAccessData();
   const sample = guideStationInit;
+  const planetExample = await createPlanetListExamplePlanet();
 
   return <div className="guide-root">
     <Hero settings={alliance} subtitle="Cosa puoi fare, pagina per pagina" title="Guida">
       <Link className="banner-add" data-tooltip="Torna all'app" href="/"><ArrowLeft size={17} /> <span className="banner-add-label">Torna all&apos;app</span></Link>
     </Hero>
+    <LocaleProvider fixedLocale="it">
     <main className="guide-page">
 
+    <section id="nozioni-di-base">
+      <h2>Nozioni di base</h2>
 
-    <section id="sezioni">
-      <h2>Sezioni</h2>
-      <div className="guide-table-wrap"><table className="guide-table">
-        <thead><tr><th>Sezioni</th><th>Icona</th><th>A cosa serve</th></tr></thead>
-        <tbody>{sections.map((section) => <tr key={section.name}>
-          <td><strong style={{ color: section.color }}>{section.name}</strong></td>
-          <td><span className="guide-icon" style={{ color: section.color, borderColor: section.color }}><section.icon size={16} /></span></td>
-          <td>{section.tasks}</td>
-        </tr>)}</tbody>
-      </table></div>
+      <section id="sezioni">
+        <h3>Sezioni</h3>
+        <div className="guide-table-wrap"><table className="guide-table">
+          <thead><tr><th>Sezioni</th><th>Icona</th><th>A cosa serve</th></tr></thead>
+          <tbody>{sections.map((section) => <tr key={section.name}>
+            <td><strong style={{ color: section.color }}>{section.name}</strong></td>
+            <td><span className="guide-icon" style={{ color: section.color, borderColor: section.color }}><section.icon size={16} /></span></td>
+            <td>{section.tasks}</td>
+          </tr>)}</tbody>
+        </table></div>
+      </section>
+
+      <section id="specializzazioni">
+        <h3>Specializzazioni</h3>
+        <div className="guide-table-wrap"><table className="guide-table">
+          <thead><tr><th>Specializzazione</th><th>Icona</th><th>Compiti</th></tr></thead>
+          <tbody>{specialties.map((specialty) => <tr key={specialty.name}>
+            <td><strong style={{ color: specialty.color }}>{specialty.name}</strong></td>
+            <td><span className="guide-icon" style={{ color: specialty.color, borderColor: specialty.color }}><specialty.icon size={16} /></span></td>
+            <td>{specialty.tasks}</td>
+          </tr>)}</tbody>
+        </table></div>
+      </section>
+
+      <section id="legenda">
+        <h3>Legenda dei pulsanti</h3>
+        <p>Le icone sono quelle dei pulsanti che portano da una sezione all&apos;altra o aprono un dettaglio.</p>
+        <div className="guide-table-wrap"><table className="guide-table">
+          <thead><tr><th>Pulsante</th><th>Icona</th><th>Significato</th><th>Specializzazione</th></tr></thead>
+          <tbody>{buttons.map((button) => <tr key={`${button.label}:${button.specialty.join()}`}>
+            <td>{button.label}</td>
+            <td><span className={`guide-icon${button.crossed ? " guide-icon-crossed" : ""}`} style={{ color: button.color, borderColor: button.color === "#4f6f6a" ? "#394548" : button.color }}><button.icon size={16} /></span></td>
+            <td>{button.meaning}</td>
+            <td>{(["ranger", "explorer", "builder"] as const).map((key) => {
+              if (!button.specialty.includes(key)) return <span aria-hidden="true" className="guide-icon guide-icon-empty" key={key} />;
+              const { icon: Icon, color, name } = specialtyIcons[key];
+              return <span aria-label={name} className="guide-icon" key={key} style={{ color, borderColor: color }} title={name}><Icon size={16} /></span>;
+            })}</td>
+          </tr>)}</tbody>
+        </table></div>
+      </section>
+
+      <section id="pulsanti-comuni">
+        <h3>Pulsanti generali</h3>
+        <p>Pulsanti validi per tutti, indipendentemente dalla specializzazione.</p>
+        <div className="guide-table-wrap"><table className="guide-table">
+          <thead><tr><th>Pulsante</th><th>Icona</th><th>Significato</th></tr></thead>
+          <tbody>{commonButtons.map((button) => <tr key={button.label}>
+            <td>{button.label}</td>
+            <td><span className="guide-icon" style={{ color: button.color, borderColor: "#394548" }}><button.icon size={16} /></span></td>
+            <td>{button.meaning}</td>
+          </tr>)}</tbody>
+        </table></div>
+      </section>
+
+      <section id="primo-accesso">
+        <h3>Primo accesso e profilo</h3>
+        <ul>
+          <li>Accedi con Google. L&apos;account resta <strong>in attesa</strong> finché un moderatore o un admin non lo approva; nel frattempo puoi solo completare il profilo.</li>
+          <li>Profilo: nome in gioco, codice amico NMS (13 caratteri alfanumerici, i trattini sono ignorati), una o più piattaforme, specializzazione, contatti Telegram/Discord opzionali.</li>
+          <li>Senza profilo completo non puoi prendere missioni né ricevere assegnazioni.</li>
+          <li>Non disponibili in vista semplice: Utenti, Giocatori offline, Pianeti, gestione completa delle missioni, export Excel, impostazioni dell&apos;alleanza.</li>
+        </ul>
+      </section>
+
     </section>
 
-    <section id="specializzazioni">
-      <h2>Specializzazioni</h2>
-      <div className="guide-table-wrap"><table className="guide-table">
-        <thead><tr><th>Specializzazione</th><th>Icona</th><th>Compiti</th></tr></thead>
-        <tbody>{specialties.map((specialty) => <tr key={specialty.name}>
-          <td><strong style={{ color: specialty.color }}>{specialty.name}</strong></td>
-          <td><span className="guide-icon" style={{ color: specialty.color, borderColor: specialty.color }}><specialty.icon size={16} /></span></td>
-          <td>{specialty.tasks}</td>
-        </tr>)}</tbody>
-      </table></div>
-    </section>
-
-    <section id="legenda">
-      <h2>Legenda dei pulsanti</h2>
-      <p>Le icone sono quelle dei pulsanti che portano da una sezione all&apos;altra o aprono un dettaglio.</p>
-      <div className="guide-table-wrap"><table className="guide-table">
-        <thead><tr><th>Pulsante</th><th>Icona</th><th>Significato</th><th>Specializzazione</th></tr></thead>
-        <tbody>{buttons.map((button) => <tr key={`${button.label}:${button.specialty.join()}`}>
-          <td>{button.label}</td>
-          <td><span className={`guide-icon${button.crossed ? " guide-icon-crossed" : ""}`} style={{ color: button.color, borderColor: button.color === "#4f6f6a" ? "#394548" : button.color }}><button.icon size={16} /></span></td>
-          <td>{button.meaning}</td>
-          <td>{(["ranger", "explorer", "builder"] as const).map((key) => {
-            if (!button.specialty.includes(key)) return <span aria-hidden="true" className="guide-icon guide-icon-empty" key={key} />;
-            const { icon: Icon, color, name } = specialtyIcons[key];
-            return <span aria-label={name} className="guide-icon" key={key} style={{ color, borderColor: color }} title={name}><Icon size={16} /></span>;
-          })}</td>
-        </tr>)}</tbody>
-      </table></div>
-    </section>
-
-    <section id="pulsanti-comuni">
-      <h2>Pulsanti generali</h2>
-      <p>Pulsanti validi per tutti, indipendentemente dalla specializzazione.</p>
-      <div className="guide-table-wrap"><table className="guide-table">
-        <thead><tr><th>Pulsante</th><th>Icona</th><th>Significato</th></tr></thead>
-        <tbody>{commonButtons.map((button) => <tr key={button.label}>
-          <td>{button.label}</td>
-          <td><span className="guide-icon" style={{ color: button.color, borderColor: "#394548" }}><button.icon size={16} /></span></td>
-          <td>{button.meaning}</td>
-        </tr>)}</tbody>
-      </table></div>
-    </section>
-
-    <section id="primo-accesso">
-      <h2>Primo accesso e profilo</h2>
-      <ul>
-        <li>Accedi con Google. L&apos;account resta <strong>in attesa</strong> finché un moderatore o un admin non lo approva; nel frattempo puoi solo completare il profilo.</li>
-        <li>Profilo: nome in gioco, codice amico NMS (13 caratteri alfanumerici, i trattini sono ignorati), una o più piattaforme, specializzazione, contatti Telegram/Discord opzionali.</li>
-        <li>Senza profilo completo non puoi prendere missioni né ricevere assegnazioni.</li>
-        <li>Non disponibili in vista semplice: Utenti, Giocatori offline, Pianeti, gestione completa delle missioni, export Excel, impostazioni dell&apos;alleanza.</li>
-      </ul>
-    </section>
-
-    <section id="stazioni">
-      <h2 style={{ color: "#6cb4ff" }}>Stazioni</h2>
+    <section id="stazioni">      <h2 style={{ color: "#6cb4ff" }}>Stazioni</h2>
       <h3>Come funziona una stazione</h3>
       <p>Una stazione è un sistema stellare dell&apos;alleanza, identificato da un indirizzo portale e da una galassia. Da una stazione possono partire le missioni.</p>
       <ul>
@@ -232,6 +242,43 @@ export default async function GuideRoute() {
       <RangerMissionExamples sample={sample} />
     </section>
 
+    <section id="pianeti">
+      <h2 style={{ color: "#b48cf2" }}>Pianeti</h2>
+      <h3>Come funziona un pianeta</h3>
+      <p>Ogni pianeta è legato a un sistema stellare e, se esiste, a una stazione associata. La sezione raccoglie i dati di Almanac e li presenta in una lista facile da filtrare.</p>
+      <ul>
+        <li>La scheda del pianeta mostra il nome del pianeta, il numero, il sistema, la galassia, la stazione collegata e i dati di ambiente (razza, clima, acqua, sentinelle, conflitto, ecc.).</li>
+        <li>Se il pianeta è collegato a una stazione, puoi aprire la stazione direttamente oppure raggiungere la scheda del pianeta per leggere le note condivise o lanciare un&apos;aiuto.</li>
+        <li>Le informazioni sono raggruppate per sistema/stazione, così puoi vedere subito tutti i pianeti legati a una stessa stazione e scorrere le loro caratteristiche.</li>
+      </ul>
+      <h3>La lista dei pianeti</h3>
+      <h4 style={{ color: "var(--lime)" }}>Ricerca e filtri</h4>
+      <p>La barra di ricerca trova i pianeti usando i dati indicizzati da Almanac, il nome Almanac e l&apos;indirizzo portale. Per mostrare i filtri, clicca il pulsante con l&apos;icona a cursori a destra della ricerca; cliccalo di nuovo per richiuderli.</p>
+      <PlanetFiltersExample />
+      <p>I filtri restringono ulteriormente i risultati. Le opzioni nei menu dipendono dai dati presenti nell&apos;archivio.</p>
+      <h5>Esempio con i filtri aperti</h5>
+      <PlanetFiltersExample initiallyOpen />
+      <h5>Esempio con filtri impostati</h5>
+      <p>Qui sono selezionati “Sì” per Dissonante e Paradiso, per mostrare come appaiono i filtri impostati. È un esempio dei controlli, non un pianeta specifico.</p>
+      <PlanetFiltersExample
+        initiallyOpen
+        initialFilters={{ ...emptyPlanetFilterValues, dissonant: "yes", paradise: "yes" }}
+      />
+
+       <h4 style={{ color: "var(--lime)" }}>Il sistema</h4>
+
+    
+      <p>La lista raggruppa i pianeti in base alla stazione associata.</p>
+    
+    
+      <p>L&apos;intestazione mostra il nome della stazione, la galassia, l&apos;indirizzo portale e i dati del sistema. Il pulsante con l&apos;icona della stazione apre la stazione nella sezione Stazioni. Se non c&apos;è una stazione associata, il gruppo è indicato come «{translate("it", "planet.no_associated_station")}».</p>
+      <PlanetStationHeadingExample planet={planetExample} />
+      
+     <h4 style={{ color: "var(--lime)" }}>I pianeti</h4>
+      <p>Ogni scheda mostra il nome Almanac o il numero del pianeta, l&apos;indirizzo portale con i glifi e i dati Almanac disponibili. Selezionando la scheda si apre il dettaglio del pianeta.</p>
+      <PlanetListExample planet={planetExample} />
+    </section>
+
     <section id="pagine">
       <h2>Pagina per pagina</h2>
       <h3>Stazioni</h3><p>Elenco delle stazioni con stato dei sistemi, note e azioni (vedi sopra per specializzazione).</p>
@@ -242,5 +289,6 @@ export default async function GuideRoute() {
       <h3>Messaggi</h3><p>Si scrive dal profilo di un membro approvato e non offline, solo su un pianeta o una missione (per il resto Telegram o Discord). Puoi rispondere, segnare come letto ed eliminare i messaggi di cui sei mittente o destinatario.</p>
     </section>
   </main>
+  </LocaleProvider>
   </div>;
 }

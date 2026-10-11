@@ -62,7 +62,7 @@ function PlanetWaterIndicator({ water, label }: Readonly<{ water?: string; label
 
 export function PlanetDestinationCard({ planet, onOpen }: Readonly<{ planet: PlanetDestination; onOpen: (planet: PlanetDestination) => void }>) {
   const { t, tv } = useLocale();
-  return <li>
+  return <div>
                 {planet.dissonant && <span className="planet-ribbon-clip"><span className="planet-dissonant-ribbon">{t("planet.dissonant")}</span></span>}
                 {planet.paradise && <span className="planet-ribbon-clip planet-ribbon-clip-left"><span className="planet-paradise-ribbon">{t("planet.paradise")}</span></span>}
                 <button className="planet-mission-card" onClick={() => onOpen(planet)} type="button">
@@ -80,5 +80,5 @@ export function PlanetDestinationCard({ planet, onOpen }: Readonly<{ planet: Pla
                   <PlanetWaterIndicator label={tv} water={planet.almanacFacts.find((fact) => fact.label === "planet.water")?.value} />
                   <PlanetSizeIndicator size={planet.almanacFacts.find((fact) => fact.label === "planet.size")?.value} label={tv} />
                 </button>
-              </li>;
+              </div>;
 }
