@@ -60,9 +60,9 @@ export default async function GuideRoute() {
   const { alliance } = await readAccessData();
   const sample = await readRandomAlmanacPlanet();
 
-  return <>
+  return <div className="guide-root">
     <Hero settings={alliance} subtitle="Cosa puoi fare, pagina per pagina" title="Guida">
-      <Link className="banner-add" href="/"><ArrowLeft size={17} /> <span className="banner-add-label">Torna all&apos;app</span></Link>
+      <Link className="banner-add" data-tooltip="Torna all'app" href="/"><ArrowLeft size={17} /> <span className="banner-add-label">Torna all&apos;app</span></Link>
     </Hero>
     <main className="guide-page">
 
@@ -181,5 +181,5 @@ export default async function GuideRoute() {
       <h3>Messaggi</h3><p>Si scrive dal profilo di un membro approvato e non offline, solo su un pianeta o una missione (per il resto Telegram o Discord). Puoi rispondere, segnare come letto ed eliminare i messaggi di cui sei mittente o destinatario.</p>
     </section>
   </main>
-  </>;
+  </div>;
 }

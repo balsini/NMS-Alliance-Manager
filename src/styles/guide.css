@@ -4,7 +4,7 @@
 .guide-page section { margin-top: 32px; }
 .guide-page h2 { margin: 0 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--line); font-size: 20px; }
 .guide-page h3 { margin: 16px 0 4px; font-size: 15px; }
-.guide-page ul { padding-left: 20px; }
+.guide-page ul { padding-left: 0; }
 .guide-page code { color: var(--muted); font-size: 12px; }
 .guide-table-wrap { overflow-x: auto; }
 .guide-table { display: grid; grid-template-columns: minmax(120px, max-content) max-content minmax(200px, 1fr); width: 100%; }
@@ -17,8 +17,16 @@
 .guide-icon { position: relative; }
 .guide-icon-crossed::before { content: ""; position: absolute; left: 4px; right: 4px; top: 50%; height: 2px; background: currentColor; transform: rotate(-45deg); }
 .guide-icon-empty { visibility: hidden; }
-.guide-examples { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin: 12px 0; }
+.guide-examples { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin: 20px 0; }
 .guide-example { margin: 0; }
 .guide-example figcaption { margin-bottom: 6px; color: #d0d4d0; font-size: 13px; }
 .guide-example .station-list-cards { display: block; margin-top: 0; }
 .guide-example .station-card-footer .station-actions { margin-left: auto; justify-content: flex-end; }
+@media (max-width: 720px) {
+  .guide-root .banner-add { width: 40px; height: 40px; padding: 0; gap: 0; }
+  .guide-root .banner-add .banner-add-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .guide-root .banner-add svg { width: 20px; height: 20px; }
+    .guide-root .banner-add[data-tooltip]::after { position: absolute; z-index: 30; right: 0; bottom: calc(100% + 7px); padding: 6px 8px; color: #f1eee7; border: 1px solid #394548; border-radius: 3px; background: #111719; box-shadow: 0 4px 14px #0008; content: attr(data-tooltip); font-family: var(--font-accent); font-size: 9px; font-weight: 500; letter-spacing: .05em; line-height: 1.2; opacity: 0; pointer-events: none; transform: translateY(3px); transition: opacity .12s, transform .12s; white-space: nowrap; }
+  .guide-root .banner-add[data-tooltip]:hover::after,
+  .guide-root .banner-add[data-tooltip]:focus-visible::after { opacity: 1; transform: translateY(0); }
+}
