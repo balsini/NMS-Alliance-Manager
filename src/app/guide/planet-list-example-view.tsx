@@ -52,7 +52,7 @@ export function PlanetListExampleView({
           </div>
         </figure>
       </div>
-      <h4 style={{ color: "var(--lime)" }}>Scheda pianeta</h4>
+      <h4 id="pianeti-scheda" style={{ color: "var(--lime)" }}>Scheda pianeta</h4>
       <p>La stessa scheda si apre cliccando una card pianeta, il nome di una missione nella pagina Missioni o il nome di una stazione nella pagina Stazioni.</p>
       {detailsOpen && (
         <PlanetCard

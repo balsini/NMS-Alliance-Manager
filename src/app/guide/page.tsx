@@ -91,20 +91,42 @@ export default async function GuideRoute() {
         <li><a className="guide-index-stations" href="#stazioni"><Orbit aria-hidden="true" size={15} />Stazioni</a>
           <ul>
             <li><a href="#stazioni-funzionamento">Come funziona una stazione</a></li>
-            <li><a href="#stazioni-creazione">Creare una stazione</a></li>
-            <li><a href="#stazioni-lista">La lista delle stazioni</a></li>
+            <li><a href="#stazioni-creazione">Creare una stazione</a>
+              <ul><li><a href="#stazioni-controlli-indirizzo-portale">Controlli sull&apos;indirizzo portale</a></li></ul>
+            </li>
+            <li><a href="#stazioni-lista">La lista delle stazioni</a>
+              <ul>
+                <li><a href="#stazioni-lista-tab">Tab</a></li>
+                <li><a href="#stazioni-lista-ranger">Ranger</a></li>
+                <li><a href="#stazioni-lista-esploratori-costruttori">Esploratori e Costruttori</a></li>
+              </ul>
+            </li>
           </ul>
         </li>
         <li><a className="guide-index-missions" href="#missioni"><Crosshair aria-hidden="true" size={15} />Missioni</a>
           <ul>
             <li><a href="#missioni-funzionamento">Come funziona una missione</a></li>
-            <li><a href="#missioni-lista">La lista delle missioni</a></li>
+            <li><a href="#missioni-lista">La lista delle missioni</a>
+              <ul>
+                <li><a href="#missioni-lista-tab">Tab</a></li>
+                <li><a href="#missioni-lista-esploratori">Esploratori</a></li>
+                <li><a href="#missioni-lista-costruttori">Costruttori</a></li>
+                <li><a href="#missioni-lista-ranger">Ranger</a></li>
+              </ul>
+            </li>
           </ul>
         </li>
         <li><a className="guide-index-planets" href="#pianeti"><Eclipse aria-hidden="true" size={15} />Pianeti</a>
           <ul>
             <li><a href="#pianeti-funzionamento">Come funziona un pianeta</a></li>
-            <li><a href="#pianeti-lista">La lista dei pianeti</a></li>
+            <li><a href="#pianeti-lista">La lista dei pianeti</a>
+              <ul>
+                <li><a href="#pianeti-ricerca-filtri">Ricerca e filtri</a></li>
+                <li><a href="#pianeti-sistema">Il sistema</a></li>
+                <li><a href="#pianeti-lista-pianeti">I pianeti</a></li>
+                <li><a href="#pianeti-scheda">Scheda pianeta</a></li>
+              </ul>
+            </li>
           </ul>
         </li>
       </ul>
@@ -201,12 +223,12 @@ export default async function GuideRoute() {
         <li>Non puoi inserire una stazione per un sistema già presente.</li>
       </ul>
       <StationFormExample sample={sample} />
-      <h4>Controlli sull&apos;indirizzo</h4>
-      <p>Mentre inserisci i glifi, il messaggio sotto il portale ti guida passo per passo.</p>
+      <h4 id="stazioni-controlli-indirizzo-portale">Controlli sull&apos;indirizzo portale</h4>
+      <p>Mentre inserisci i glifi, il messaggio sotto il campo dell&apos;indirizzo portale ti guida passo per passo.</p>
       <AddressValidationExample sample={sample} />
-      <p>«{translate("it", "common.add")}» resta disattivo finché l&apos;indirizzo non è valido e il controllo su Server Pianeti non è concluso.</p>
+      <p>«{translate("it", "common.add")}» resta disattivo finché l&apos;indirizzo portale non è valido e il controllo su Server Pianeti non è concluso.</p>
       <h3 id="stazioni-lista">La lista delle stazioni</h3>
-      <h4 style={{ color: "var(--lime)" }}>Tab</h4>
+      <h4 id="stazioni-lista-tab" style={{ color: "var(--lime)" }}>Tab</h4>
       <p>In cima alla pagina Stazioni, i tab filtrano la lista; il numero accanto a ogni tab indica quante stazioni contiene. I tab senza stazioni non compaiono.</p>
       <StationTabsExample />
       <ul>
@@ -217,16 +239,16 @@ export default async function GuideRoute() {
         <li><strong className="guide-tab-name">{translate("it", "stations.filter_my_missions")}</strong>: stazioni con una missione assegnata a te.</li>
         <li><strong className="guide-tab-name">{translate("it", "stations.filter_mission_completed")}</strong>: stazioni con missioni collegate, tutte completate.</li>
       </ul>
-      <h4 style={{ color: "#5fd68a" }}>Ranger</h4>
+      <h4 id="stazioni-lista-ranger" style={{ color: "#5fd68a" }}>Ranger</h4>
       <ul>
-        <li>Vede tutte le stazioni e filtra per Tutte, Le mie stazioni, In attesa, In missione, Le mie missioni (solo se ne ha) e Missione completata; cerca per portale, proprietario, galassia o note.</li>
+        <li>Vede tutte le stazioni e filtra per Tutte, Le mie stazioni, In attesa, In missione, Le mie missioni (solo se ne ha) e Missione completata; cerca per indirizzo portale, proprietario, galassia o note.</li>
         <li>«Aggiungi stazione»: indirizzo portale, galassia, nome (max 80 caratteri), note (max 1000). Solo per sé.</li>
         <li>Sulle proprie stazioni: spunta le voci Ranger, modifica nome e note, elimina (solo senza missioni collegate), crea una missione per Esploratori/Costruttori.</li>
       </ul>
       <h5>Esempi di card</h5>
       <p>I pulsanti che un Ranger può trovare sulla card di una stazione, in base a chi la possiede e alle missioni collegate.</p>
       {sample && <RangerStationExamples sample={sample} />}
-      <h4><span style={{ color: "#4d9bff" }}>Esploratori</span> e <span style={{ color: "#ffb45d" }}>Costruttori</span></h4>
+      <h4 id="stazioni-lista-esploratori-costruttori"><span style={{ color: "#4d9bff" }}>Esploratori</span> e <span style={{ color: "#ffb45d" }}>Costruttori</span></h4>
       <ul>
         <li>Vedono tutte le stazioni; possono modificare ed eliminare (se senza missioni) solo quelle di cui sono proprietari, non quelle di altri.</li>
         <li>Creano una missione per la <strong>propria specializzazione</strong> da una stazione: viene assegnata a loro. Non è possibile se la specializzazione è già coperta o se esiste già un altro pianeta dello stesso sistema.</li>
@@ -250,7 +272,7 @@ export default async function GuideRoute() {
         <li>Una missione completata si può riaprire con «{translate("it", "missions.reopen_mission")}».</li>
       </ul>
       <h3 id="missioni-lista">La lista delle missioni</h3>
-      <h4 style={{ color: "var(--lime)" }}>Tab</h4>
+      <h4 id="missioni-lista-tab" style={{ color: "var(--lime)" }}>Tab</h4>
       <p>In cima alla pagina Missioni, i tab filtrano la lista; il numero accanto a ogni tab indica quante missioni contiene. I tab senza missioni non compaiono.</p>
       <MissionTabsExample />
       <ul>
@@ -260,15 +282,15 @@ export default async function GuideRoute() {
         <li><strong className="guide-tab-name">{translate("it", "missions.pending_unassigned")}</strong>: missioni in attesa per la tua specializzazione che nessuno ha ancora preso in carico.</li>
         <li><strong className="guide-tab-name">{translate("it", "missions.status_completed")}</strong>: missioni concluse da te.</li>
       </ul>
-      <h4 style={{ color: "#4d9bff" }}>Esploratori</h4>
+      <h4 id="missioni-lista-esploratori" style={{ color: "#4d9bff" }}>Esploratori</h4>
       <h5>Esempi di card</h5>
       <p>Le schede missione che un Esploratore può trovare, dalla presa in carico alla chiusura.</p>
       <ExplorerMissionExamples sample={sample} />
-      <h4 style={{ color: "#ffb45d" }}>Costruttori</h4>
+      <h4 id="missioni-lista-costruttori" style={{ color: "#ffb45d" }}>Costruttori</h4>
       <h5>Esempi di card</h5>
       <p>Le schede missione che un Costruttore può trovare, dalla presa in carico alla chiusura.</p>
       <BuilderMissionExamples sample={sample} />
-      <h4 style={{ color: "#5fd68a" }}>Ranger</h4>
+      <h4 id="missioni-lista-ranger" style={{ color: "#5fd68a" }}>Ranger</h4>
       <p>Facoltativo: le voci Ranger (stazione riscattata, sistema rinominato) sono già disponibili allo scopritore del sistema sulla scheda stazione, quindi non serve una missione per spuntarle.</p>
       <h5>Esempi di card</h5>
       <p>Le schede missione che un Ranger può trovare, dalla presa in carico alla chiusura.</p>
@@ -285,7 +307,7 @@ export default async function GuideRoute() {
         <li>Le informazioni sono raggruppate per sistema/stazione, così puoi vedere subito tutti i pianeti legati a una stessa stazione e scorrere le loro caratteristiche.</li>
       </ul>
       <h3 id="pianeti-lista">La lista dei pianeti</h3>
-      <h4 style={{ color: "var(--lime)" }}>Ricerca e filtri</h4>
+      <h4 id="pianeti-ricerca-filtri" style={{ color: "var(--lime)" }}>Ricerca e filtri</h4>
       <p>La barra di ricerca trova i pianeti usando i dati indicizzati da Almanac, il nome Almanac e l&apos;indirizzo portale. Per mostrare i filtri, clicca il pulsante con l&apos;icona a cursori a destra della ricerca; cliccalo di nuovo per richiuderli.</p>
       <PlanetFiltersExample />
       <p>I filtri restringono ulteriormente i risultati. Le opzioni nei menu dipendono dai dati presenti nell&apos;archivio.</p>
@@ -298,7 +320,7 @@ export default async function GuideRoute() {
         initialFilters={{ ...emptyPlanetFilterValues, dissonant: "yes", paradise: "yes" }}
       />
 
-       <h4 style={{ color: "var(--lime)" }}>Il sistema</h4>
+       <h4 id="pianeti-sistema" style={{ color: "var(--lime)" }}>Il sistema</h4>
 
     
       <p>La lista raggruppa i pianeti in base alla stazione associata.</p>
@@ -307,7 +329,7 @@ export default async function GuideRoute() {
       <p>L&apos;intestazione mostra il nome della stazione, la galassia, l&apos;indirizzo portale e i dati del sistema. Il pulsante con l&apos;icona della stazione apre la stazione nella sezione Stazioni. Se non c&apos;è una stazione associata, il gruppo è indicato come «{translate("it", "planet.no_associated_station")}».</p>
       <PlanetStationHeadingExample planet={planetExample} />
       
-     <h4 style={{ color: "var(--lime)" }}>I pianeti</h4>
+     <h4 id="pianeti-lista-pianeti" style={{ color: "var(--lime)" }}>I pianeti</h4>
       <p>Ogni scheda mostra il nome Almanac o il numero del pianeta, l&apos;indirizzo portale con i glifi e i dati Almanac disponibili. Selezionando la scheda si apre il dettaglio del pianeta.</p>
       <PlanetListExample planet={planetExample} />
     </section>
