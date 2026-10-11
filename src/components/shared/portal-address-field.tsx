@@ -65,7 +65,7 @@ function PortalBreakdown({ address, decoded, lookup }: Readonly<{
         const progress = (raw.length / part.width) * 100;
         const partIsInvalid = decoded?.errors.some((message) => message.startsWith(errorPrefixes[part.label])) ?? false;
         const complete = raw.length === part.width && decoded !== null;
-        const state = almanacError || partIsInvalid ? "invalid" : complete ? "valid" : "incomplete";
+        const state = partIsInvalid ? "invalid" : almanacError ? "incomplete" : complete ? "valid" : "incomplete";
         const value = almanacError ? part.width : raw.length;
 
         return (
@@ -110,7 +110,7 @@ export function PortalValidation({ address, decoded, lookup, id = "portal-addres
     statusText += ` · ${t("planet.planet_found_on")}`;
     lookupLink = true;
   } else if (currentLookup?.status === "not-found") {
-    statusClass = "address-invalid";
+    statusClass = "address-incomplete";
     statusIcon = <CircleAlert size={13} />;
     statusText += ` · ${t("planet.no_planet_registered_with_nms_almanac_it_may_still_exist_in_the_game")}`;
   } else if (currentLookup?.status === "unavailable") {
@@ -122,8 +122,11 @@ export function PortalValidation({ address, decoded, lookup, id = "portal-addres
   return (
     <div aria-live="polite" id={id}>
       <output className={`address-validation ${statusClass}`}>
-        {statusIcon}{statusText}
-        {lookupLink && <a href="https://nmsalmanac.com" rel="noreferrer" target="_blank">NMS Almanac</a>}
+        {statusIcon}
+        <span className="address-validation-text">
+          {statusText}
+          {lookupLink && <> <a href="https://nmsalmanac.com" rel="noreferrer" target="_blank">NMS Almanac</a></>}
+        </span>
       </output>
       {address.length > 0 && <PortalBreakdown address={address} decoded={decoded} lookup={lookup} />}
       {decoded && decoded.errors.length > 0 && <ul className="portal-errors">{decoded.errors.map((message) => <li key={message}>{t(message)}</li>)}</ul>}

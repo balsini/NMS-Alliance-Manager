@@ -597,7 +597,7 @@ export const translations: TranslationCatalog = {
     "planet.unnamed_planet": "Unnamed planet",
     "planet.close_planet_details": "Close system details",
     "planet.open_planet_details_for": "Open system details for",
-    "planet.checking_nms_almanac": "Checking NMS Almanac…",
+    "planet.checking_nms_almanac": "Checking NMS Almanac in progress…",
     "planet.no_planet_registered_with_nms_almanac_it_may_still_exist_in_the_game": "No planet registered with NMS Almanac; it may still exist in the game.",
     "planet.planet_found_on": "Planet found on",
     "planet.loading_planet_status": "Loading planet status…",

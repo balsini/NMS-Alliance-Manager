@@ -151,7 +151,7 @@ export default async function GuideRoute() {
       <h4>Controlli sull&apos;indirizzo</h4>
       <p>Mentre inserisci i glifi, il messaggio sotto il portale ti guida passo per passo.</p>
       <AddressValidationExample sample={sample} />
-      <p>«{translate("it", "common.add")}» resta disattivo finché l&apos;indirizzo non è valido e il controllo su NMS Almanac non è concluso.</p>
+      <p>«{translate("it", "common.add")}» resta disattivo finché l&apos;indirizzo non è valido e il controllo su Server Pianeti non è concluso.</p>
       <h3 style={{ color: "#5fd68a" }}>Ranger</h3>
       <ul>
         <li>Vede tutte le stazioni e filtra per Tutte, Le mie stazioni, In attesa, In missione, Le mie missioni (solo se ne ha) e Missione completata; cerca per portale, proprietario, galassia o note.</li>

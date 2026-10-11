@@ -597,7 +597,7 @@ export const translations: TranslationCatalog = {
     "planet.unnamed_planet": "Pianeta senza nome",
     "planet.close_planet_details": "Chiudi scheda sistema",
     "planet.open_planet_details_for": "Apri la scheda del sistema per",
-    "planet.checking_nms_almanac": "Controllo NMS Almanac…",
+    "planet.checking_nms_almanac": "Controllo NMS Almanac in corso…",
     "planet.no_planet_registered_with_nms_almanac_it_may_still_exist_in_the_game": "Nessun pianeta registrato da NMS Almanac; potrebbe esistere nel gioco.",
     "planet.planet_found_on": "Pianeta trovato su",
     "planet.loading_planet_status": "Caricamento stato pianeta",

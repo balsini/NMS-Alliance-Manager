@@ -79,7 +79,9 @@
 .glyph-keypad button:hover:not(:disabled) { border-color: var(--lime); background: #302719; }
 .glyph-keypad button:disabled { cursor: default; opacity: .45; }
 .glyph-keypad img { width: 24px; height: 24px; object-fit: contain; filter: brightness(0) saturate(100%) invert(1) opacity(.9); }
-.address-validation { min-height: 15px; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0; font-size: 9px; line-height: 1.4; }
+.address-validation { min-height: 15px; display: flex; align-items: flex-start; gap: 6px; margin: 0; font-size: 9px; line-height: 1.4; }
+.address-validation > svg { flex: none; margin-top: 1px; }
+.address-validation-text { min-width: 0; }
 .address-incomplete { color: #e4b478; }
 .address-valid { color: #72d1c4; }
 .address-invalid { color: #ef8067; }
