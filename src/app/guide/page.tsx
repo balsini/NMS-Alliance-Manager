@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Hero } from "@/components/layout/hero";
 import { AddStationButtonExample } from "@/components/guide/add-station-button-example";
+import { MessageComposerExamples } from "@/components/guide/message-composer-examples";
+import { MessageTabsExample } from "@/components/guide/message-tabs-example";
 import { translate } from "@/lib/translations";
 import { readAccessData } from "@/lib/access-store";
 import {
@@ -391,12 +393,27 @@ export default async function GuideRoute() {
                   <li>
                     <a href="#pianeti-lista-pianeti">I pianeti</a>
                   </li>
-                  <li>
-                    <a href="#pianeti-scheda">Scheda pianeta</a>
-                  </li>
                 </ul>
               </li>
             </ul>
+          </li>
+          <li>
+            <a className="guide-index-leaderboard" href="#classifica">
+              <Trophy aria-hidden="true" size={15} />
+              Classifica
+            </a>
+          </li>
+          <li>
+            <a className="guide-index-help" href="#richieste-aiuto">
+              <Siren aria-hidden="true" size={15} />
+              Richieste d&apos;aiuto
+            </a>
+          </li>
+          <li>
+            <a className="guide-index-messages" href="#messaggi">
+              <Mail aria-hidden="true" size={15} />
+              Messaggi
+            </a>
           </li>
         </ul>
       </nav>
@@ -1075,37 +1092,136 @@ export default async function GuideRoute() {
             <PlanetListExample planet={planetExample} />
           </section>
 
-          <section id="pagine">
-            <h2>
-              <FileText aria-hidden="true" size={20} />
-              Pagina per pagina
+          <section id="classifica">
+            <h2 style={{ color: "#e040c8" }}>
+              <Trophy aria-hidden="true" size={20} />
+              Classifica
             </h2>
-            <h3 id="pagine-stazioni">Stazioni</h3>
-            <p>Elenco delle stazioni con stato dei sistemi, note e azioni (vedi sopra per specializzazione).</p>
-            <h3 id="pagine-missioni">Missioni</h3>
+            <p>La pagina riunisce i risultati dei membri e i numeri complessivi dell&apos;alleanza:</p>
+            <ul>
+              <li>
+                Il riquadro Alleanza mostra il totale di stazioni, missioni, missioni completate, task completati,
+                pianeti e membri approvati.
+              </li>
+              <li>
+                Le classifiche individuali mostrano chi ha registrato più stazioni e completato più missioni, con un
+                massimo di 10 membri per classifica.
+              </li>
+              <li>
+                Le classifiche dei task sono divise per specializzazione: Ranger, Esploratore e Costruttore. Per ogni
+                task vengono mostrati fino a 3 membri; il completamento è attribuito all&apos;assegnatario della
+                missione corrispondente oppure, se non c&apos;è una missione che copre quel task, al proprietario della
+                stazione.
+              </li>
+            </ul>
+            <p>La pagina è di sola lettura.</p>
+          </section>
+          <section id="richieste-aiuto">
+            <h2 style={{ color: "#f5c518" }}>
+              <Siren aria-hidden="true" size={20} />
+              Richieste d&apos;aiuto
+            </h2>
             <p>
-              Filtri per stato (Tutte, In corso, In attesa, Completate). Ogni scheda mostra pianeta, galassia,
-              specializzazione richiesta, scopritore, assegnatario, priorità e avanzamento. Il titolo apre il dettaglio
-              pianeta, i nomi aprono il profilo del membro.
+              Puoi chiedere aiuto dalla scheda di un pianeta, premendo{" "}
+              <span
+                aria-label="Richiedi aiuto"
+                className="guide-icon guide-help-icon"
+                style={{ color: "#f5c518", borderColor: "#f5c518" }}
+                title="Richiedi aiuto"
+              >
+                <Siren aria-hidden="true" size={16} />
+              </span>{" "}
+              e inviando un messaggio. Le richieste compaiono qui a tutti gli utenti dalla più recente alla meno
+              recente.
             </p>
-            <h3 id="pagine-dettaglio-pianeta">Dettaglio pianeta</h3>
-            <p>Dati del pianeta e, con l&apos;icona sirena, invio di una richiesta d&apos;aiuto.</p>
-            <h3 id="pagine-classifica">Classifica</h3>
+            <ul>
+              <li>
+                Accanto all&apos;oggetto, l&apos;icona{" "}
+                <span
+                  aria-label="Pianeta"
+                  className="guide-icon"
+                  style={{ color: "#b48cf2", borderColor: "#b48cf2" }}
+                  title="Pianeta"
+                >
+                  <Eclipse aria-hidden="true" size={16} />
+                </span>{" "}
+                apre la scheda pianeta collegata alla richiesta d&apos;aiuto.
+              </li>
+              <li>
+                Ogni richiesta mostra chi l&apos;ha inviata e il contenuto, con eventuali collegamenti al pianeta e alla
+                missione.
+              </li>
+              <li>Puoi rispondere alle richieste; le risposte compaiono sotto quella originale.</li>
+              <li>
+                Puoi eliminare le tue richieste e risposte; moderatori e admin possono eliminare anche quelle degli
+                altri. Eliminando una richiesta, elimini anche le sue risposte.
+              </li>
+              <li>
+                Per conversazioni lunghe, usa Telegram o Discord: trovi i link nella parte bassa della barra laterale.
+              </li>
+            </ul>
+          </section>
+          <section id="messaggi">
+            <h2 style={{ color: "var(--lime)" }}>
+              <Mail aria-hidden="true" size={20} />
+              Messaggi
+            </h2>
             <p>
-              Posizione dei membri (stazioni scoperte, missioni completate, voci spuntate) e totali dell&apos;alleanza.
-              Sola lettura.
+              Per scrivere a un alleato, clicca sul suo nome in una scheda di{" "}
+              <span className="guide-destination guide-destination-stations">
+                <Orbit aria-hidden="true" size={14} />
+                Stazioni
+              </span>{" "}
+              o di{" "}
+              <span className="guide-destination guide-destination-missions">
+                <Crosshair aria-hidden="true" size={14} />
+                Missioni
+              </span>
+              , apri il profilo e premi «Lascia un messaggio».
             </p>
-            <h3 id="pagine-richieste-aiuto">Richieste d&apos;aiuto</h3>
+            <MessageComposerExamples />
             <p>
-              Elenco delle richieste di tutti con le risposte. Si inviano dalla scheda di un pianeta (max 2000
-              caratteri, con conferma). Tutti possono rispondere; elimini solo le tue.
+              Qui trovi i messaggi inviati e ricevuti, organizzati in conversazioni. La pagina offre i tab{" "}
+              <strong className="guide-tab-name">Ricevuti</strong> e{" "}
+              <strong className="guide-tab-name">Inviati.</strong>
             </p>
-            <h3 id="pagine-messaggi">Messaggi</h3>
-            <p>
-              Si scrive dal profilo di un membro approvato e non offline, solo su un pianeta o una missione (per il
-              resto Telegram o Discord). Puoi rispondere, segnare come letto ed eliminare i messaggi di cui sei mittente
-              o destinatario.
-            </p>
+            <MessageTabsExample />
+            <ul>
+              <li>Mantieni sempre un tono rispettoso: moderatori e admin possono vedere tutti i messaggi.</li>
+              <li>
+                Accanto all&apos;oggetto, l&apos;icona{" "}
+                <span
+                  aria-label="Missione"
+                  className="guide-icon"
+                  style={{ color: "#72d1c4", borderColor: "#72d1c4" }}
+                  title="Missione"
+                >
+                  <Crosshair aria-hidden="true" size={16} />
+                </span>{" "}
+                apre la scheda missione collegata al messaggio; l&apos;icona{" "}
+                <span
+                  aria-label="Stazione"
+                  className="guide-icon"
+                  style={{ color: "#6cb4ff", borderColor: "#6cb4ff" }}
+                  title="Stazione"
+                >
+                  <Orbit aria-hidden="true" size={16} />
+                </span>{" "}
+                apre la scheda stazione collegata al messaggio.
+              </li>
+              <li>
+                Se ricevi un messaggio, l&apos;indicatore dei messaggi non letti compare nella barra laterale entro 2
+                minuti.
+              </li>
+              <li>
+                I messaggi mostrano mittente, destinatario, oggetto, data e contenuto; le risposte compaiono sotto il
+                messaggio originale.
+              </li>
+              <li>Puoi rispondere ai messaggi inviati e ricevuti.</li>
+              <li>
+                Per conversazioni lunghe, usa Telegram o Discord: trovi i link nella parte bassa della barra laterale.
+              </li>
+            </ul>
           </section>
         </main>
       </LocaleProvider>
