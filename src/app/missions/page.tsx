@@ -1,5 +1,6 @@
 import { MissionDashboard } from "@/components/pages/mission-dashboard";
-import { GoogleLogin } from "@/components/pages/google-login";
+import { LoginScreen } from "@/components/pages/login-screen";
+import { getMissingAuthConfiguration } from "@/lib/local-auth";
 import { auth } from "@/auth";
 import { getCurrentMember } from "@/lib/authorization";
 import { PendingApproval } from "@/components/pages/pending-approval";
@@ -15,15 +16,14 @@ export default async function MissionsRoute({ searchParams }: Readonly<{
   const { alliance } = accessData;
   const allianceName = alliance.name;
   const allianceLogoUrl = alliance.logoUrl;
-  const missingConfiguration = ["AUTH_SECRET", "AUTH_GOOGLE_ID", "AUTH_GOOGLE_SECRET", "ALLIANCE_ADMIN_EMAIL"]
-    .filter((key) => !process.env[key]);
-  if (missingConfiguration.length > 0) return <GoogleLogin allianceLogoUrl={allianceLogoUrl} allianceName={allianceName} missingConfiguration={missingConfiguration} />;
+  const missingConfiguration = getMissingAuthConfiguration();
+  if (missingConfiguration.length > 0) return <LoginScreen allianceLogoUrl={allianceLogoUrl} allianceName={allianceName} missingConfiguration={missingConfiguration} />;
 
   const session = await auth();
-  if (!session?.user?.email) return <GoogleLogin allianceLogoUrl={allianceLogoUrl} allianceName={allianceName} />;
+  if (!session?.user?.email) return <LoginScreen allianceLogoUrl={allianceLogoUrl} allianceName={allianceName} />;
 
   const member = await getCurrentMember({ allowPending: true, allowBlocked: true });
-  if (!member) return <GoogleLogin allianceLogoUrl={allianceLogoUrl} allianceName={allianceName} />;
+  if (!member) return <LoginScreen allianceLogoUrl={allianceLogoUrl} allianceName={allianceName} />;
   if (member.membershipStatus !== "approved") return <PendingApproval member={member} />;
   const params = await searchParams;
   const initialSearch = typeof params.search === "string" ? params.search.slice(0, 80) : "";

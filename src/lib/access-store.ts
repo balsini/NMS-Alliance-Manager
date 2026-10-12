@@ -5,6 +5,7 @@ import { randomUUID } from "node:crypto";
 import { getBlobAuthOptions } from "@/lib/blob-config";
 import { isValidNmsFriendCode, memberRoles, memberSpecialties, membershipStatuses, normalizeNmsFriendCode, nmsPlatforms } from "@/lib/member-types";
 import type { AllianceMember, AllianceSettings, MemberRole, MemberSpecialty, MembershipStatus, NmsPlatform } from "@/lib/member-types";
+import type { LocalAccount } from "@/lib/local-auth";
 
 export { memberRoles, memberSpecialties, membershipStatuses, nmsPlatforms } from "@/lib/member-types";
 export type { AllianceMember, AllianceSettings, MemberRole, MemberSpecialty, MembershipStatus, NmsPlatform } from "@/lib/member-types";
@@ -160,6 +161,35 @@ export async function registerMember(identity: Pick<AllianceMember, "email" | "n
   else data.members[index] = member;
   await writeAccessData(data);
   return { member, alliance: data.alliance };
+}
+
+// LOCAL_AUTH: a ogni accesso ripristina ruolo e approvazione dell'account di sviluppo e completa il profilo se vuoto.
+export async function ensureLocalMember(account: LocalAccount) {
+  const data = await readAccessData();
+  const index = data.members.findIndex((member) => member.email === account.email);
+  const existingMember = data.members[index];
+  const now = new Date().toISOString();
+  const member: AllianceMember = {
+    publicId: existingMember?.publicId ?? randomUUID(),
+    email: account.email,
+    name: account.name,
+    image: "",
+    nmsName: existingMember?.nmsName || account.nmsName,
+    nmsCode: existingMember?.nmsCode || account.nmsCode,
+    ...(existingMember?.telegramName ? { telegramName: existingMember.telegramName } : {}),
+    ...(existingMember?.discordName ? { discordName: existingMember.discordName } : {}),
+    platforms: existingMember?.platforms.length ? existingMember.platforms : [...account.platforms],
+    specialty: existingMember?.specialty || account.specialty,
+    role: account.role,
+    membershipStatus: "approved",
+    simpleView: account.role === "user" || existingMember?.simpleView === true,
+    approvedBy: existingMember?.approvedBy || account.email,
+    approvedAt: existingMember?.approvedAt || now,
+    lastLogin: now,
+  };
+  if (index === -1) data.members.push(member);
+  else data.members[index] = member;
+  await writeAccessData(data);
 }
 
 export type ProfileConflict = "name" | "code";

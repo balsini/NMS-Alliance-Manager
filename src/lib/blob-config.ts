@@ -1,4 +1,9 @@
+import { isLocalAuthEnabled } from "@/lib/local-auth";
+
 export function getBlobAuthOptions() {
+  // LOCAL_AUTH usa sempre i file in data/, per non scrivere mai su uno store Blob reale.
+  if (isLocalAuthEnabled()) return null;
+
   const storeId = process.env.NMS_STORE_ID || process.env.BLOB_STORE_ID;
   if (storeId && (process.env.VERCEL || process.env.VERCEL_OIDC_TOKEN)) return { storeId };
 
