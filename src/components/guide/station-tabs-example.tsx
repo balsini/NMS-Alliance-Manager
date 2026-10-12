@@ -5,7 +5,7 @@ import { useLocale } from "@/components/providers/locale-provider";
 
 const noop = () => undefined;
 
-export function StationTabsExample() {
+export function StationTabsExample({ selectedKey = "all" }: Readonly<{ selectedKey?: string }>) {
   const { t } = useLocale();
   const items = [
     { key: "all", label: t("stations.filter_all"), count: 12, selected: true },
@@ -14,7 +14,7 @@ export function StationTabsExample() {
     { key: "in_progress", label: t("stations.filter_in_mission"), count: 4, selected: false },
     { key: "my_missions", label: t("stations.filter_my_missions"), count: 2, selected: false },
     { key: "completed", label: t("stations.filter_mission_completed"), count: 3, selected: false },
-  ].map((item) => ({ ...item, onSelect: noop }));
+  ].map((item) => ({ ...item, selected: item.key === selectedKey, onSelect: noop }));
 
   return (
     <div className="guide-example guide-tabs-example" inert>

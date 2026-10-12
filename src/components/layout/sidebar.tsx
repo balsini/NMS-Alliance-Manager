@@ -3,7 +3,7 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Crosshair, Eclipse, Siren, Mail, Orbit, Send, Trophy, UsersRound, UserRoundX } from "lucide-react";
+import { BookOpen, Crosshair, Eclipse, Siren, Mail, Orbit, Send, Trophy, UsersRound, UserRoundX } from "lucide-react";
 import type { AllianceMember, AllianceSettings } from "@/lib/access-store";
 import { useLocale } from "@/components/providers/locale-provider";
 import { useRequestSearchReset } from "@/components/shared/navigation-search-reset";
@@ -56,7 +56,8 @@ export function Sidebar({
   offlineCount?: number;
   currentMember: AllianceMember;
   settings: AllianceSettings;
-  activeSection: "missioni" | "pianeti" | "utenti" | "offline" | "stazioni" | "messaggi" | "aiuto" | "classifica";
+  activeSection:
+    "missioni" | "pianeti" | "utenti" | "offline" | "stazioni" | "messaggi" | "aiuto" | "classifica" | "guida";
 }>) {
   const { t } = useLocale();
   const resetSearch = useRequestSearchReset();
@@ -216,6 +217,15 @@ export function Sidebar({
           >
             {unreadCount}
           </span>
+        </Link>
+        <Link
+          className={`nav-item ${activeSection === "guida" ? "active" : ""}`}
+          href="/member-guide"
+          data-tooltip={t("navigation.guide")}
+          onClick={resetSearch}
+        >
+          <BookOpen size={17} />
+          <span>{t("navigation.guide")}</span>
         </Link>
       </nav>
       <div className="sidebar-bottom">

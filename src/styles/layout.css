@@ -14,7 +14,7 @@
 .sidebar-bottom { margin-top: auto; }
 .live-dot { width: 6px; height: 6px; display: inline-block; flex: 0 0 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 3px #71d0c422; }
 .top-avatar { display: grid; flex: 0 0 auto; place-items: center; border-radius: 50%; font-family: "SFMono-Regular", Consolas, monospace; }
-.topbar { height: 61px; position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; border-bottom: 1px solid #303a3d; background: #000; box-shadow: 0 0 30px 0 rgba(0, 0, 0, 1); }
+.topbar { height: 61px; position: sticky; top: 0; z-index: 12; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; border-bottom: 1px solid #303a3d; background: #000; box-shadow: 0 0 30px 0 rgba(0, 0, 0, 1); }
 .breadcrumb, .topbar-tools { display: flex; align-items: center; }
 .breadcrumb { color: #8a948d; font-family: var(--font-accent); font-size: 12px; font-weight: 700; letter-spacing: .148em; text-transform: uppercase; }
 .breadcrumb strong { color: var(--ink); font-weight: 650; }
