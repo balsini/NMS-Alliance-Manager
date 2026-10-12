@@ -1,0 +1,44 @@
+[
+  {
+    "portal": "11A20248BAB7",
+    "galaxy": 0,
+    "ownerId": "7e570000-0000-4000-8000-000000000007",
+    "name": "Alpha Station",
+    "note": "Trading hub, easy to reach.",
+    "createdByMemberId": "7e570000-0000-4000-8000-000000000007",
+    "createdAt": "2026-01-02T09:00:00.000Z"
+  },
+  {
+    "portal": "319035DEF73A",
+    "galaxy": 0,
+    "ownerId": "7e570000-0000-4000-8000-000000000009",
+    "name": "Beta Station",
+    "createdByMemberId": "7e570000-0000-4000-8000-000000000009",
+    "createdAt": "2026-01-03T09:00:00.000Z"
+  },
+  {
+    "portal": "09432AC654DC",
+    "galaxy": 0,
+    "ownerId": "7e570000-0000-4000-8000-000000000008",
+    "name": "Gamma Station",
+    "createdByMemberId": "7e570000-0000-4000-8000-000000000008",
+    "createdAt": "2026-01-04T09:00:00.000Z"
+  },
+  {
+    "portal": "10490248AAB7",
+    "galaxy": 0,
+    "ownerId": "7e570000-0000-4000-8000-000000000007",
+    "name": "Delta Station",
+    "createdByMemberId": "7e570000-0000-4000-8000-000000000007",
+    "createdAt": "2026-01-05T09:00:00.000Z"
+  },
+  {
+    "portal": "20FC0248BAB8",
+    "galaxy": 0,
+    "ownerId": "7e570000-0000-4000-8000-000000000001",
+    "name": "Epsilon Station",
+    "note": "Close to a black hole.",
+    "createdByMemberId": "7e570000-0000-4000-8000-000000000001",
+    "createdAt": "2026-01-06T09:00:00.000Z"
+  }
+]

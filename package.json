@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "dev:local": "LOCAL_AUTH=true next dev --turbopack",
+    "dev:test": "rm -rf data-test && cp -R fixtures/test-data data-test && LOCAL_AUTH=true LOCAL_AUTH_SET=test NMS_DATA_DIR=data-test next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",

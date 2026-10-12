@@ -54,6 +54,7 @@ export function GoogleLogin({
             {localAccounts?.map((account) => (
               <button
                 className="google-login-button"
+                data-testid={`local-login-${account.email}`}
                 key={account.email}
                 onClick={() => signIn("local", { email: account.email })}
                 type="button"

@@ -1,6 +1,7 @@
 import { get, put } from "@vercel/blob";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { localDataPath } from "@/lib/local-data-path";
 import { getBlobAuthOptions } from "@/lib/blob-config";
 import {
   isMissionPriority,
@@ -14,7 +15,7 @@ import { readAccessData } from "@/lib/access-store";
 import { initialMissions } from "@/lib/seed";
 
 const blobPath = "alliance-manager/missions.json";
-const localPath = path.join(process.cwd(), "data", "missions.json");
+const localPath = localDataPath("missions.json");
 
 function migrateMissions(
   value: unknown,

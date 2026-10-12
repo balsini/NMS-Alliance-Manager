@@ -12,6 +12,8 @@ Guidance for AI coding agents working in this repository.
 ```bash
 npm install
 npm run dev     # Next.js dev server (Turbopack) on http://localhost:3000
+npm run dev:local   # Same, with the local development accounts (no Google)
+npm run dev:test    # Same, with the 9 fixed test accounts and populated data in data-test/ (copied from fixtures/test-data/)
 npm test        # Unit tests (Vitest)
 npm run test:coverage   # Same, with a coverage report for src/lib in coverage/ (git-ignored)
 npm run lint    # ESLint
@@ -24,7 +26,7 @@ Unit tests live next to the code (`*.test.ts` / `*.test.tsx`) and cover the pure
 
 Formatting uses Prettier (`prettier.config.mjs`, `.prettierignore`), wired into ESLint through `eslint-config-prettier`. The existing code was never formatted with it, so don't run `npm run format` on the whole repo inside an unrelated change: format only the files you create or edit (`npx prettier --write <files>`). Markdown, CSS in `src/styles/`, `public/`, `data/` and `nms-core` are ignored.
 
-Local auth needs `.env.local` (see `.env.example`). The quick option is `LOCAL_AUTH=true`: the login screen then offers fixed development accounts (`src/lib/local-auth.ts`: admin, moderator, and one normal user per specialty), each pre-approved with a complete profile, no Google variables are needed, and storage is forced to `data/`. `isLocalAuthEnabled()` ignores the flag when `NODE_ENV=production` or `VERCEL` is set, so it never affects a build or deploy. For real Google login, set `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTH_URL=http://localhost:3000/api/auth`, `ALLIANCE_ADMIN_EMAIL`. If any of these is missing (and local mode is off), pages render the login screen listing what's missing; the list comes from `getMissingAuthConfiguration()`. The configured admin email is auto-approved.
+Local auth needs `.env.local` (see `.env.example`). The quick option is `LOCAL_AUTH=true` (`npm run dev:local`): the login screen then offers development accounts (`src/lib/local-auth.ts`: admin, moderator and regular user, with editable profiles), each pre-approved with a complete profile, no Google variables are needed, and storage is forced to local files in `data/`. `npm run dev:test` selects the test set (`LOCAL_AUTH_SET=test`): nine fixed accounts, one per role and specialty, with a profile that cannot be edited and is reset on every login. Its data lives in `data-test/` (`NMS_DATA_DIR`), recreated on every start from `fixtures/test-data/` (members, missions, stations, task status and messages with fixed ids); `src/lib/test-data.test.ts` checks that the fixtures load with the real store readers. Each login button has `data-testid="local-login-<email>"`. `isLocalAuthEnabled()` ignores the flag when `NODE_ENV=production` or `VERCEL` is set, so it never affects a build or deploy. For real Google login, set `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTH_URL=http://localhost:3000/api/auth`, `ALLIANCE_ADMIN_EMAIL`. If any of these is missing (and local mode is off), pages render the login screen listing what's missing; the list comes from `getMissingAuthConfiguration()`. The configured admin email is auto-approved.
 
 ## Architecture
 

@@ -3,6 +3,7 @@ node_modules/
 out/
 .vercel/
 data/
+data-test/
 # Test coverage reports
 coverage/
 .env*

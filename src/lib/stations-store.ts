@@ -1,6 +1,7 @@
 import { get, put } from "@vercel/blob";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { localDataPath } from "@/lib/local-data-path";
 import { getBlobAuthOptions } from "@/lib/blob-config";
 import { decodePortalAddress } from "@/lib/missions";
 import { readAccessData } from "@/lib/access-store";
@@ -19,9 +20,9 @@ type StationList = OwnedStationPortal[];
 type NormalizedStation = StationPortal & Readonly<{ createdByEmail?: string }>;
 
 const legacyBlobPath = "alliance-manager/stations.json";
-const legacyLocalPath = path.join(process.cwd(), "data", "stations.json");
+const legacyLocalPath = localDataPath("stations.json");
 const blobPath = "alliance-manager/stations-v2.json";
-const localPath = path.join(process.cwd(), "data", "stations-v2.json");
+const localPath = localDataPath("stations-v2.json");
 
 function normalizeStationEntries(entries: unknown[]): NormalizedStation[] {
   const stations = entries.flatMap((entry) => {

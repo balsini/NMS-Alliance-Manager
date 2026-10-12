@@ -30,16 +30,21 @@ To try the app without configuring Google OAuth, either run `npm run dev:local` 
 LOCAL_AUTH=true
 ```
 
-The sign-in screen shows one button for each development account (defined in `src/lib/local-auth.ts`):
+The sign-in screen shows one button for each account of the selected set (defined in `src/lib/local-auth.ts`). Every button has a `data-testid="local-login-<email>"` to identify it.
+
+**Development set** (`npm run dev:local`, or `LOCAL_AUTH=true` in `.env.local`): three accounts, one per role.
 
 | Account | Role | Specialty |
 | --- | --- | --- |
 | `ADMIN_EMAIL`, or `adminovr@local` if it is not set | admin | Explorer |
-| `admin@local` | admin | Ranger |
 | `moderator@local` | moderator | Explorer |
-| `ranger@local`, `explorer@local`, `builder@local` | regular user | Ranger, Explorer, Builder |
+| `user@local` | regular user | Ranger |
 
-The accounts are already approved and have a complete profile; role and approval are restored on every sign-in. Only the first account (`ADMIN_EMAIL` or `adminovr@local`) can edit profiles from the profile panel, and its changes persist across sign-ins. The other local accounts are fixed for testing: their profile cannot be edited from the panel and is reset to the values in `localAccounts` on every sign-in (the simplified view toggle still works). Google accounts are not affected by this. In this mode the Google variables and `ALLIANCE_ADMIN_EMAIL` are not needed, and data is always saved in `data/`, even if a Blob store is configured. The mode is ignored in production (`NODE_ENV=production`, so also with `npm run build` / `npm start`) and on Vercel.
+Profiles are editable from the profile panel and the changes persist across sign-ins, so the specialty can be changed there. Data is saved in `data/`.
+
+**Test set** (`npm run dev:test`): nine fixed accounts, one for every role and specialty combination, named `test-<role>-<specialty>@local` (for example `test-moderator-builder@local`). Their profile cannot be edited from the panel and is reset to the values in `testLocalAccounts` on every sign-in (the simplified view toggle still works). Data is saved in `data-test/`, which is recreated on every start from `fixtures/test-data/`, so the development data is never touched and every run starts from the same populated state: 13 members (the 9 test accounts, 2 offline players, 1 pending and 1 blocked member), 9 missions covering every status and specialty, 5 stations with their system task status, a help request with a reply and two private messages. The set is chosen with `LOCAL_AUTH_SET=test`, and the data folder with `NMS_DATA_DIR`. `src/lib/test-data.test.ts` loads the fixtures with the real store readers, so a fixture the app cannot read fails the tests: keep them valid when you edit them.
+
+In both sets the accounts are already approved and have a complete profile; role and approval are restored on every sign-in. Google accounts are not affected. In this mode the Google variables and `ALLIANCE_ADMIN_EMAIL` are not needed, and data is always saved in local files, even if a Blob store is configured. The mode is ignored in production (`NODE_ENV=production`, so also with `npm run build` / `npm start`) and on Vercel.
 
 ## Deploying to Vercel
 

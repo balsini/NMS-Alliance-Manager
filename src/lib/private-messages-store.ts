@@ -2,6 +2,7 @@ import { get, put } from "@vercel/blob";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
+import { localDataPath } from "@/lib/local-data-path";
 import { getBlobAuthOptions } from "@/lib/blob-config";
 import { readAccessData } from "@/lib/access-store";
 
@@ -29,7 +30,7 @@ type StoredPrivateMessage = PrivateMessage &
   }>;
 
 const blobPath = "alliance-manager/private-messages.json";
-const localPath = path.join(process.cwd(), "data", "private-messages.json");
+const localPath = localDataPath("private-messages.json");
 
 function parseMessages(value: unknown): StoredPrivateMessage[] {
   if (!Array.isArray(value)) throw new Error("Invalid private message storage format.");

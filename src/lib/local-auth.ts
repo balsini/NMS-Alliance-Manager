@@ -17,31 +17,18 @@ export type LocalAccountOption = Readonly<{
   specialty: MemberSpecialty;
 }>;
 
-// Development accounts for LOCAL_AUTH: two admins, a moderator, and a regular user for each specialty.
-// Only the accounts in editableLocalAccounts can edit their profile from the panel, and their changes persist across logins.
-// The other local accounts are fixed for testing: their profile is reset to the values below on every login.
+export const adminEmail = process.env.ADMIN_EMAIL || "admin@local";
 
-export const adminEmail = process.env.ADMIN_EMAIL || "adminovr@local";
-
-export const editableLocalAccounts = [adminEmail];
-
-export const localAccounts: readonly LocalAccount[] = [
+// Development set (npm run dev:local): one account per role. Profiles are editable from the panel and persist across
+// logins, so the specialty can be changed there and no account per specialty is needed.
+export const devLocalAccounts: readonly LocalAccount[] = [
   {
     email: adminEmail,
-    name: "Local Admin OVR",
-    nmsName: "LocalAdminOvr",
-    nmsCode: "LOCALADMIN000",
-    platforms: ["PC"],
-    specialty: "explorer",
-    role: "admin",
-  },
-  {
-    email: "admin@local",
     name: "Local Admin",
     nmsName: "LocalAdmin",
     nmsCode: "LOCALADMIN001",
     platforms: ["PC"],
-    specialty: "ranger",
+    specialty: "explorer",
     role: "admin",
   },
   {
@@ -50,59 +37,73 @@ export const localAccounts: readonly LocalAccount[] = [
     nmsName: "LocalModerator",
     nmsCode: "LOCALMODER001",
     platforms: ["PC"],
-    specialty: "explorer",
+    specialty: "builder",
     role: "moderator",
   },
   {
-    email: "ranger@local",
-    name: "Local Ranger",
-    nmsName: "LocalRanger",
-    nmsCode: "LOCALRANGE001",
-    platforms: ["PlayStation"],
+    email: "user@local",
+    name: "Local User",
+    nmsName: "LocalUser",
+    nmsCode: "LOCALUSER0001",
+    platforms: ["PC"],
     specialty: "ranger",
     role: "user",
   },
-  {
-    email: "explorer@local",
-    name: "Local Explorer",
-    nmsName: "LocalExplorer",
-    nmsCode: "LOCALEXPLO001",
-    platforms: ["Xbox"],
-    specialty: "explorer",
-    role: "user",
-  },
-  {
-    email: "builder@local",
-    name: "Local Builder",
-    nmsName: "LocalBuilder",
-    nmsCode: "LOCALBUILD001",
-    platforms: ["PC"],
-    specialty: "builder",
-    role: "user",
-  },
 ];
+
+const testRoles = [
+  { role: "admin", title: "Admin", code: "ADM" },
+  { role: "moderator", title: "Moderator", code: "MOD" },
+  { role: "user", title: "User", code: "USR" },
+] as const;
+
+const testSpecialties = [
+  { specialty: "ranger", title: "Ranger", code: "RNG" },
+  { specialty: "explorer", title: "Explorer", code: "EXP" },
+  { specialty: "builder", title: "Builder", code: "BLD" },
+] as const;
+
+// Test set (npm run dev:test): every role and specialty combination, 9 fixed accounts. Their profile is reset to
+// these values on every login and cannot be edited from the panel.
+export const testLocalAccounts: readonly LocalAccount[] = testRoles.flatMap((role) =>
+  testSpecialties.map((specialty): LocalAccount => ({
+    email: `test-${role.role}-${specialty.specialty}@local`,
+    name: `Test ${role.title} ${specialty.title}`,
+    nmsName: `Test${role.title}${specialty.title}`,
+    nmsCode: `TEST${role.code}${specialty.code}001`,
+    platforms: ["PC"],
+    specialty: specialty.specialty,
+    role: role.role,
+  })),
+);
 
 // Mai attivo in produzione o su Vercel, anche se LOCAL_AUTH è impostato per errore.
 export function isLocalAuthEnabled() {
   return process.env.LOCAL_AUTH === "true" && process.env.NODE_ENV !== "production" && !process.env.VERCEL;
 }
 
+function isTestSet() {
+  return process.env.LOCAL_AUTH_SET === "test";
+}
+
+export function getLocalAccounts(): readonly LocalAccount[] {
+  return isTestSet() ? testLocalAccounts : devLocalAccounts;
+}
+
 export function findLocalAccount(email: unknown) {
   if (typeof email !== "string") return undefined;
   const normalizedEmail = email.trim().toLowerCase();
-  return localAccounts.find((account) => account.email.toLowerCase() === normalizedEmail);
+  return getLocalAccounts().find((account) => account.email.toLowerCase() === normalizedEmail);
 }
 
-// Local accounts not listed in editableLocalAccounts are fixed test accounts: their profile cannot be edited. Google users are unaffected.
+// In the test set every local account is fixed: its profile cannot be edited. Google users are unaffected.
 export function isFixedLocalAccount(email: string) {
-  const normalizedEmail = email.trim().toLowerCase();
-  const editable = editableLocalAccounts.some((item) => item.toLowerCase() === normalizedEmail);
-  return isLocalAuthEnabled() && !editable && Boolean(findLocalAccount(email));
+  return isLocalAuthEnabled() && isTestSet() && Boolean(findLocalAccount(email));
 }
 
 export function getLocalAccountOptions(): LocalAccountOption[] | undefined {
   if (!isLocalAuthEnabled()) return undefined;
-  return localAccounts.map(({ email, name, role, specialty }) => ({
+  return getLocalAccounts().map(({ email, name, role, specialty }) => ({
     email,
     label: name,
     role,

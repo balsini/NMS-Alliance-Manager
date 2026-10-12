@@ -1,6 +1,7 @@
 import { get, put } from "@vercel/blob";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { localDataPath } from "@/lib/local-data-path";
 import { randomUUID } from "node:crypto";
 import { getBlobAuthOptions } from "@/lib/blob-config";
 import {
@@ -37,7 +38,7 @@ export type AccessData = {
 };
 
 const blobPath = "alliance-manager/access.json";
-const localPath = path.join(process.cwd(), "data", "access.json");
+const localPath = localDataPath("access.json");
 const publicIdPattern = /^[\da-f]{8}-[\da-f]{4}-4[\da-f]{3}-[89ab][\da-f]{3}-[\da-f]{12}$/i;
 const defaultData: AccessData = {
   members: [],
@@ -203,8 +204,8 @@ export async function registerMember(identity: Pick<AllianceMember, "email" | "n
   return { member, alliance: data.alliance };
 }
 
-// LOCAL_AUTH: on every login restores role and approval of the development account. The main local admin keeps its profile edits;
-// the other local accounts are fixed test accounts and get their profile reset to the values in localAccounts.
+// LOCAL_AUTH: on every login restores role and approval of the development account. In the development set the profile
+// keeps its edits; in the test set (LOCAL_AUTH_SET=test) the accounts are fixed and get their profile reset to the values in testLocalAccounts.
 export async function ensureLocalMember(account: LocalAccount) {
   const data = await readAccessData();
   const index = data.members.findIndex((member) => member.email === account.email);

@@ -1,6 +1,7 @@
 import { get, put } from "@vercel/blob";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { localDataPath } from "@/lib/local-data-path";
 import { getBlobAuthOptions } from "@/lib/blob-config";
 import {
   isMissionSystemStatus,
@@ -11,7 +12,7 @@ import {
 } from "@/lib/planet-system-status";
 
 const blobPath = "alliance-manager/planet-system-status.json";
-const localPath = path.join(process.cwd(), "data", "planet-system-status.json");
+const localPath = localDataPath("planet-system-status.json");
 
 function normalizeStatuses(value: unknown): {
   data: PlanetSystemStatuses;

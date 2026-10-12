@@ -5,6 +5,7 @@ build/
 coverage/
 .vercel/
 data/
+data-test/
 public/
 src/lib/nms-core/
 package-lock.json

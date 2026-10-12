@@ -532,11 +532,9 @@ export function MissionPlanetThumbnail({
 
     fetch(`/api/missions/planet?${params}`, { signal: controller.signal, cache: "no-store" })
       .then(async (response) => {
+        // The image is optional (it only exists when the planet comes from Almanac): any failed lookup keeps the fallback icon.
+        if (!response.ok) return;
         const body: unknown = await response.json();
-        if (!response.ok) {
-          if (response.status !== 404) throw new Error("Unable to load planet image.");
-          return;
-        }
         const planet = asRecord(asRecord(body)?.planet);
         const pictures = asRecord(planet?.pictures);
         const disc = pictures?.disc;
@@ -544,8 +542,8 @@ export function MissionPlanetThumbnail({
           setImageUrl(`https://nmsalmanac.com/api${disc}`);
         }
       })
-      .catch((error: unknown) => {
-        if (!controller.signal.aborted) console.error("Unable to load mission planet thumbnail", error);
+      .catch(() => {
+        // Nothing to report: the server already logs lookup failures, and the fallback icon is shown.
       });
 
     return () => controller.abort();

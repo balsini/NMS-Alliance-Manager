@@ -1,0 +1,48 @@
+[
+  {
+    "id": "test-help-01",
+    "threadId": "test-help-01",
+    "senderMemberId": "7e570000-0000-4000-8000-000000000007",
+    "body": "Need an explorer to help mapping this system.",
+    "subjectType": "help",
+    "subject": "Alpha Station",
+    "portal": "11A20248BAB7",
+    "galaxy": 0,
+    "createdAt": "2026-01-11T10:00:00.000Z"
+  },
+  {
+    "id": "test-help-02",
+    "threadId": "test-help-01",
+    "replyToId": "test-help-01",
+    "senderMemberId": "7e570000-0000-4000-8000-000000000005",
+    "recipientMemberId": "7e570000-0000-4000-8000-000000000007",
+    "body": "On my way, I will map it tonight.",
+    "createdAt": "2026-01-11T11:00:00.000Z"
+  },
+  {
+    "id": "test-message-01",
+    "threadId": "test-message-01",
+    "senderMemberId": "7e570000-0000-4000-8000-000000000008",
+    "recipientMemberId": "7e570000-0000-4000-8000-000000000006",
+    "body": "Is the first planet worth a base?",
+    "subjectType": "planet",
+    "subject": "Gamma Station",
+    "portal": "09432AC654DC",
+    "galaxy": 0,
+    "planetNumber": 1,
+    "unread": true,
+    "createdAt": "2026-01-12T10:00:00.000Z"
+  },
+  {
+    "id": "test-message-02",
+    "threadId": "test-message-02",
+    "senderMemberId": "7e570000-0000-4000-8000-000000000006",
+    "recipientMemberId": "7e570000-0000-4000-8000-000000000009",
+    "body": "How is the outpost going?",
+    "subjectType": "mission",
+    "subject": "Build Outpost Beta",
+    "missionCode": "test-mission-02",
+    "unread": true,
+    "createdAt": "2026-01-12T12:00:00.000Z"
+  }
+]
