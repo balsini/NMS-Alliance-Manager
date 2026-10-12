@@ -1,6 +1,7 @@
 import { get, put } from "@vercel/blob";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { localDataPath } from "@/lib/local-data-path";
 import { getBlobAuthOptions } from "@/lib/blob-config";
 import {
   isMissionPriority,
@@ -14,9 +15,12 @@ import { readAccessData } from "@/lib/access-store";
 import { initialMissions } from "@/lib/seed";
 
 const blobPath = "alliance-manager/missions.json";
-const localPath = path.join(process.cwd(), "data", "missions.json");
+const localPath = localDataPath("missions.json");
 
-function migrateMissions(value: unknown, members: Awaited<ReturnType<typeof readAccessData>>["members"]): { missions: Mission[]; hasLegacyValues: boolean } {
+function migrateMissions(
+  value: unknown,
+  members: Awaited<ReturnType<typeof readAccessData>>["members"],
+): { missions: Mission[]; hasLegacyValues: boolean } {
   if (!Array.isArray(value)) return { missions: initialMissions, hasLegacyValues: false };
 
   let hasLegacyValues = false;
@@ -35,49 +39,55 @@ function migrateMissions(value: unknown, members: Awaited<ReturnType<typeof read
     if (!priority) throw new Error("Invalid mission priority in stored mission data.");
     if (!isMissionStatus(mission.status) || !isMissionPriority(mission.priority)) hasLegacyValues = true;
     if (
-      ["stationOwnerEmail", "createdByEmail", "assignedEmail", "createdByName", "stationOwnerName", "assignedTo"]
-        .some((key) => key in rawMission)
-    ) hasLegacyValues = true;
+      ["stationOwnerEmail", "createdByEmail", "assignedEmail", "createdByName", "stationOwnerName", "assignedTo"].some(
+        (key) => key in rawMission,
+      )
+    )
+      hasLegacyValues = true;
     const missionData = Object.fromEntries(
-      Object.entries(rawMission).filter(([key]) =>
-        ![
-          "systemStatus",
-          "stationOwnerEmail",
-          "createdByEmail",
-          "assignedEmail",
-          "createdByName",
-          "stationOwnerName",
-          "assignedTo",
-        ].includes(key),
+      Object.entries(rawMission).filter(
+        ([key]) =>
+          ![
+            "systemStatus",
+            "stationOwnerEmail",
+            "createdByEmail",
+            "assignedEmail",
+            "createdByName",
+            "stationOwnerName",
+            "assignedTo",
+          ].includes(key),
       ),
     );
     const findByName = (name: string) => {
       const normalizedName = name.trim().toLowerCase();
       if (!normalizedName) return undefined;
       const matches = members.filter((candidate) =>
-        [candidate.nmsName, candidate.name].some((candidateName) =>
-          candidateName.trim().toLowerCase() === normalizedName,
+        [candidate.nmsName, candidate.name].some(
+          (candidateName) => candidateName.trim().toLowerCase() === normalizedName,
         ),
       );
       return matches.length === 1 ? matches[0] : undefined;
     };
-    const legacyOwner = typeof legacyOwnerEmail === "string"
-      ? members.find((candidate) => candidate.email.toLowerCase() === legacyOwnerEmail.toLowerCase())
-      : undefined;
-    const creatorByEmail = typeof legacyCreatorEmail === "string"
-      ? members.find((candidate) => candidate.email.toLowerCase() === legacyCreatorEmail.toLowerCase())
-      : undefined;
-    const assigneeByEmail = typeof legacyAssigneeEmail === "string"
-      ? members.find((candidate) => candidate.email.toLowerCase() === legacyAssigneeEmail.toLowerCase())
-      : undefined;
+    const legacyOwner =
+      typeof legacyOwnerEmail === "string"
+        ? members.find((candidate) => candidate.email.toLowerCase() === legacyOwnerEmail.toLowerCase())
+        : undefined;
+    const creatorByEmail =
+      typeof legacyCreatorEmail === "string"
+        ? members.find((candidate) => candidate.email.toLowerCase() === legacyCreatorEmail.toLowerCase())
+        : undefined;
+    const assigneeByEmail =
+      typeof legacyAssigneeEmail === "string"
+        ? members.find((candidate) => candidate.email.toLowerCase() === legacyAssigneeEmail.toLowerCase())
+        : undefined;
     const ownerById = members.find((candidate) => candidate.publicId === mission.stationOwnerMemberId);
     const creatorById = members.find((candidate) => candidate.publicId === mission.createdByMemberId);
     const assigneeById = members.find((candidate) => candidate.publicId === mission.assignedMemberId);
     const stationOwner = ownerById ?? legacyOwner ?? findByName(storedStationOwnerName);
     const creator = creatorById ?? creatorByEmail ?? findByName(storedCreatorName);
     const assigned = assigneeById ?? assigneeByEmail ?? findByName(storedAssigneeName);
-    const matchingSeed = initialMissions.find((seed) =>
-      seed.id === mission.id && seed.title === mission.title && seed.system === mission.system,
+    const matchingSeed = initialMissions.find(
+      (seed) => seed.id === mission.id && seed.title === mission.title && seed.system === mission.system,
     );
     const missingAddress = typeof mission.systemAddress !== "string" || mission.systemAddress.length === 0;
     let galaxy = typeof mission.galaxy === "number" ? mission.galaxy : 0;
@@ -95,13 +105,18 @@ function migrateMissions(value: unknown, members: Awaited<ReturnType<typeof read
         : {}),
       assignedTo: assigned?.nmsName || assigned?.name || (storedAssigneeName ? "Former member" : ""),
       system: typeof mission.system === "string" ? mission.system : "",
-      systemAddress: missingAddress ? matchingSeed?.systemAddress ?? "" : mission.systemAddress,
+      systemAddress: missingAddress ? (matchingSeed?.systemAddress ?? "") : mission.systemAddress,
       galaxy,
       status,
       priority,
-      targetSpecialty: mission.targetSpecialty === "builder" || mission.targetSpecialty === "ranger" || mission.targetSpecialty === "explorer" || mission.targetSpecialty === "other" || mission.targetSpecialty === "all"
-        ? mission.targetSpecialty
-        : "all",
+      targetSpecialty:
+        mission.targetSpecialty === "builder" ||
+        mission.targetSpecialty === "ranger" ||
+        mission.targetSpecialty === "explorer" ||
+        mission.targetSpecialty === "other" ||
+        mission.targetSpecialty === "all"
+          ? mission.targetSpecialty
+          : "all",
     } as Mission;
   });
   return { missions, hasLegacyValues };

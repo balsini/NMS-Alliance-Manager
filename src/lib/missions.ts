@@ -81,10 +81,16 @@ export function specialtyAlreadyCovered(
   galaxy: number,
   excludeId?: string,
 ) {
-  const taken = new Set(missions
-    .filter((mission) => mission.id !== excludeId &&
-      mission.systemAddress.toUpperCase() === systemAddress.toUpperCase() && mission.galaxy === galaxy)
-    .flatMap((mission) => coveredSpecialties(mission.targetSpecialty)));
+  const taken = new Set(
+    missions
+      .filter(
+        (mission) =>
+          mission.id !== excludeId &&
+          mission.systemAddress.toUpperCase() === systemAddress.toUpperCase() &&
+          mission.galaxy === galaxy,
+      )
+      .flatMap((mission) => coveredSpecialties(mission.targetSpecialty)),
+  );
   return coveredSpecialties(specialty).some((covered) => taken.has(covered));
 }
 
@@ -99,7 +105,8 @@ export type MissionViewer = Readonly<{
 }>;
 
 export function canViewMission(mission: Mission, viewer: MissionViewer): boolean {
-  const matchesType = mission.targetSpecialty === "all" ||
+  const matchesType =
+    mission.targetSpecialty === "all" ||
     mission.targetSpecialty === viewer.specialty ||
     (mission.targetSpecialty === "explorer_builder" &&
       (viewer.specialty === "builder" || viewer.specialty === "explorer"));
@@ -141,8 +148,10 @@ export function decodePortalAddress(address: string): PortalAddressDecode | null
   if (planet > 6) errors.push(`Planet index ${planet}: allowed range is 0–6.`);
   if (systemIndex > 0xffe) errors.push("System index FFF is reserved.");
   if (rawY === 0x80) errors.push(`Y coordinate ${rawY.toString(16).toUpperCase().padStart(2, "0")}: unused value.`);
-  if (rawZ === 0 || rawZ === 0x800) errors.push(`Z coordinate ${rawZ.toString(16).toUpperCase().padStart(3, "0")}: unused value.`);
-  if (rawX === 0 || rawX === 0x800) errors.push(`X coordinate ${rawX.toString(16).toUpperCase().padStart(3, "0")}: unused value.`);
+  if (rawZ === 0 || rawZ === 0x800)
+    errors.push(`Z coordinate ${rawZ.toString(16).toUpperCase().padStart(3, "0")}: unused value.`);
+  if (rawX === 0 || rawX === 0x800)
+    errors.push(`X coordinate ${rawX.toString(16).toUpperCase().padStart(3, "0")}: unused value.`);
 
   return {
     kind: "portal",
@@ -160,9 +169,11 @@ export function portalSearchMatches(address: string, search: string): boolean {
   const normalizedSearch = search.replace(/[\s-]/g, "").toUpperCase();
   if (!normalizedSearch) return false;
   if (normalizedAddress.includes(normalizedSearch)) return true;
-  return /^[0-9A-F]{12}$/.test(normalizedSearch) &&
+  return (
+    /^[0-9A-F]{12}$/.test(normalizedSearch) &&
     /^[0-9A-F]{12}$/.test(normalizedAddress) &&
-    normalizedAddress.slice(1) === normalizedSearch.slice(1);
+    normalizedAddress.slice(1) === normalizedSearch.slice(1)
+  );
 }
 
 export function isDifferentPlanetInSameSystem(
@@ -171,11 +182,8 @@ export function isDifferentPlanetInSameSystem(
   secondAddress: string,
   secondGalaxy: number,
 ): boolean {
-  if (
-    firstGalaxy !== secondGalaxy ||
-    !/^[0-9A-F]{12}$/i.test(firstAddress) ||
-    !/^[0-9A-F]{12}$/i.test(secondAddress)
-  ) return false;
+  if (firstGalaxy !== secondGalaxy || !/^[0-9A-F]{12}$/i.test(firstAddress) || !/^[0-9A-F]{12}$/i.test(secondAddress))
+    return false;
 
   const first = firstAddress.toUpperCase();
   const second = secondAddress.toUpperCase();
@@ -200,9 +208,11 @@ export function isMissionInput(value: unknown): value is MissionInput {
     mission.galaxy <= 255 &&
     (mission.systemVerified === undefined || typeof mission.systemVerified === "boolean") &&
     (mission.systemLabelFromAlmanac === undefined || typeof mission.systemLabelFromAlmanac === "boolean") &&
-    (mission.createdByName === undefined || (typeof mission.createdByName === "string" && mission.createdByName.length <= 80)) &&
+    (mission.createdByName === undefined ||
+      (typeof mission.createdByName === "string" && mission.createdByName.length <= 80)) &&
     (mission.createdByMemberId === undefined || typeof mission.createdByMemberId === "string") &&
-    (mission.stationOwnerName === undefined || (typeof mission.stationOwnerName === "string" && mission.stationOwnerName.length <= 80)) &&
+    (mission.stationOwnerName === undefined ||
+      (typeof mission.stationOwnerName === "string" && mission.stationOwnerName.length <= 80)) &&
     (mission.stationOwnerMemberId === undefined || typeof mission.stationOwnerMemberId === "string") &&
     typeof mission.assignedTo === "string" &&
     (mission.assignedMemberId === undefined || typeof mission.assignedMemberId === "string") &&

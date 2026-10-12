@@ -1,52 +1,75 @@
 import { get, put } from "@vercel/blob";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { localDataPath } from "@/lib/local-data-path";
 import { getBlobAuthOptions } from "@/lib/blob-config";
 import { decodePortalAddress } from "@/lib/missions";
 import { readAccessData } from "@/lib/access-store";
 
-export type StationPortal = Readonly<{ portal: string; galaxy: number; name?: string; note?: string; createdByMemberId?: string; createdAt?: string }>;
+export type StationPortal = Readonly<{
+  portal: string;
+  galaxy: number;
+  name?: string;
+  note?: string;
+  createdByMemberId?: string;
+  createdAt?: string;
+}>;
 export type OwnedStationPortal = StationPortal & Readonly<{ ownerId: string }>;
 type StationIndex = Record<string, StationPortal[]>;
 type StationList = OwnedStationPortal[];
 type NormalizedStation = StationPortal & Readonly<{ createdByEmail?: string }>;
 
 const legacyBlobPath = "alliance-manager/stations.json";
-const legacyLocalPath = path.join(process.cwd(), "data", "stations.json");
+const legacyLocalPath = localDataPath("stations.json");
 const blobPath = "alliance-manager/stations-v2.json";
-const localPath = path.join(process.cwd(), "data", "stations-v2.json");
+const localPath = localDataPath("stations-v2.json");
 
 function normalizeStationEntries(entries: unknown[]): NormalizedStation[] {
   const stations = entries.flatMap((entry) => {
     const station = typeof entry === "string" ? { portal: entry, galaxy: 0 } : entry;
-    if (!station || typeof station !== "object" || !("portal" in station) || typeof station.portal !== "string") return [];
+    if (!station || typeof station !== "object" || !("portal" in station) || typeof station.portal !== "string")
+      return [];
     const galaxy = "galaxy" in station && typeof station.galaxy === "number" ? station.galaxy : 0;
-    if (!Number.isInteger(galaxy) || galaxy < 0 || galaxy > 255 || decodePortalAddress(station.portal)?.errors.length !== 0) return [];
+    if (
+      !Number.isInteger(galaxy) ||
+      galaxy < 0 ||
+      galaxy > 255 ||
+      decodePortalAddress(station.portal)?.errors.length !== 0
+    )
+      return [];
     const name = "name" in station && typeof station.name === "string" ? station.name.trim().slice(0, 80) : "";
     const note = "note" in station && typeof station.note === "string" ? station.note.trim().slice(0, 1000) : "";
-    const createdByMemberId = "createdByMemberId" in station && typeof station.createdByMemberId === "string"
-      ? station.createdByMemberId.trim()
-      : "";
-    const createdByEmail = "createdByEmail" in station && typeof station.createdByEmail === "string"
-      ? station.createdByEmail.trim().toLowerCase()
-      : "";
-    const createdAt = "createdAt" in station && typeof station.createdAt === "string" && Number.isFinite(Date.parse(station.createdAt))
-      ? station.createdAt
-      : "";
-    return [{
-      portal: station.portal.toUpperCase(),
-      galaxy,
-      ...(name ? { name } : {}),
-      ...(note ? { note } : {}),
-      ...(createdByMemberId ? { createdByMemberId } : {}),
-      ...(createdAt ? { createdAt } : {}),
-      ...(createdByEmail ? { createdByEmail } : {}),
-    }];
+    const createdByMemberId =
+      "createdByMemberId" in station && typeof station.createdByMemberId === "string"
+        ? station.createdByMemberId.trim()
+        : "";
+    const createdByEmail =
+      "createdByEmail" in station && typeof station.createdByEmail === "string"
+        ? station.createdByEmail.trim().toLowerCase()
+        : "";
+    const createdAt =
+      "createdAt" in station && typeof station.createdAt === "string" && Number.isFinite(Date.parse(station.createdAt))
+        ? station.createdAt
+        : "";
+    return [
+      {
+        portal: station.portal.toUpperCase(),
+        galaxy,
+        ...(name ? { name } : {}),
+        ...(note ? { note } : {}),
+        ...(createdByMemberId ? { createdByMemberId } : {}),
+        ...(createdAt ? { createdAt } : {}),
+        ...(createdByEmail ? { createdByEmail } : {}),
+      },
+    ];
   });
   return [...new Map(stations.map((station) => [`${station.portal}:${station.galaxy}`, station])).values()];
 }
 
-function normalizeStationIndex(value: unknown, members: Awaited<ReturnType<typeof readAccessData>>["members"]): { index: StationIndex; migrated: boolean } {
+function normalizeStationIndex(
+  value: unknown,
+  members: Awaited<ReturnType<typeof readAccessData>>["members"],
+): { index: StationIndex; migrated: boolean } {
   if (!value || typeof value !== "object" || Array.isArray(value)) return { index: {}, migrated: false };
 
   const index: StationIndex = {};
@@ -54,8 +77,9 @@ function normalizeStationIndex(value: unknown, members: Awaited<ReturnType<typeo
   let migrated = false;
   for (const [storedOwner, entries] of Object.entries(value)) {
     if (!Array.isArray(entries)) continue;
-    const owner = members.find((candidate) =>
-      candidate.publicId === storedOwner || candidate.email.toLowerCase() === storedOwner.trim().toLowerCase(),
+    const owner = members.find(
+      (candidate) =>
+        candidate.publicId === storedOwner || candidate.email.toLowerCase() === storedOwner.trim().toLowerCase(),
     );
     const fallbackOwner = owner ?? members.find((candidate) => candidate.email.toLowerCase() === adminEmail);
     const ownerKey = fallbackOwner?.publicId ?? storedOwner;
@@ -75,10 +99,13 @@ function normalizeStationIndex(value: unknown, members: Awaited<ReturnType<typeo
         ...(station.createdAt ? { createdAt: station.createdAt } : {}),
       };
     });
-    index[ownerKey] = [...new Map(
-      [...(index[ownerKey] ?? []), ...stations]
-        .map((station) => [`${station.portal}:${station.galaxy}`, station] as const),
-    ).values()];
+    index[ownerKey] = [
+      ...new Map(
+        [...(index[ownerKey] ?? []), ...stations].map(
+          (station) => [`${station.portal}:${station.galaxy}`, station] as const,
+        ),
+      ).values(),
+    ];
   }
   return { index, migrated };
 }
@@ -115,15 +142,17 @@ function normalizeStationList(value: unknown, fallbackOwnerId?: string): Station
     const key = `${station.portal}:${station.galaxy}`;
     if (seen.has(key)) return [];
     seen.add(key);
-    return [{
-      portal: station.portal,
-      galaxy: station.galaxy,
-      ownerId,
-      ...(station.name ? { name: station.name } : {}),
-      ...(station.note ? { note: station.note } : {}),
-      ...(station.createdByMemberId ? { createdByMemberId: station.createdByMemberId } : {}),
-      ...(station.createdAt ? { createdAt: station.createdAt } : {}),
-    }];
+    return [
+      {
+        portal: station.portal,
+        galaxy: station.galaxy,
+        ownerId,
+        ...(station.name ? { name: station.name } : {}),
+        ...(station.note ? { note: station.note } : {}),
+        ...(station.createdByMemberId ? { createdByMemberId: station.createdByMemberId } : {}),
+        ...(station.createdAt ? { createdAt: station.createdAt } : {}),
+      },
+    ];
   });
 }
 
@@ -204,8 +233,8 @@ export async function addStationPortal(
 
 export async function removeStationPortal(memberId: string, portal: string, galaxy: number): Promise<StationPortal[]> {
   const owner = memberId.trim();
-  const list = (await readStationList()).filter((station) =>
-    station.ownerId !== owner || station.portal !== portal || station.galaxy !== galaxy,
+  const list = (await readStationList()).filter(
+    (station) => station.ownerId !== owner || station.portal !== portal || station.galaxy !== galaxy,
   );
   await writeStationList(list);
   return list.filter((station) => station.ownerId === owner).map(stripOwner);
@@ -224,15 +253,15 @@ export async function updateStationPortal(
   const list = await readStationList();
   const currentOwner = currentOwnerId.trim();
   const owner = ownerId.trim();
-  const position = list.findIndex((station) =>
-    station.ownerId === currentOwner && station.portal === currentPortal && station.galaxy === currentGalaxy,
+  const position = list.findIndex(
+    (station) =>
+      station.ownerId === currentOwner && station.portal === currentPortal && station.galaxy === currentGalaxy,
   );
   if (position === -1) return false;
   const existingStation = list[position];
 
-  if (list.some((station, index) =>
-    index !== position && station.portal === portal && station.galaxy === galaxy,
-  )) return false;
+  if (list.some((station, index) => index !== position && station.portal === portal && station.galaxy === galaxy))
+    return false;
 
   const normalizedName = name?.trim().slice(0, 80);
   const normalizedNote = note?.trim().slice(0, 1000);
@@ -252,9 +281,11 @@ export async function updateStationPortal(
 export async function reassignStationOwner(fromMemberId: string, toMemberId: string): Promise<void> {
   const list = await readStationList();
   if (!list.some((station) => station.ownerId === fromMemberId || station.createdByMemberId === fromMemberId)) return;
-  await writeStationList(list.map((station) => ({
-    ...station,
-    ownerId: station.ownerId === fromMemberId ? toMemberId : station.ownerId,
-    ...(station.createdByMemberId === fromMemberId ? { createdByMemberId: toMemberId } : {}),
-  })));
+  await writeStationList(
+    list.map((station) => ({
+      ...station,
+      ownerId: station.ownerId === fromMemberId ? toMemberId : station.ownerId,
+      ...(station.createdByMemberId === fromMemberId ? { createdByMemberId: toMemberId } : {}),
+    })),
+  );
 }

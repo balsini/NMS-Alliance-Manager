@@ -5,9 +5,12 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "dev:local": "LOCAL_AUTH=true next dev --turbopack",
+    "dev:test": "rm -rf data-test && cp -R fixtures/test-data data-test && LOCAL_AUTH=true LOCAL_AUTH_SET=test NMS_DATA_DIR=data-test next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "audit:prod": "npm audit --omit=dev"
@@ -29,6 +32,8 @@
     "@vitest/coverage-v8": "^4.1.11",
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.4.0",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.9.10",
     "tailwindcss": "^4.1.0",
     "typescript": "^5.7.0",
     "vitest": "^4.0.0"

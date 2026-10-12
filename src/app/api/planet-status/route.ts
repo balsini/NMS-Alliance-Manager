@@ -38,28 +38,40 @@ export async function GET(request: Request) {
         visibleKeys.add(`${station.galaxy}:${station.portal.toUpperCase()}`);
       }
       return NextResponse.json({
-        planets: Object.fromEntries(Object.entries(statuses).filter(([key]) =>
-          hasRole(member, "moderator") || visibleKeys.has(key),
-        )),
+        planets: Object.fromEntries(
+          Object.entries(statuses).filter(([key]) => hasRole(member, "moderator") || visibleKeys.has(key)),
+        ),
       });
     }
     const galaxy = galaxyValue === null ? NaN : Number(galaxyValue);
-    if (!portal || decodePortalAddress(portal)?.errors.length !== 0 ||
-      !Number.isInteger(galaxy) || galaxy < 0 || galaxy > 255) {
+    if (
+      !portal ||
+      decodePortalAddress(portal)?.errors.length !== 0 ||
+      !Number.isInteger(galaxy) ||
+      galaxy < 0 ||
+      galaxy > 255
+    ) {
       return NextResponse.json({ error: "Pianeta non valido." }, { status: 400 });
     }
     const canViewAllStations = member.specialty === "explorer" || member.specialty === "builder";
     const hasVisibleStation = canViewAllStations
-      ? (await readAllStationPortals()).some((station) =>
-        station.portal === portal.toUpperCase() && station.galaxy === galaxy)
+      ? (await readAllStationPortals()).some(
+          (station) => station.portal === portal.toUpperCase() && station.galaxy === galaxy,
+        )
       : !hasRole(member, "moderator") &&
-        (await readStationPortals(member.publicId)).some((station) =>
-          station.portal === portal.toUpperCase() && station.galaxy === galaxy);
-    if (!hasRole(member, "moderator") && !hasVisibleStation && !missions.some((mission) =>
-      mission.systemAddress.toUpperCase() === portal.toUpperCase() &&
-      mission.galaxy === galaxy &&
-      canViewMission(mission, member),
-    )) {
+        (await readStationPortals(member.publicId)).some(
+          (station) => station.portal === portal.toUpperCase() && station.galaxy === galaxy,
+        );
+    if (
+      !hasRole(member, "moderator") &&
+      !hasVisibleStation &&
+      !missions.some(
+        (mission) =>
+          mission.systemAddress.toUpperCase() === portal.toUpperCase() &&
+          mission.galaxy === galaxy &&
+          canViewMission(mission, member),
+      )
+    ) {
       return NextResponse.json({ error: "Non puoi visualizzare lo stato di questo pianeta." }, { status: 403 });
     }
     return NextResponse.json({ systemStatuses: await readPlanetSystemStatus(portal, galaxy) });
@@ -81,16 +93,21 @@ export async function PATCH(request: Request) {
     let ownsStationForRanger = false;
     if (!hasRole(member, "moderator")) {
       const missions = await readMissions();
-      const assignedToMember = missions.some((mission) =>
-        mission.assignedMemberId === member.publicId &&
-        mission.systemAddress.toUpperCase() === input.portal.toUpperCase() &&
-        mission.galaxy === input.galaxy,
+      const assignedToMember = missions.some(
+        (mission) =>
+          mission.assignedMemberId === member.publicId &&
+          mission.systemAddress.toUpperCase() === input.portal.toUpperCase() &&
+          mission.galaxy === input.galaxy,
       );
-      const ownsStation = (await readStationPortals(member.publicId)).some((station) =>
-          station.portal === input.portal.toUpperCase() && station.galaxy === input.galaxy);
+      const ownsStation = (await readStationPortals(member.publicId)).some(
+        (station) => station.portal === input.portal.toUpperCase() && station.galaxy === input.galaxy,
+      );
       ownsStationForRanger = ownsStation;
       if (!assignedToMember && !ownsStation) {
-        return NextResponse.json({ error: "Puoi aggiornare lo stato solo di un pianeta con una missione assegnata a te." }, { status: 403 });
+        return NextResponse.json(
+          { error: "Puoi aggiornare lo stato solo di un pianeta con una missione assegnata a te." },
+          { status: 403 },
+        );
       }
     }
     if (!hasRole(member, "moderator")) {
@@ -99,8 +116,13 @@ export async function PATCH(request: Request) {
         ...input.systemStatuses.filter((status) => !current.includes(status)),
         ...current.filter((status) => !input.systemStatuses.includes(status)),
       ];
-      if (changed.some((status) => missionSystemStatusRoles[status] !== member.specialty &&
-        !(ownsStationForRanger && missionSystemStatusRoles[status] === "ranger"))) {
+      if (
+        changed.some(
+          (status) =>
+            missionSystemStatusRoles[status] !== member.specialty &&
+            !(ownsStationForRanger && missionSystemStatusRoles[status] === "ranger"),
+        )
+      ) {
         return NextResponse.json({ error: "Puoi aggiornare solo gli stati del tuo gruppo." }, { status: 403 });
       }
     }
@@ -119,13 +141,17 @@ function isPlanetStatusUpdate(value: unknown): value is {
 } {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
   const update = value as Record<string, unknown>;
-  return typeof update.portal === "string" &&
+  return (
+    typeof update.portal === "string" &&
     decodePortalAddress(update.portal)?.errors.length === 0 &&
-    typeof update.galaxy === "number" && Number.isInteger(update.galaxy) &&
-    update.galaxy >= 0 && update.galaxy <= 255 &&
+    typeof update.galaxy === "number" &&
+    Number.isInteger(update.galaxy) &&
+    update.galaxy >= 0 &&
+    update.galaxy <= 255 &&
     Array.isArray(update.systemStatuses) &&
     update.systemStatuses.length <= missionSystemStatuses.length &&
     update.systemStatuses.every(isMissionSystemStatus) &&
     new Set(update.systemStatuses).size === update.systemStatuses.length &&
-    Object.keys(update).every((key) => ["portal", "galaxy", "systemStatuses"].includes(key));
+    Object.keys(update).every((key) => ["portal", "galaxy", "systemStatuses"].includes(key))
+  );
 }

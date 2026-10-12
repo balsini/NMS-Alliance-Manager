@@ -57,7 +57,10 @@ type MessageScope = "mine" | "all";
 type MessageTab = "received" | "sent" | "all";
 
 async function fetchMessages(scope: MessageScope, signal?: AbortSignal): Promise<MessageEntry[]> {
-  const response = await fetch(scope === "all" ? "/api/messages?scope=all" : "/api/messages", { cache: "no-store", signal });
+  const response = await fetch(scope === "all" ? "/api/messages?scope=all" : "/api/messages", {
+    cache: "no-store",
+    signal,
+  });
   const body: unknown = await response.json();
   if (!response.ok || !Array.isArray(body)) {
     const message = body && typeof body === "object" && "error" in body ? body.error : null;
@@ -66,7 +69,14 @@ async function fetchMessages(scope: MessageScope, signal?: AbortSignal): Promise
   return body as MessageEntry[];
 }
 
-export function MessagesPage({ currentMember, alliance, missionCount, stationCount, userCount, offlineCount }: Readonly<{
+export function MessagesPage({
+  currentMember,
+  alliance,
+  missionCount,
+  stationCount,
+  userCount,
+  offlineCount,
+}: Readonly<{
   currentMember: AllianceMember;
   alliance: AllianceSettings;
   missionCount: number;
@@ -109,9 +119,13 @@ export function MessagesPage({ currentMember, alliance, missionCount, stationCou
   }, [fetchScope]);
 
   async function markRead(ids: string[]) {
-    const idSet = new Set(ids.filter((id) => messages.some((entry) => entry.id === id && entry.unread && entry.recipientMemberId === member.publicId)));
+    const idSet = new Set(
+      ids.filter((id) =>
+        messages.some((entry) => entry.id === id && entry.unread && entry.recipientMemberId === member.publicId),
+      ),
+    );
     if (idSet.size === 0) return;
-    setMessages((current) => current.map((entry) => idSet.has(entry.id) ? { ...entry, unread: false } : entry));
+    setMessages((current) => current.map((entry) => (idSet.has(entry.id) ? { ...entry, unread: false } : entry)));
     try {
       await fetch("/api/messages", {
         body: JSON.stringify({ messageIds: [...idSet] }),
@@ -184,9 +198,9 @@ export function MessagesPage({ currentMember, alliance, missionCount, stationCou
     return Number.isNaN(date.getTime())
       ? value
       : new Intl.DateTimeFormat(locale === "it" ? "it-IT" : "en-US", {
-        dateStyle: "medium",
-        timeStyle: "short",
-      }).format(date);
+          dateStyle: "medium",
+          timeStyle: "short",
+        }).format(date);
   }
 
   const isAdmin = member.role === "admin";
@@ -202,104 +216,183 @@ export function MessagesPage({ currentMember, alliance, missionCount, stationCou
     const isCollapsed = !expandedMessageIds.has(message.id);
     const isReply = Boolean(message.replyToId);
     const isUnread = Boolean(message.unread) && receivedByCurrentMember;
-    return <MessageCard
-      body={message.body}
-      createdAt={message.createdAt}
-      deleteLabel={t("messages.delete_message")}
-      deleting={deletingMessageIds.has(message.id)}
-      form={canReply && replyingTo === message.id ? <MessageReplyForm
-        acknowledged={replyAcknowledged}
-        error={replyError}
-        onAcknowledgedChange={setReplyAcknowledged}
-        onCancel={() => {
-          setReplyingTo(null);
-          setReplyError("");
-        }}
-        onChange={setReplyBody}
-        onSubmit={(event) => void sendReply(event, message)}
-        rows={4}
-        sending={sendingReply}
-        subject={message.subject || t("messages.no_subject")}
-        value={replyBody}
-      /> : undefined}
-      formattedDate={formatDate(message.createdAt)}
-      key={message.id}
-      onDelete={canReply || isAdmin ? () => void deleteMessage(message) : undefined}
-      onReply={canReply && replyingTo !== message.id ? () => {
-        setReplyError("");
-        setReplyBody("");
-        setReplyAcknowledged(false);
-        setReplyingTo(message.id);
-      } : undefined}
-      participants={<>
-        {t("messages.from")} <strong className={sentByCurrentMember ? "current-member" : undefined}>{message.senderName}</strong>
-        {" · "}{t("messages.to")} <strong className={receivedByCurrentMember ? "current-member" : undefined}>{message.recipientName}</strong>
-      </>}
-      subjectActions={<>
-        {!isReply && message.subjectType === "mission" && message.missionCode && <Link
-          aria-label={t("messages.open_mission")}
-          className="member-icon-action message-subject-link member-link-action"
-          data-tooltip={t("messages.open_mission")}
-          href={`/missions?search=${encodeURIComponent(message.missionCode)}`}
-          title={t("messages.open_mission")}
-        ><Crosshair size={15} /></Link>}
-        {!isReply && message.subjectType === "planet" && message.portal && <Link
-          aria-label={t("messages.open_planet_station")}
-          className="member-icon-action message-subject-link member-station-filter"
-          data-tooltip={t("messages.open_planet_station")}
-          href={`/stations?search=${encodeURIComponent(message.portal)}`}
-          title={t("messages.open_planet_station")}
-        ><Orbit size={15} /></Link>}
-      </>}
-      thread={node.children.length > 0 && !isCollapsed ? <ul className="message-thread-children">{node.children.map(renderMessage)}</ul> : undefined}
-      title={isReply ? undefined : message.subject || t("messages.no_subject")}
-      toggle={node.children.length > 0 ? {
-        count: node.children.length,
-        collapsed: isCollapsed,
-        onToggle: () => {
-          if (isCollapsed) void markRead([message.id, ...node.children.map((child) => child.message.id)]);
-          setExpandedMessageIds((current) => {
-            const next = new Set(current);
-            if (next.has(message.id)) next.delete(message.id);
-            else next.add(message.id);
-            return next;
-          });
-        },
-      } : undefined}
-      toolsBefore={isUnread ? <button
-        aria-label={t("messages.mark_read")}
-        className="member-icon-action"
-        onClick={() => void markRead([message.id])}
-        title={t("messages.mark_read")}
-        type="button"
-      ><MailCheck size={14} /></button> : undefined}
-      unread={isUnread}
-    />;
+    return (
+      <MessageCard
+        body={message.body}
+        createdAt={message.createdAt}
+        deleteLabel={t("messages.delete_message")}
+        deleting={deletingMessageIds.has(message.id)}
+        form={
+          canReply && replyingTo === message.id ? (
+            <MessageReplyForm
+              acknowledged={replyAcknowledged}
+              error={replyError}
+              onAcknowledgedChange={setReplyAcknowledged}
+              onCancel={() => {
+                setReplyingTo(null);
+                setReplyError("");
+              }}
+              onChange={setReplyBody}
+              onSubmit={(event) => void sendReply(event, message)}
+              rows={4}
+              sending={sendingReply}
+              subject={message.subject || t("messages.no_subject")}
+              value={replyBody}
+            />
+          ) : undefined
+        }
+        formattedDate={formatDate(message.createdAt)}
+        key={message.id}
+        onDelete={canReply || isAdmin ? () => void deleteMessage(message) : undefined}
+        onReply={
+          canReply && replyingTo !== message.id
+            ? () => {
+                setReplyError("");
+                setReplyBody("");
+                setReplyAcknowledged(false);
+                setReplyingTo(message.id);
+              }
+            : undefined
+        }
+        participants={
+          <>
+            {t("messages.from")}{" "}
+            <strong className={sentByCurrentMember ? "current-member" : undefined}>{message.senderName}</strong>
+            {" · "}
+            {t("messages.to")}{" "}
+            <strong className={receivedByCurrentMember ? "current-member" : undefined}>{message.recipientName}</strong>
+          </>
+        }
+        subjectActions={
+          <>
+            {!isReply && message.subjectType === "mission" && message.missionCode && (
+              <Link
+                aria-label={t("messages.open_mission")}
+                className="member-icon-action message-subject-link member-link-action"
+                data-tooltip={t("messages.open_mission")}
+                href={`/missions?search=${encodeURIComponent(message.missionCode)}`}
+                title={t("messages.open_mission")}
+              >
+                <Crosshair size={15} />
+              </Link>
+            )}
+            {!isReply && message.subjectType === "planet" && message.portal && (
+              <Link
+                aria-label={t("messages.open_planet_station")}
+                className="member-icon-action message-subject-link member-station-filter"
+                data-tooltip={t("messages.open_planet_station")}
+                href={`/stations?search=${encodeURIComponent(message.portal)}`}
+                title={t("messages.open_planet_station")}
+              >
+                <Orbit size={15} />
+              </Link>
+            )}
+          </>
+        }
+        thread={
+          node.children.length > 0 && !isCollapsed ? (
+            <ul className="message-thread-children">{node.children.map(renderMessage)}</ul>
+          ) : undefined
+        }
+        title={isReply ? undefined : message.subject || t("messages.no_subject")}
+        toggle={
+          node.children.length > 0
+            ? {
+                count: node.children.length,
+                collapsed: isCollapsed,
+                onToggle: () => {
+                  if (isCollapsed) void markRead([message.id, ...node.children.map((child) => child.message.id)]);
+                  setExpandedMessageIds((current) => {
+                    const next = new Set(current);
+                    if (next.has(message.id)) next.delete(message.id);
+                    else next.add(message.id);
+                    return next;
+                  });
+                },
+              }
+            : undefined
+        }
+        toolsBefore={
+          isUnread ? (
+            <button
+              aria-label={t("messages.mark_read")}
+              className="member-icon-action"
+              onClick={() => void markRead([message.id])}
+              title={t("messages.mark_read")}
+              type="button"
+            >
+              <MailCheck size={14} />
+            </button>
+          ) : undefined
+        }
+        unread={isUnread}
+      />
+    );
   }
 
-  return <div className="app-shell">
-    <Sidebar activeSection="messaggi" currentMember={member} missionCount={missionCount} settings={settings} stationCount={stationCount} offlineCount={offlineCount} userCount={userCount} />
-    <section className="main-panel">
-      <Header currentMember={member} onAdminOpen={() => setAdminOpen(true)} onProfileOpen={() => setProfileOpen(true)} onProfileSaved={(profile) => setMember((current) => ({ ...current, ...profile }))} sectionTitle="messages.messages" settings={settings} />
-      <Hero settings={settings} subtitle={t("messages.page_description")} title="messages.messages" />
-      <main className="content-wrap messages-page">
-        <div className="sticky-list-controls">
-        <Tabs className="member-filter-tabs" items={(["received", "sent", ...(isAdmin ? ["all" as const] : [])] as MessageTab[]).filter((key) => key === tab || key === "received" || (key === "sent" ? sentMessages.length : messages.length) > 0).map((key) => ({
-          key,
-          label: t(`messages.tab_${key}`),
-          count: key === "all" ? messages.length : key === "sent" ? sentMessages.length : receivedMessages.length,
-          selected: tab === key,
-          onSelect: () => {
-            setTab(key);
-            void markRead(receivedMessages.map((entry) => entry.id));
-            setExpandedMessageIds(new Set());
-          },
-        }))} label={t("messages.messages")} />
-        </div>
-        <MessageList empty={messageTree.length === 0} emptyLabel={t("messages.no_messages")} error={error} loading={loading}>{messageTree.map(renderMessage)}</MessageList>
-      </main>
-    </section>
-    {adminOpen && member.role === "admin" && <AdminPanel onClose={() => setAdminOpen(false)} onSaved={setSettings} />}
-    {profileOpen && <MemberProfilePanel member={member} onClose={() => setProfileOpen(false)} onSaved={(profile) => setMember((current) => ({ ...current, ...profile }))} />}
-  </div>;
+  return (
+    <div className="app-shell">
+      <Sidebar
+        activeSection="messaggi"
+        currentMember={member}
+        missionCount={missionCount}
+        settings={settings}
+        stationCount={stationCount}
+        offlineCount={offlineCount}
+        userCount={userCount}
+      />
+      <section className="main-panel">
+        <Header
+          currentMember={member}
+          onAdminOpen={() => setAdminOpen(true)}
+          onProfileOpen={() => setProfileOpen(true)}
+          onProfileSaved={(profile) => setMember((current) => ({ ...current, ...profile }))}
+          sectionTitle="messages.messages"
+          settings={settings}
+        />
+        <Hero settings={settings} subtitle={t("messages.page_description")} title="messages.messages" />
+        <main className="content-wrap messages-page">
+          <div className="sticky-list-controls">
+            <Tabs
+              className="member-filter-tabs"
+              items={(["received", "sent", ...(isAdmin ? ["all" as const] : [])] as MessageTab[])
+                .filter(
+                  (key) =>
+                    key === tab || key === "received" || (key === "sent" ? sentMessages.length : messages.length) > 0,
+                )
+                .map((key) => ({
+                  key,
+                  label: t(`messages.tab_${key}`),
+                  count:
+                    key === "all" ? messages.length : key === "sent" ? sentMessages.length : receivedMessages.length,
+                  selected: tab === key,
+                  onSelect: () => {
+                    setTab(key);
+                    void markRead(receivedMessages.map((entry) => entry.id));
+                    setExpandedMessageIds(new Set());
+                  },
+                }))}
+              label={t("messages.messages")}
+            />
+          </div>
+          <MessageList
+            empty={messageTree.length === 0}
+            emptyLabel={t("messages.no_messages")}
+            error={error}
+            loading={loading}
+          >
+            {messageTree.map(renderMessage)}
+          </MessageList>
+        </main>
+      </section>
+      {adminOpen && member.role === "admin" && <AdminPanel onClose={() => setAdminOpen(false)} onSaved={setSettings} />}
+      {profileOpen && (
+        <MemberProfilePanel
+          member={member}
+          onClose={() => setProfileOpen(false)}
+          onSaved={(profile) => setMember((current) => ({ ...current, ...profile }))}
+        />
+      )}
+    </div>
+  );
 }

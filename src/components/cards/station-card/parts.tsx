@@ -36,7 +36,16 @@ export type StationMissionSeed = Readonly<{ portal: string; galaxy: number; titl
 export function GalaxyLabel({ galaxy }: Readonly<{ galaxy: number }>) {
   const { t } = useLocale();
   const foreign = galaxy !== 0;
-  return <span className={foreign ? "mission-galaxy-alert" : undefined} data-tooltip={foreign ? t("missions.galaxy_portals_warning") : undefined} tabIndex={foreign ? 0 : undefined}>{foreign && <AlertTriangle size={9} />}{galaxyLabel(galaxy)}</span>;
+  return (
+    <span
+      className={foreign ? "mission-galaxy-alert" : undefined}
+      data-tooltip={foreign ? t("missions.galaxy_portals_warning") : undefined}
+      tabIndex={foreign ? 0 : undefined}
+    >
+      {foreign && <AlertTriangle size={9} />}
+      {galaxyLabel(galaxy)}
+    </span>
+  );
 }
 
 export function canCreateMissionFromStation(station: StationEntry, member: AllianceMember, canManage: boolean) {
@@ -44,13 +53,15 @@ export function canCreateMissionFromStation(station: StationEntry, member: Allia
   if (member.specialty === "explorer" || member.specialty === "builder") {
     return station.availableSpecialties.some((specialty) => specialty === member.specialty);
   }
-  return member.specialty === "ranger" &&
+  return (
+    member.specialty === "ranger" &&
     station.ownerId === member.publicId &&
-    station.availableSpecialties.some((specialty) => ["explorer_builder", "explorer", "builder"].includes(specialty));
+    station.availableSpecialties.some((specialty) => ["explorer_builder", "explorer", "builder"].includes(specialty))
+  );
 }
 
 export function asRecord(value: unknown): Record<string, unknown> | null {
-  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null;
+  return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
 }
 
 export function cachedPlanetType(planet: CachedPlanet | null) {
@@ -64,48 +75,56 @@ export function parseStations(value: unknown): StationEntry[] {
   if (!Array.isArray(value)) return [];
   return value.flatMap((item) => {
     const station = asRecord(item);
-    if (typeof station?.portal !== "string" || typeof station.galaxy !== "number" || typeof station.ownerId !== "string") return [];
+    if (
+      typeof station?.portal !== "string" ||
+      typeof station.galaxy !== "number" ||
+      typeof station.ownerId !== "string"
+    )
+      return [];
     const response = asRecord(station.planet);
-    const planet = response
-      ? { galaxy: station.galaxy, response }
-      : null;
+    const planet = response ? { galaxy: station.galaxy, response } : null;
     const availableSpecialties = Array.isArray(station.availableSpecialties)
       ? station.availableSpecialties.filter((specialty): specialty is MissionSpecialty =>
-        missionSpecialties.includes(specialty as MissionSpecialty),
-      )
+          missionSpecialties.includes(specialty as MissionSpecialty),
+        )
       : [];
-    return [{
-      portal: station.portal,
-      galaxy: station.galaxy,
-      ownerId: station.ownerId,
-      ...(typeof station.ownerName === "string" ? { ownerName: station.ownerName } : {}),
-      ...(typeof station.ownerNmsName === "string" ? { ownerNmsName: station.ownerNmsName } : {}),
-      ...(typeof station.ownerImage === "string" ? { ownerImage: station.ownerImage } : {}),
-      ...(typeof station.createdByMemberId === "string" ? { createdByMemberId: station.createdByMemberId } : {}),
-      ...(typeof station.createdAt === "string" ? { createdAt: station.createdAt } : {}),
-      ...(typeof station.name === "string" ? { name: station.name } : {}),
-      ...(typeof station.note === "string" ? { note: station.note } : {}),
-      planet,
-      hasMissions: station.hasMissions === true,
-      canOpenOwnSpecialtyMission: station.canOpenOwnSpecialtyMission === true,
-      hasAssignedMission: station.hasAssignedMission === true,
-      missionStatus: station.missionStatus === "in_progress" || station.missionStatus === "completed"
-        ? station.missionStatus
-        : "none",
-      availableSpecialties,
-    }];
+    return [
+      {
+        portal: station.portal,
+        galaxy: station.galaxy,
+        ownerId: station.ownerId,
+        ...(typeof station.ownerName === "string" ? { ownerName: station.ownerName } : {}),
+        ...(typeof station.ownerNmsName === "string" ? { ownerNmsName: station.ownerNmsName } : {}),
+        ...(typeof station.ownerImage === "string" ? { ownerImage: station.ownerImage } : {}),
+        ...(typeof station.createdByMemberId === "string" ? { createdByMemberId: station.createdByMemberId } : {}),
+        ...(typeof station.createdAt === "string" ? { createdAt: station.createdAt } : {}),
+        ...(typeof station.name === "string" ? { name: station.name } : {}),
+        ...(typeof station.note === "string" ? { note: station.note } : {}),
+        planet,
+        hasMissions: station.hasMissions === true,
+        canOpenOwnSpecialtyMission: station.canOpenOwnSpecialtyMission === true,
+        hasAssignedMission: station.hasAssignedMission === true,
+        missionStatus:
+          station.missionStatus === "in_progress" || station.missionStatus === "completed"
+            ? station.missionStatus
+            : "none",
+        availableSpecialties,
+      },
+    ];
   });
 }
 
 export function parsePlanetSystemStatuses(value: unknown): PlanetSystemStatuses {
   const statuses = asRecord(value);
   if (!statuses) throw new Error("Invalid system status response.");
-  return Object.fromEntries(Object.entries(statuses).map(([key, values]) => {
-    if (!Array.isArray(values) || !values.every(isMissionSystemStatus)) {
-      throw new Error("Invalid system status response.");
-    }
-    return [key, [...new Set(values)]];
-  }));
+  return Object.fromEntries(
+    Object.entries(statuses).map(([key, values]) => {
+      if (!Array.isArray(values) || !values.every(isMissionSystemStatus)) {
+        throw new Error("Invalid system status response.");
+      }
+      return [key, [...new Set(values)]];
+    }),
+  );
 }
 
 export function stationOwnerName(station: StationEntry) {
@@ -114,7 +133,11 @@ export function stationOwnerName(station: StationEntry) {
   return "Former member";
 }
 
-export function StationOwnerCell({ station, onOpenProfile, ownerLabel }: Readonly<{
+export function StationOwnerCell({
+  station,
+  onOpenProfile,
+  ownerLabel,
+}: Readonly<{
   station: StationEntry;
   onOpenProfile: (memberId: string) => void;
   ownerLabel: string;
@@ -123,17 +146,37 @@ export function StationOwnerCell({ station, onOpenProfile, ownerLabel }: Readonl
   const name = stationOwnerName(station);
   const initials = name.slice(0, 2).toUpperCase() || "—";
 
-  return <div className="station-owner-card">
-    <small>{ownerLabel}</small>
-    <button aria-label={name} className="assignee-cell mission-member-link station-owner-link" data-tooltip={name} onClick={() => onOpenProfile(station.ownerId)} type="button">
-      <span aria-hidden="true" className={`assignee-avatar ${station.ownerImage && !imageFailed ? "assignee-avatar-image" : ""}`}>
-        {station.ownerImage && !imageFailed
-          ? <Image alt="" height={21} onError={() => setImageFailed(true)} src={station.ownerImage} unoptimized width={21} />
-          : initials}
-      </span>
-      <span className="assignee-name">{name}</span>
-    </button>
-  </div>;
+  return (
+    <div className="station-owner-card">
+      <small>{ownerLabel}</small>
+      <button
+        aria-label={name}
+        className="assignee-cell mission-member-link station-owner-link"
+        data-tooltip={name}
+        onClick={() => onOpenProfile(station.ownerId)}
+        type="button"
+      >
+        <span
+          aria-hidden="true"
+          className={`assignee-avatar ${station.ownerImage && !imageFailed ? "assignee-avatar-image" : ""}`}
+        >
+          {station.ownerImage && !imageFailed ? (
+            <Image
+              alt=""
+              height={21}
+              onError={() => setImageFailed(true)}
+              src={station.ownerImage}
+              unoptimized
+              width={21}
+            />
+          ) : (
+            initials
+          )}
+        </span>
+        <span className="assignee-name">{name}</span>
+      </button>
+    </div>
+  );
 }
 
 export function planetWord(band: Record<string, unknown> | null, key: string) {
@@ -150,9 +193,7 @@ export function cachedPlanetTitle(planet: CachedPlanet | null) {
 export function cachedPlanetImageUrl(planet: CachedPlanet | null) {
   const pictures = asRecord(planet?.response.pictures);
   const disc = pictures?.disc;
-  return typeof disc === "string" && disc.startsWith("/planets/")
-    ? `https://nmsalmanac.com/api${disc}`
-    : null;
+  return typeof disc === "string" && disc.startsWith("/planets/") ? `https://nmsalmanac.com/api${disc}` : null;
 }
 
 export function CachedPlanetInfo({ planet, onOpen }: Readonly<{ planet: CachedPlanet; onOpen: () => void }>) {
@@ -172,14 +213,26 @@ export function CachedPlanetInfo({ planet, onOpen }: Readonly<{ planet: CachedPl
 
   return (
     <div className="station-planet-info">
-      <button className="station-planet-open" onClick={onOpen} type="button" aria-label={`${t("common.open_details_for")} ${title || t("planet.this_planet")}`}>
-        <GalaxyLabel galaxy={planet.galaxy} /><strong>{title || t("planet.planet_data")}</strong>
+      <button
+        className="station-planet-open"
+        onClick={onOpen}
+        type="button"
+        aria-label={`${t("common.open_details_for")} ${title || t("planet.this_planet")}`}
+      >
+        <GalaxyLabel galaxy={planet.galaxy} />
+        <strong>{title || t("planet.planet_data")}</strong>
       </button>
-      <dl>{facts.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{tv(value)}</dd></div>)}</dl>
+      <dl>
+        {facts.map(([label, value]) => (
+          <div key={label}>
+            <dt>{label}</dt>
+            <dd>{tv(value)}</dd>
+          </div>
+        ))}
+      </dl>
     </div>
   );
 }
-
 
 export type StationCardProps = Readonly<{
   station: StationEntry;
@@ -198,4 +251,3 @@ export type StationCardProps = Readonly<{
   onRemove: (station: StationEntry) => void;
   onViewNote: (station: StationEntry) => void;
 }>;
-

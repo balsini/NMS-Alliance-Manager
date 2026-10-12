@@ -33,9 +33,17 @@ export async function GET(request: Request) {
   try {
     const cachedResponse = await readAlmanacResponse(address, galaxy);
     if (cachedResponse) {
-      return NextResponse.json({ found: true, systemLabel: almanacSystemLabel(cachedResponse), planetType: almanacPlanetType(cachedResponse), cached: true }, {
-        headers: { "Cache-Control": "no-store" },
-      });
+      return NextResponse.json(
+        {
+          found: true,
+          systemLabel: almanacSystemLabel(cachedResponse),
+          planetType: almanacPlanetType(cachedResponse),
+          cached: true,
+        },
+        {
+          headers: { "Cache-Control": "no-store" },
+        },
+      );
     }
 
     const response = await fetch(url, {
@@ -50,10 +58,13 @@ export async function GET(request: Request) {
       const headers = new Headers({ "Cache-Control": "no-store" });
       const retryAfter = response.headers.get("Retry-After");
       if (retryAfter) headers.set("Retry-After", retryAfter);
-      return NextResponse.json({ error: "NMS Almanac non disponibile." }, {
-        status: response.status === 429 ? 429 : 502,
-        headers,
-      });
+      return NextResponse.json(
+        { error: "NMS Almanac non disponibile." },
+        {
+          status: response.status === 429 ? 429 : 502,
+          headers,
+        },
+      );
     }
 
     const result: unknown = await response.json();
@@ -62,9 +73,12 @@ export async function GET(request: Request) {
 
     await writeAlmanacResponse(address, galaxy, result);
 
-    return NextResponse.json({ found: true, systemLabel: almanacSystemLabel(result), planetType: almanacPlanetType(result), cached: false }, {
-      headers: { "Cache-Control": "no-store" },
-    });
+    return NextResponse.json(
+      { found: true, systemLabel: almanacSystemLabel(result), planetType: almanacPlanetType(result), cached: false },
+      {
+        headers: { "Cache-Control": "no-store" },
+      },
+    );
   } catch (error) {
     console.error("Unable to verify portal address in NMS Almanac", error);
     return NextResponse.json({ error: "NMS Almanac non disponibile." }, { status: 502 });
@@ -81,9 +95,7 @@ function almanacSystemLabel(response: Record<string, unknown>) {
   const attributes = ["star", "economy", "conflict", "race"];
   const words = attributes.flatMap((key) => {
     const attribute = band && isRecord(band[key]) ? band[key] : null;
-    return attribute && typeof attribute.word === "string" && attribute.word.trim()
-      ? [attribute.word.trim()]
-      : [];
+    return attribute && typeof attribute.word === "string" && attribute.word.trim() ? [attribute.word.trim()] : [];
   });
   return words.length > 0 ? words.join(" · ") : null;
 }

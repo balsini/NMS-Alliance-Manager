@@ -30,7 +30,10 @@ describe("sortByCreatedAtDescending", () => {
   });
 
   it("does not modify the input", () => {
-    const items = [{ id: "a", createdAt: "2026-01-01T00:00:00Z" }, { id: "b", createdAt: "2026-02-01T00:00:00Z" }];
+    const items = [
+      { id: "a", createdAt: "2026-01-01T00:00:00Z" },
+      { id: "b", createdAt: "2026-02-01T00:00:00Z" },
+    ];
     sortByCreatedAtDescending(items);
     expect(items.map((item) => item.id)).toEqual(["a", "b"]);
   });

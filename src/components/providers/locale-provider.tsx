@@ -51,13 +51,20 @@ export function LocaleProvider({ children, fixedLocale }: Readonly<{ children: R
     document.documentElement.lang = locale;
   }, [locale]);
 
-  const value = useMemo<LocaleContextValue>(() => ({
-    locale,
-    setLocale,
-    t: (message, values) => translate(locale, message, values),
-    tv: (value) => translateAlmanacValue(locale, value),
-    systemLabel: ({ system }) => system.split(" · ").map((part) => translateAlmanacValue(locale, part)).join(" · "),
-  }), [locale]);
+  const value = useMemo<LocaleContextValue>(
+    () => ({
+      locale,
+      setLocale,
+      t: (message, values) => translate(locale, message, values),
+      tv: (value) => translateAlmanacValue(locale, value),
+      systemLabel: ({ system }) =>
+        system
+          .split(" · ")
+          .map((part) => translateAlmanacValue(locale, part))
+          .join(" · "),
+    }),
+    [locale],
+  );
 
   return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>;
 }

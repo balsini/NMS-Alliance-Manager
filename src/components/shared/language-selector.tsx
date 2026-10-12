@@ -10,7 +10,11 @@ export function LanguageSelector() {
     <label className="language-selector">
       <Languages aria-hidden="true" size={14} />
       <span className="sr-only">{t("navigation.language")}</span>
-      <select aria-label={t("navigation.language")} onChange={(event) => setLocale(event.target.value as Locale)} value={locale}>
+      <select
+        aria-label={t("navigation.language")}
+        onChange={(event) => setLocale(event.target.value as Locale)}
+        value={locale}
+      >
         <option value="it">IT</option>
         <option value="en">EN</option>
       </select>

@@ -11,7 +11,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="it" suppressHydrationWarning>
-      <body><LocaleProvider><NavigationSearchResetProvider>{children}</NavigationSearchResetProvider></LocaleProvider></body>
+      <body>
+        <LocaleProvider>
+          <NavigationSearchResetProvider>{children}</NavigationSearchResetProvider>
+        </LocaleProvider>
+      </body>
     </html>
   );
 }

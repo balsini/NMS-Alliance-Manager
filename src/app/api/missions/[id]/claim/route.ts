@@ -12,7 +12,10 @@ export async function POST(_request: Request, context: RouteContext) {
   const member = await getCurrentMember();
   if (!member) return NextResponse.json({ error: "Accesso richiesto." }, { status: 401 });
   if (!member.nmsName.trim() || !isValidNmsFriendCode(member.nmsCode) || !member.specialty) {
-    return NextResponse.json({ error: "Completa prima il tuo profilo NMS con nome, codice amico, piattaforme e specializzazione." }, { status: 409 });
+    return NextResponse.json(
+      { error: "Completa prima il tuo profilo NMS con nome, codice amico, piattaforme e specializzazione." },
+      { status: 409 },
+    );
   }
 
   try {

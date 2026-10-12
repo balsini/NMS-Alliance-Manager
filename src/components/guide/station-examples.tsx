@@ -39,14 +39,52 @@ type Scenario = Readonly<{
   note: boolean;
 }>;
 
-const explorer: AllianceMember = { ...ranger, publicId: "guide-explorer", name: "Esploratore", nmsName: "Esploratore", specialty: "explorer" };
+const explorer: AllianceMember = {
+  ...ranger,
+  publicId: "guide-explorer",
+  name: "Esploratore",
+  nmsName: "Esploratore",
+  specialty: "explorer",
+};
 
 const explorerScenarios: Scenario[] = [
-  { title: "Tua stazione (sei il proprietario), senza missioni associate", own: true, hasMissions: false, available: true, note: false },
-  { title: "Tua stazione (sei il proprietario), senza missioni associate, con note", own: true, hasMissions: false, available: true, note: true },
-  { title: "Stazione di un altro, senza missioni per la tua specializzazione: puoi crearne una per te", own: false, hasMissions: false, available: true, note: false },
-  { title: "Missione per la tua specializzazione libera o assegnata a te", own: false, hasMissions: true, available: false, canOpen: true, note: false },
-  { title: "Missione per la tua specializzazione già in corso assegnata ad un altro", own: false, hasMissions: true, available: false, canOpen: false, note: false },
+  {
+    title: "Tua stazione (sei il proprietario), senza missioni associate",
+    own: true,
+    hasMissions: false,
+    available: true,
+    note: false,
+  },
+  {
+    title: "Tua stazione (sei il proprietario), senza missioni associate, con note",
+    own: true,
+    hasMissions: false,
+    available: true,
+    note: true,
+  },
+  {
+    title: "Stazione di un altro, senza missioni per la tua specializzazione: puoi crearne una per te",
+    own: false,
+    hasMissions: false,
+    available: true,
+    note: false,
+  },
+  {
+    title: "Missione per la tua specializzazione libera o assegnata a te",
+    own: false,
+    hasMissions: true,
+    available: false,
+    canOpen: true,
+    note: false,
+  },
+  {
+    title: "Missione per la tua specializzazione già in corso assegnata ad un altro",
+    own: false,
+    hasMissions: true,
+    available: false,
+    canOpen: false,
+    note: false,
+  },
 ];
 
 const rangerScenarios: Scenario[] = [
@@ -66,8 +104,7 @@ const rangerScenarios: Scenario[] = [
   },
 
   {
-    title:
-      "Tua stazione, con missioni associate da poter creare",
+    title: "Tua stazione, con missioni associate da poter creare",
     own: true,
     hasMissions: true,
     available: true,
@@ -107,7 +144,11 @@ export function ExplorerBuilderStationExamples({ sample }: Readonly<{ sample: Sa
   return <StationExamples member={explorer} sample={sample} scenarios={explorerScenarios} />;
 }
 
-function StationExamples({ member, sample, scenarios }: Readonly<{ member: AllianceMember; sample: Sample; scenarios: Scenario[] }>) {
+function StationExamples({
+  member,
+  sample,
+  scenarios,
+}: Readonly<{ member: AllianceMember; sample: Sample; scenarios: Scenario[] }>) {
   return (
     <div className="guide-examples">
       {scenarios.map((scenario) => {

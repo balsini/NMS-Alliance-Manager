@@ -1,3 +1,8 @@
+---
+title: NMS Alliance Manager
+description: Project instructions for Copilot
+---
+
 # NMS Alliance Manager
 
 - App Next.js App Router in TypeScript; interfaccia e testi rivolti all'utente sono in italiano.

@@ -1,73 +1,103 @@
+---
+title: NMS Alliance Manager
+description: Next.js dashboard to coordinate alliance missions and stations in No Man Sky
+---
+
 # NMS Alliance Manager
 
-Dashboard Next.js per coordinare le missioni di un'alleanza: stato, responsabile, settore, priorità, scadenza e avanzamento. Include ricerca, filtri e gestione completa delle missioni.
+Next.js dashboard to coordinate an alliance's missions: status, assignee, sector, priority, due date and progress. It includes search, filters and full mission management.
 
-## Lingue
+## Languages
 
-L'interfaccia è disponibile in italiano e inglese. La prima visita usa la lingua preferita dal browser (inglese se la lingua del browser è inglese, italiano negli altri casi); la scelta può essere cambiata dal selettore nell'intestazione e viene salvata nel browser. La lingua selezionata non modifica gli URL.
+The interface is available in Italian and English. The first visit uses the browser's preferred language (English if the browser language is English, Italian otherwise); the choice can be changed from the selector in the header and is saved in the browser. The selected language does not change the URLs.
 
-I cataloghi sono separati per lingua in `src/lib/translations/`. Le chiavi canoniche sono stringhe inglesi; `en.ts` usa queste chiavi come testo sorgente, mentre `it.ts` organizza le traduzioni per area (`common`, `navigation`, `missions`, `stations`, `members`, `profile`, `admin`, `planet`, `auth`, `system`, `errors`). Per aggiungere una lingua, crea un catalogo in questa cartella usando le stesse chiavi inglesi, aggiungila al tipo `Locale` e registrala in `src/lib/translations.ts`. Le nuove voci senza traduzione usano automaticamente la chiave inglese. Le forme italiane attualmente usate come chiavi nei componenti vengono ricondotte alla traduzione partendo dal catalogo; `aliases` in `it.ts` contiene solo le varianti legacy aggiuntive.
+The catalogs are split by language in `src/lib/translations/`. Canonical keys are English strings; `en.ts` uses these keys as source text, while `it.ts` groups the translations by area (`common`, `navigation`, `missions`, `stations`, `members`, `profile`, `admin`, `planet`, `auth`, `system`, `errors`). To add a language, create a catalog in this folder using the same English keys, add it to the `Locale` type and register it in `src/lib/translations.ts`. New entries without a translation automatically use the English key. The Italian forms currently used as keys in components are mapped back to the translation starting from the catalog; `aliases` in `it.ts` only holds the additional legacy variants.
 
-## Avvio locale
+## Local setup
 
 ```bash
 npm install
 npm run dev
 ```
 
-Apri http://localhost:3000. Senza `NMS_READ_WRITE_TOKEN` (o `BLOB_READ_WRITE_TOKEN` come fallback), l'app salva i dati in `data/` nella cartella di progetto. I file dati sono esclusi da Git.
+Open http://localhost:3000. Without `NMS_READ_WRITE_TOKEN` (or `BLOB_READ_WRITE_TOKEN` as a fallback), the app saves its data in `data/` in the project folder. The data files are excluded from Git.
 
-### Modalità locale senza Google
+### Local mode without Google
 
-Per provare l'app senza configurare Google OAuth, imposta in `.env.local`:
+To try the app without configuring Google OAuth, either run `npm run dev:local` or set this in `.env.local`:
 
 ```bash
 LOCAL_AUTH=true
 ```
 
-La schermata di accesso mostra un pulsante per ogni account di sviluppo: `admin@local` (admin, Ranger), `moderator@local` (moderatore, Esploratore), `ranger@local`, `explorer@local` e `builder@local` (utenti normali). Gli account sono già approvati e con profilo completo; ruolo e approvazione vengono ripristinati a ogni accesso. In questa modalità le variabili Google e `ALLIANCE_ADMIN_EMAIL` non servono, e i dati sono sempre salvati in `data/`, anche se è configurato uno store Blob. La modalità è ignorata in produzione (`NODE_ENV=production`, quindi anche con `npm run build` / `npm start`) e su Vercel.
+The sign-in screen shows one button for each account of the selected set (defined in `src/lib/local-auth.ts`). Every button has a `data-testid="local-login-<email>"` to identify it.
 
-## Deploy su Vercel
+**Development set** (`npm run dev:local`, or `LOCAL_AUTH=true` in `.env.local`): three accounts, one per role.
 
-1. Importa il repository in Vercel e crea un Blob Store privato dal pannello Storage del progetto.
-2. Nella scheda **Projects** dello store scegli **Connect to Project** e abilita **Production**. Vercel configura `BLOB_STORE_ID`; l'app supporta anche `NMS_STORE_ID`. L'SDK recupera e aggiorna automaticamente il token OIDC fornito da Vercel: non copiarlo manualmente e non serve un read-write token. Blob e OIDC sono disponibili anche sul piano Hobby, entro i limiti del piano. Per ambienti senza OIDC puoi usare `NMS_READ_WRITE_TOKEN` (o `BLOB_READ_WRITE_TOKEN`).
-3. Esegui il deploy, oppure un **Redeploy** se hai appena collegato lo store o modificato le variabili. Il servizio usa il file privato `alliance-manager/missions.json` nello store Blob; non usa il filesystem effimero della Function.
+| Account | Role | Specialty |
+| --- | --- | --- |
+| `ADMIN_EMAIL`, or `adminovr@local` if it is not set | admin | Explorer |
+| `moderator@local` | moderator | Explorer |
+| `user@local` | regular user | Ranger |
 
-In produzione l'app rifiuta le operazioni di storage se non è configurata l'autenticazione OIDC o un read-write token. `NMS_WEBHOOK_PUBLIC_KEY` non autentica le operazioni Blob. Il file `.env.example` documenta le variabili; non inserire token in Git.
+Profiles are editable from the profile panel and the changes persist across sign-ins, so the specialty can be changed there. Data is saved in `data/`.
 
-Se dopo l'accesso Google compare un errore 500 con un log che richiede la configurazione Blob, verifica il collegamento dello store al progetto e la presenza di `BLOB_STORE_ID` o `NMS_STORE_ID` nell'ambiente **Production**, poi esegui un redeploy. La registrazione del profilo richiede lo storage anche prima dell'approvazione dell'account.
+**Test set** (`npm run dev:test`): nine fixed accounts, one for every role and specialty combination, named `test-<role>-<specialty>@local` (for example `test-moderator-builder@local`). Their profile cannot be edited from the panel and is reset to the values in `testLocalAccounts` on every sign-in (the simplified view toggle still works). Data is saved in `data-test/`, which is recreated on every start from `fixtures/test-data/`, so the development data is never touched and every run starts from the same populated state: 13 members (the 9 test accounts, 2 offline players, 1 pending and 1 blocked member), 9 missions covering every status and specialty, 5 stations with their system task status, a help request with a reply and two private messages. The set is chosen with `LOCAL_AUTH_SET=test`, and the data folder with `NMS_DATA_DIR`. `src/lib/test-data.test.ts` loads the fixtures with the real store readers, so a fixture the app cannot read fails the tests: keep them valid when you edit them.
 
-## Accesso e ruoli
+In both sets the accounts are already approved and have a complete profile; role and approval are restored on every sign-in. Google accounts are not affected. In this mode the Google variables and `ALLIANCE_ADMIN_EMAIL` are not needed, and data is always saved in local files, even if a Blob store is configured. The mode is ignored in production (`NODE_ENV=production`, so also with `npm run build` / `npm start`) and on Vercel.
 
-L'accesso usa Google OAuth tramite Auth.js. Crea credenziali OAuth in Google Cloud e imposta `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTH_SECRET`, `AUTH_URL` e `ALLIANCE_ADMIN_EMAIL` in `.env.local` per lo sviluppo e nelle variabili d'ambiente Vercel. In locale usa `AUTH_URL=http://localhost:3000/api/auth`, così il callback resta su localhost anche se il server è in ascolto su tutte le interfacce. Configura come redirect URI Google `http://localhost:3000/api/auth/callback/google` in locale e `https://<dominio-vercel>/api/auth/callback/google` in produzione. In produzione imposta `AUTH_URL=https://<dominio-vercel>/api/auth`. Imposta `ALLIANCE_ADMIN_EMAIL=youremail@gmail.com` per il primo admin.
+## Deploying to Vercel
 
-Gli account Google verificati entrano come utenti normali; l'admin può promuovere utenti registrati a moderatore o admin. Gli utenti prendono missioni non assegnate, i moderatori creano/modificano/assegnano missioni e l'admin gestisce anche i ruoli e il branding dell'alleanza. Logo e banner sono serviti tramite endpoint autenticato dal Blob privato. Le API verificano sempre sessione e ruolo lato server.
+1. Import the repository into Vercel and create a private Blob Store from the project's Storage panel.
+2. In the store's **Projects** tab choose **Connect to Project** and enable **Production**. Vercel configures `BLOB_STORE_ID`; the app also supports `NMS_STORE_ID`. The SDK automatically retrieves and refreshes the OIDC token provided by Vercel: do not copy it manually, and no read-write token is needed. Blob and OIDC are also available on the Hobby plan, within the plan's limits. For environments without OIDC you can use `NMS_READ_WRITE_TOKEN` (or `BLOB_READ_WRITE_TOKEN`).
+3. Deploy, or **Redeploy** if you have just connected the store or changed the variables. The service uses the private file `alliance-manager/missions.json` in the Blob store; it does not use the Function's ephemeral filesystem.
 
-Ogni nuovo account Google resta in attesa finché un moderatore o admin non lo approva. Gli account pendenti possono completare solo il proprio profilo; missioni, membri e branding restano inaccessibili fino all'approvazione. Moderatori e admin possono anche bloccare account o rimuoverli dalla lista alleanza; il blocco nega l'accesso, mentre la cancellazione rimuove il profilo e un successivo nuovo login richiede una nuova approvazione. I moderatori possono gestire utenti normali, l'admin anche moderatori; l'account admin configurato non può essere bloccato o eliminato. L'admin iniziale configurato in `ALLIANCE_ADMIN_EMAIL` viene approvato automaticamente.
+In production the app rejects storage operations if OIDC authentication or a read-write token is not configured. `NMS_WEBHOOK_PUBLIC_KEY` does not authenticate Blob operations. The `.env.example` file documents the variables; do not commit tokens to Git.
 
-Ogni membro completa il proprio profilo con nome in gioco, codice amico NMS alfanumerico di 13 caratteri, una o più piattaforme (PC, PlayStation, Xbox, Nintendo Switch, Mac) e una specializzazione (Costruttore, Ranger o Esploratore). Il ruolo non è modificabile dall'utente. Non si possono prendere o assegnare missioni a profili incompleti.
+`vercel.json` limits automatic deployments to the `main` branch, so pull requests and other branches do not create Vercel previews. If your production branch is not `main`, change it there.
 
-## Sezioni dell'app
+If after signing in with Google you get a 500 error with a log asking for the Blob configuration, check that the store is connected to the project and that `BLOB_STORE_ID` or `NMS_STORE_ID` is present in the **Production** environment, then redeploy. Profile registration requires storage even before the account is approved.
 
-- **Missioni**: card con stato, responsabile, avanzamento e indicatori per i task di sistema (Ranger, Esploratore, Costruttore). Il completamento di una missione non modifica la barra di avanzamento.
-- **Stazioni**: stazioni scoperte con scopritore, pianeta dall'Almanac e note. Lo scopritore può spuntare «Stazione riscattata» e «Sistema rinominato» sulle proprie stazioni. Admin e moderatori possono esportare l'elenco in Excel, con i task completati e le missioni associate.
-- **Pianeti**: ricerca e filtri sui pianeti dei sistemi dell'alleanza.
-- **Utenti**: gestione di approvazioni, ruoli e profili, riservata ad admin e moderatori.
-- **Classifica**: widget dell'alleanza (stazioni, missioni, task, pianeti, membri attivi) e classifiche per stazioni scoperte, missioni completate e task di ciascun ruolo. Un task senza missione che lo copra viene attribuito allo scopritore della stazione.
+## Access and roles
 
-Tutte le sezioni sono mostrate come card. Gli utenti normali usano sempre la vista semplificata; admin e moderatori possono attivarla o disattivarla dal proprio profilo, e in quel caso i permessi sono quelli di un utente normale.
+Sign-in uses Google OAuth through Auth.js. Create OAuth credentials in Google Cloud and set `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTH_SECRET`, `AUTH_URL` and `ALLIANCE_ADMIN_EMAIL` in `.env.local` for development and in the Vercel environment variables. Locally use `AUTH_URL=http://localhost:3000/api/auth`, so the callback stays on localhost even if the server listens on all interfaces. Configure `http://localhost:3000/api/auth/callback/google` as the Google redirect URI locally and `https://<vercel-domain>/api/auth/callback/google` in production. In production set `AUTH_URL=https://<vercel-domain>/api/auth`. Set `ALLIANCE_ADMIN_EMAIL=youremail@gmail.com` for the first admin.
 
-## Verifica
+Verified Google accounts join as regular users; the admin can promote registered users to moderator or admin. Users take unassigned missions, moderators create/edit/assign missions, and the admin also manages roles and the alliance branding. The logo and banner are served through an authenticated endpoint from the private Blob. The APIs always check the session and role on the server.
+
+Every new Google account stays pending until a moderator or admin approves it. Pending accounts can only complete their own profile; missions, members and branding stay inaccessible until approval. Moderators and admins can also block accounts or remove them from the alliance list; blocking denies access, while deletion removes the profile and a later new sign-in requires a new approval. Moderators can manage regular users, the admin can also manage moderators; the configured admin account cannot be blocked or deleted. The initial admin configured in `ALLIANCE_ADMIN_EMAIL` is approved automatically.
+
+Each member completes their own profile with an in-game name, a 13-character alphanumeric NMS friend code, one or more platforms (PC, PlayStation, Xbox, Nintendo Switch, Mac) and a specialty (Builder, Ranger or Explorer). The role cannot be changed by the user. Missions cannot be taken by or assigned to incomplete profiles.
+
+## App sections
+
+- **Missions**: cards with status, assignee, progress and indicators for the system tasks (Ranger, Explorer, Builder). Completing a mission does not change the progress bar.
+- **Stations**: discovered stations with discoverer, Almanac planet and notes. The discoverer can tick "Station claimed" and "System renamed" on their own stations. Admins and moderators can export the list to Excel, with the completed tasks and the related missions.
+- **Planets**: search and filters on the planets of the alliance's systems.
+- **Users**: management of approvals, roles and profiles, restricted to admins and moderators. When editing another member, an admin can also set that member's simplified view.
+- **Leaderboard**: alliance widgets (stations, missions, tasks, planets, active members) and rankings for discovered stations, completed missions and each role's tasks. A task with no mission covering it is credited to the station's discoverer.
+
+All sections are shown as cards. Regular users always use the simplified view; admins and moderators can turn it on or off from their own profile, and in that case their permissions are those of a regular user.
+
+## Development and verification
 
 ```bash
-npm run lint
-npm run build
+npm test               # unit tests (Vitest)
+npm run test:coverage  # tests with a coverage report for src/lib in coverage/ (git-ignored)
+npm run lint           # ESLint
+npm run format         # Prettier (write)
+npm run format:check   # Prettier (check only)
+npm run build          # production build, includes the TypeScript type check
+npm run audit:prod     # npm audit on the production dependencies only
 ```
 
-I dati demo iniziali sono definiti in `src/lib/seed.ts`. Gli endpoint CRUD sono `/api/missions` e `/api/missions/[id]`.
+Unit tests live next to the code (`*.test.ts` / `*.test.tsx`). `src/lib/nms-core/` is vendored third-party code and is excluded from tests, coverage and formatting. The existing code is not fully formatted with Prettier yet, so format only the files you create or edit.
 
-## Indirizzi dei sistemi
+The `CI` GitHub Actions workflow (`.github/workflows/ci.yml`) runs the tests and `npm run audit:prod` on every pull request.
 
-Ogni missione richiede un indirizzo portale completo di 12 glifi esadecimali (`0`-`F`) e un indice galattico (`0`-`255`). L'interfaccia mostra i parametri decodificati `Planet / System / Y / Z / X` e segnala valori riservati/non validi. I PNG dei glifi sono in `public/glyphs/` e provengono da [NMS Galactic Map](https://github.com/elegra1965-source/nms-galactic-map/tree/main/glyphs). Sono immagini di No Man's Sky, proprietà dei rispettivi titolari e non coperte dalla licenza software del repository sorgente; questo progetto fan-made non è affiliato né approvato da Hello Games.
+The initial demo data is defined in `src/lib/seed.ts`. The CRUD endpoints are `/api/missions` and `/api/missions/[id]`.
 
-Gli indirizzi vengono verificati tramite l'API di [NMS Almanac](https://nmsalmanac.com/api/docs), usando la galassia selezionata. Un risultato positivo conferma che il pianeta è presente nell'Almanac e popola `Nome sistema / settore` con un'etichetta descrittiva composta da stella, economia, conflitto e razza; Almanac non fornisce il nome proprio del sistema. La risposta JSON completa viene conservata in `data/almanac.json`, indicizzata per codice portale e galassia, oppure nel Blob privato in produzione; le verifiche successive riutilizzano il dato salvato. Il flag `systemVerified` viene salvato sulla missione e azzerato se cambia indirizzo o galassia. Un `404` indica che il pianeta non è catalogato, ma non prova che non esista nel gioco e non impedisce il salvataggio. Il servizio consente fino a 500 richieste l'ora e può non essere disponibile; in tali casi il salvataggio resta possibile senza verifica.
+## System addresses
+
+Every mission requires a full portal address of 12 hexadecimal glyphs (`0`-`F`) and a galaxy index (`0`-`255`). The interface shows the decoded `Planet / System / Y / Z / X` parameters and flags reserved or invalid values. The glyph PNGs are in `public/glyphs/` and come from [NMS Galactic Map](https://github.com/elegra1965-source/nms-galactic-map/tree/main/glyphs). They are No Man's Sky images, owned by their respective holders and not covered by the source repository's software license; this fan-made project is not affiliated with or endorsed by Hello Games.
+
+Addresses are verified through the [NMS Almanac](https://nmsalmanac.com/api/docs) API, using the selected galaxy. A positive result confirms that the planet is present in the Almanac and fills `System/sector` with a descriptive label made of star, economy, conflict and race; Almanac does not provide the system's proper name. The full JSON response is kept in `data/almanac.json`, indexed by portal code and galaxy, or in the private Blob in production; later checks reuse the stored data. The `systemVerified` flag is saved on the mission and reset if the address or galaxy changes. A `404` means the planet is not catalogued, but it does not prove that it does not exist in the game, and it does not prevent saving. The service allows up to 500 requests per hour and may be unavailable; in those cases saving is still possible without verification.

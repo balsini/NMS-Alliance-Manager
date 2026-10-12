@@ -3,7 +3,12 @@ import { getCurrentMember, hasRole } from "@/lib/authorization";
 import { readAccessData } from "@/lib/access-store";
 import { readAlmanacResponse } from "@/lib/almanac-store";
 import { decodePortalAddress } from "@/lib/missions";
-import { deletePrivateMessageBranch, markPrivateMessagesRead, readPrivateMessages, savePrivateMessage } from "@/lib/private-messages-store";
+import {
+  deletePrivateMessageBranch,
+  markPrivateMessagesRead,
+  readPrivateMessages,
+  savePrivateMessage,
+} from "@/lib/private-messages-store";
 import { readStationPortals } from "@/lib/stations-store";
 import { readMissions } from "@/lib/store";
 import { isEmailAddress } from "@/lib/member-types";
@@ -20,7 +25,9 @@ export async function GET(request: Request) {
   if (params.get("count") === "unread") {
     try {
       const messages = await readPrivateMessages();
-      const count = messages.filter((message) => message.unread && message.recipientMemberId === member.publicId).length;
+      const count = messages.filter(
+        (message) => message.unread && message.recipientMemberId === member.publicId,
+      ).length;
       return NextResponse.json({ count }, { headers: { "Cache-Control": "no-store" } });
     } catch (error) {
       console.error("Unable to count unread messages", error);
@@ -34,11 +41,10 @@ export async function GET(request: Request) {
     if (wantsAll && !hasRole(member, "admin")) {
       return NextResponse.json({ error: "messages.delete_not_allowed" }, { status: 403 });
     }
-    const visibleMessages = messages.filter((message) =>
-      message.subjectType !== "help" && (
-      wantsAll ||
-      message.senderMemberId === member.publicId ||
-      message.recipientMemberId === member.publicId),
+    const visibleMessages = messages.filter(
+      (message) =>
+        message.subjectType !== "help" &&
+        (wantsAll || message.senderMemberId === member.publicId || message.recipientMemberId === member.publicId),
     );
     const membersById = new Map(accessData.members.map((profile) => [profile.publicId, profile]));
     const responseMessages = visibleMessages
@@ -49,7 +55,8 @@ export async function GET(request: Request) {
         return {
           ...message,
           senderName: [sender?.nmsName, sender?.name].find((name) => name && !isEmailAddress(name)) || "Former member",
-          recipientName: [recipient?.nmsName, recipient?.name].find((name) => name && !isEmailAddress(name)) || "Former member",
+          recipientName:
+            [recipient?.nmsName, recipient?.name].find((name) => name && !isEmailAddress(name)) || "Former member",
         };
       });
     return NextResponse.json(responseMessages, { headers: { "Cache-Control": "no-store" } });
@@ -65,9 +72,12 @@ async function resolvePlanetSubject(recipientMemberId: string, portal: string, g
   if (!station) return null;
 
   const almanac = await readAlmanacResponse(portal, galaxy);
-  const lines = almanac?.lines && typeof almanac.lines === "object" ? almanac.lines as Record<string, unknown> : null;
-  const headline = lines?.headline && typeof lines.headline === "object" ? lines.headline as Record<string, unknown> : null;
-  return station.name?.trim() || (typeof headline?.word === "string" ? headline.word.trim() : "") || `Planet ${planetNumber}`;
+  const lines = almanac?.lines && typeof almanac.lines === "object" ? (almanac.lines as Record<string, unknown>) : null;
+  const headline =
+    lines?.headline && typeof lines.headline === "object" ? (lines.headline as Record<string, unknown>) : null;
+  return (
+    station.name?.trim() || (typeof headline?.word === "string" ? headline.word.trim() : "") || `Planet ${planetNumber}`
+  );
 }
 
 async function getPlanetSubject(params: URLSearchParams) {
@@ -89,8 +99,9 @@ async function getPlanetSubject(params: URLSearchParams) {
   }
 
   try {
-    const recipient = (await readAccessData()).members.find((candidate) =>
-      candidate.publicId === recipientId && candidate.membershipStatus === "approved" && !candidate.offline,
+    const recipient = (await readAccessData()).members.find(
+      (candidate) =>
+        candidate.publicId === recipientId && candidate.membershipStatus === "approved" && !candidate.offline,
     );
     if (!recipient) return NextResponse.json({ error: "profile.message_recipient_not_found" }, { status: 404 });
 
@@ -114,9 +125,10 @@ export async function POST(request: Request) {
   const payload = body as Record<string, unknown>;
   const message = typeof payload.message === "string" ? payload.message.trim() : "";
   const replyToId = typeof payload.replyToId === "string" ? payload.replyToId.trim() : "";
-  const context = payload.context && typeof payload.context === "object" && !Array.isArray(payload.context)
-    ? payload.context as Record<string, unknown>
-    : null;
+  const context =
+    payload.context && typeof payload.context === "object" && !Array.isArray(payload.context)
+      ? (payload.context as Record<string, unknown>)
+      : null;
   if (!message) {
     return NextResponse.json({ error: "profile.message_text_required" }, { status: 400 });
   }
@@ -130,15 +142,17 @@ export async function POST(request: Request) {
       const original = messages.find((entry) => entry.id === replyToId);
       if (!original) return NextResponse.json({ error: "messages.reply_original_not_found" }, { status: 404 });
 
-      const recipientId = member.publicId === original.senderMemberId
-        ? original.recipientMemberId
-        : member.publicId === original.recipientMemberId
-          ? original.senderMemberId
-          : "";
+      const recipientId =
+        member.publicId === original.senderMemberId
+          ? original.recipientMemberId
+          : member.publicId === original.recipientMemberId
+            ? original.senderMemberId
+            : "";
       if (!recipientId) return NextResponse.json({ error: "messages.reply_not_allowed" }, { status: 403 });
 
-      const recipient = (await readAccessData()).members.find((candidate) =>
-        candidate.publicId === recipientId && candidate.membershipStatus === "approved" && !candidate.offline,
+      const recipient = (await readAccessData()).members.find(
+        (candidate) =>
+          candidate.publicId === recipientId && candidate.membershipStatus === "approved" && !candidate.offline,
       );
       if (!recipient) return NextResponse.json({ error: "profile.message_recipient_not_found" }, { status: 404 });
 
@@ -184,8 +198,9 @@ export async function POST(request: Request) {
     if (!recipientId) {
       return NextResponse.json({ error: "profile.message_recipient_not_found" }, { status: 400 });
     }
-    const recipient = (await readAccessData()).members.find((candidate) =>
-      candidate.publicId === recipientId && candidate.membershipStatus === "approved" && !candidate.offline,
+    const recipient = (await readAccessData()).members.find(
+      (candidate) =>
+        candidate.publicId === recipientId && candidate.membershipStatus === "approved" && !candidate.offline,
     );
     if (!recipient) {
       return NextResponse.json({ error: "profile.message_recipient_not_found" }, { status: 404 });
@@ -238,9 +253,14 @@ export async function DELETE(request: Request) {
   if (!member) return NextResponse.json({ error: "Accesso richiesto." }, { status: 401 });
 
   const body: unknown = await request.json().catch(() => null);
-  const messageId = body && typeof body === "object" && !Array.isArray(body) && "messageId" in body && typeof body.messageId === "string"
-    ? body.messageId.trim()
-    : "";
+  const messageId =
+    body &&
+    typeof body === "object" &&
+    !Array.isArray(body) &&
+    "messageId" in body &&
+    typeof body.messageId === "string"
+      ? body.messageId.trim()
+      : "";
   if (!messageId) return NextResponse.json({ error: "messages.message_not_found" }, { status: 400 });
 
   try {
@@ -248,8 +268,7 @@ export async function DELETE(request: Request) {
     const message = messages.find((entry) => entry.id === messageId);
     if (!message) return NextResponse.json({ error: "messages.message_not_found" }, { status: 404 });
 
-    const isParticipant = member.publicId === message.senderMemberId ||
-      member.publicId === message.recipientMemberId;
+    const isParticipant = member.publicId === message.senderMemberId || member.publicId === message.recipientMemberId;
     if (!isParticipant && !hasRole(member, "admin")) {
       return NextResponse.json({ error: "messages.delete_not_allowed" }, { status: 403 });
     }
@@ -268,9 +287,10 @@ export async function PATCH(request: Request) {
   if (!member) return NextResponse.json({ error: "Accesso richiesto." }, { status: 401 });
 
   const body: unknown = await request.json().catch(() => null);
-  const ids = body && typeof body === "object" && !Array.isArray(body) && "messageIds" in body && Array.isArray(body.messageIds)
-    ? body.messageIds.filter((id): id is string => typeof id === "string").slice(0, 200)
-    : [];
+  const ids =
+    body && typeof body === "object" && !Array.isArray(body) && "messageIds" in body && Array.isArray(body.messageIds)
+      ? body.messageIds.filter((id): id is string => typeof id === "string").slice(0, 200)
+      : [];
   if (ids.length === 0) return NextResponse.json({ error: "messages.message_not_found" }, { status: 400 });
 
   try {

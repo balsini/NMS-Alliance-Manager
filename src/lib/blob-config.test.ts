@@ -3,7 +3,15 @@ import { getBlobAuthOptions } from "./blob-config";
 
 describe("getBlobAuthOptions", () => {
   beforeEach(() => {
-    for (const key of ["LOCAL_AUTH", "VERCEL", "VERCEL_OIDC_TOKEN", "NMS_STORE_ID", "BLOB_STORE_ID", "NMS_READ_WRITE_TOKEN", "BLOB_READ_WRITE_TOKEN"]) {
+    for (const key of [
+      "LOCAL_AUTH",
+      "VERCEL",
+      "VERCEL_OIDC_TOKEN",
+      "NMS_STORE_ID",
+      "BLOB_STORE_ID",
+      "NMS_READ_WRITE_TOKEN",
+      "BLOB_READ_WRITE_TOKEN",
+    ]) {
       vi.stubEnv(key, "");
     }
   });

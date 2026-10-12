@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 
-export default async function Home({ searchParams }: Readonly<{
+export default async function Home({
+  searchParams,
+}: Readonly<{
   searchParams: Promise<{ search?: string | string[] }>;
 }>) {
   const { search } = await searchParams;

@@ -7,14 +7,17 @@ class MissingShardError extends Error {
 }
 
 // Only the shard needed by the system is downloaded: the name generator signals which one it reads.
-const letterMap = new Proxy({}, {
-  get(_target, key) {
-    if (typeof key !== "string" || !/^[0-7]$/.test(key)) return undefined;
-    const shard = Number(key);
-    if (!shardCache.has(shard)) throw new MissingShardError(shard);
-    return shardCache.get(shard);
+const letterMap = new Proxy(
+  {},
+  {
+    get(_target, key) {
+      if (typeof key !== "string" || !/^[0-7]$/.test(key)) return undefined;
+      const shard = Number(key);
+      if (!shardCache.has(shard)) throw new MissingShardError(shard);
+      return shardCache.get(shard);
+    },
   },
-});
+);
 
 export async function generateSystemName(portal: string, galaxy: number): Promise<string | null> {
   if (!/^[0-9A-F]{12}$/i.test(portal) || !Number.isInteger(galaxy) || galaxy < 0 || galaxy > 255) return null;

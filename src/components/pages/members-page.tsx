@@ -22,7 +22,15 @@ function updateNotice(update: { membershipStatus: MembershipStatus } | { role: M
   return "User is pending approval.";
 }
 
-export function MembersPage({ memberActivity, currentMember, alliance, missionCount, sidebarOfflineCount, sidebarStationCount, sidebarUserCount }: Readonly<{
+export function MembersPage({
+  memberActivity,
+  currentMember,
+  alliance,
+  missionCount,
+  sidebarOfflineCount,
+  sidebarStationCount,
+  sidebarUserCount,
+}: Readonly<{
   memberActivity: { missionOwnerIds: string[]; stationOwnerIds: string[] };
   currentMember: AllianceMember;
   alliance: AllianceSettings;
@@ -52,17 +60,21 @@ export function MembersPage({ memberActivity, currentMember, alliance, missionCo
         if (!response.ok) throw new Error(body.error ?? "Unable to load the user list.");
         setMembers((body as ManagedMember[]).filter((member) => !member.offline));
       })
-      .catch((error_: unknown) => setError(error_ instanceof Error ? error_.message : t("errors.unable_to_load_the_user_list")))
+      .catch((error_: unknown) =>
+        setError(error_ instanceof Error ? error_.message : t("errors.unable_to_load_the_user_list")),
+      )
       .finally(() => setLoadingMembers(false));
   }, [t]);
 
-  const counts = useMemo(() => ({
-    all: members.length,
-    pending: members.filter((member) => member.membershipStatus === "pending").length,
-    approved: members.filter((member) => member.membershipStatus === "approved").length,
-    blocked: members.filter((member) => member.membershipStatus === "blocked").length,
-  }), [members]);
-
+  const counts = useMemo(
+    () => ({
+      all: members.length,
+      pending: members.filter((member) => member.membershipStatus === "pending").length,
+      approved: members.filter((member) => member.membershipStatus === "approved").length,
+      blocked: members.filter((member) => member.membershipStatus === "blocked").length,
+    }),
+    [members],
+  );
 
   async function patchMember(email: string, update: { membershipStatus: MembershipStatus } | { role: MemberRole }) {
     setError("");
@@ -75,7 +87,7 @@ export function MembersPage({ memberActivity, currentMember, alliance, missionCo
       });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error ?? "Update failed.");
-      setMembers((current) => current.map((member) => member.email === email ? { ...member, ...update } : member));
+      setMembers((current) => current.map((member) => (member.email === email ? { ...member, ...update } : member)));
       setNotice(updateNotice(update));
     } catch (error_: unknown) {
       setError(error_ instanceof Error ? error_.message : t("errors.update_failed"));
@@ -83,7 +95,14 @@ export function MembersPage({ memberActivity, currentMember, alliance, missionCo
   }
 
   async function deleteMember(member: AllianceMember) {
-    if (!window.confirm(t("auth.remove_member_from_the_alliance_signing_in_again_will_require_a_new_approval", { member: member.nmsName || member.name }))) return;
+    if (
+      !window.confirm(
+        t("auth.remove_member_from_the_alliance_signing_in_again_will_require_a_new_approval", {
+          member: member.nmsName || member.name,
+        }),
+      )
+    )
+      return;
     setError("");
     setNotice("");
     try {
@@ -103,22 +122,51 @@ export function MembersPage({ memberActivity, currentMember, alliance, missionCo
 
   return (
     <div className="app-shell">
-      <Sidebar activeSection="utenti" currentMember={pageMember} missionCount={missionCount} settings={allianceSettings} stationCount={sidebarStationCount} offlineCount={sidebarOfflineCount} userCount={loadingMembers ? sidebarUserCount : members.length} />
+      <Sidebar
+        activeSection="utenti"
+        currentMember={pageMember}
+        missionCount={missionCount}
+        settings={allianceSettings}
+        stationCount={sidebarStationCount}
+        offlineCount={sidebarOfflineCount}
+        userCount={loadingMembers ? sidebarUserCount : members.length}
+      />
       <section className="main-panel">
-        <Header currentMember={pageMember} onAdminOpen={() => setAdminOpen(true)} onProfileOpen={() => setProfileOpen(true)} onProfileSaved={(profile) => setPageMember((current) => ({ ...current, ...profile }))} sectionTitle="Users" settings={allianceSettings} />
+        <Header
+          currentMember={pageMember}
+          onAdminOpen={() => setAdminOpen(true)}
+          onProfileOpen={() => setProfileOpen(true)}
+          onProfileSaved={(profile) => setPageMember((current) => ({ ...current, ...profile }))}
+          sectionTitle="Users"
+          settings={allianceSettings}
+        />
         <Hero
           subtitle="Approve requests, manage access, and review NMS profiles."
           settings={allianceSettings}
           title="Users"
         />
-        {!pageMember.simpleView && <section aria-label={t("members.user_status")} className="metrics-row">
-          <div className="metrics-inner">
-            <div className="metric"><span className="metric-label">{t("common.pending_requests")}</span><strong>{counts.pending}</strong></div>
-            <div className="metric"><span className="metric-label">{t("auth.approved_members_metric")}</span><strong>{counts.approved}</strong></div>
-            <div className="metric"><span className="metric-label">{t("common.blocked_members_metric")}</span><strong>{counts.blocked}</strong></div>
-            <div className="metric"><span className="metric-label">{t("common.total")}</span><strong>{counts.all}</strong></div>
-          </div>
-        </section>}
+        {!pageMember.simpleView && (
+          <section aria-label={t("members.user_status")} className="metrics-row">
+            <div className="metrics-inner">
+              <div className="metric">
+                <span className="metric-label">{t("common.pending_requests")}</span>
+                <strong>{counts.pending}</strong>
+              </div>
+              <div className="metric">
+                <span className="metric-label">{t("auth.approved_members_metric")}</span>
+                <strong>{counts.approved}</strong>
+              </div>
+              <div className="metric">
+                <span className="metric-label">{t("common.blocked_members_metric")}</span>
+                <strong>{counts.blocked}</strong>
+              </div>
+              <div className="metric">
+                <span className="metric-label">{t("common.total")}</span>
+                <strong>{counts.all}</strong>
+              </div>
+            </div>
+          </section>
+        )}
         <main className="content-wrap">
           <MemberList
             canChangeRole={canChangeRole}
@@ -141,9 +189,41 @@ export function MembersPage({ memberActivity, currentMember, alliance, missionCo
           />
         </main>
       </section>
-      {adminOpen && pageMember.role === "admin" && <AdminPanel onClose={() => setAdminOpen(false)} onSaved={setAllianceSettings} />}
-      {editingMember && <MemberProfilePanel editMember key={editingMember.email} member={editingMember} onClose={() => setEditingMember(null)} onSaved={(updated) => { setMembers((current) => current.map((item) => item.email === updated.email ? { ...item, ...updated } : item)); setEditingMember(null); }} />}
-      {profileOpen && <MemberProfilePanel member={pageMember} onClose={() => setProfileOpen(false)} onSaved={(profile) => setPageMember((current) => ({ ...current, nmsName: profile.nmsName, nmsCode: profile.nmsCode, telegramName: profile.telegramName, discordName: profile.discordName, platforms: profile.platforms, specialty: profile.specialty, simpleView: profile.simpleView }))} />}
+      {adminOpen && pageMember.role === "admin" && (
+        <AdminPanel onClose={() => setAdminOpen(false)} onSaved={setAllianceSettings} />
+      )}
+      {editingMember && (
+        <MemberProfilePanel
+          editMember
+          key={editingMember.email}
+          member={editingMember}
+          onClose={() => setEditingMember(null)}
+          onSaved={(updated) => {
+            setMembers((current) =>
+              current.map((item) => (item.email === updated.email ? { ...item, ...updated } : item)),
+            );
+            setEditingMember(null);
+          }}
+        />
+      )}
+      {profileOpen && (
+        <MemberProfilePanel
+          member={pageMember}
+          onClose={() => setProfileOpen(false)}
+          onSaved={(profile) =>
+            setPageMember((current) => ({
+              ...current,
+              nmsName: profile.nmsName,
+              nmsCode: profile.nmsCode,
+              telegramName: profile.telegramName,
+              discordName: profile.discordName,
+              platforms: profile.platforms,
+              specialty: profile.specialty,
+              simpleView: profile.simpleView,
+            }))
+          }
+        />
+      )}
     </div>
   );
 }

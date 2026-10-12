@@ -2,9 +2,21 @@ import { NextResponse } from "next/server";
 import { getCurrentMember, hasRole } from "@/lib/authorization";
 import { readAccessData, type AllianceMember } from "@/lib/access-store";
 import { readAlmanacResponse, readAlmanacResponses, writeAlmanacResponse } from "@/lib/almanac-store";
-import { coveredSpecialties, decodePortalAddress, isDifferentPlanetInSameSystem, missionSpecialties, type MissionSpecialty } from "@/lib/missions";
+import {
+  coveredSpecialties,
+  decodePortalAddress,
+  isDifferentPlanetInSameSystem,
+  missionSpecialties,
+  type MissionSpecialty,
+} from "@/lib/missions";
 import { isEmailAddress } from "@/lib/member-types";
-import { addStationPortal, readAllStationPortals, readStationPortals, removeStationPortal, updateStationPortal } from "@/lib/stations-store";
+import {
+  addStationPortal,
+  readAllStationPortals,
+  readStationPortals,
+  removeStationPortal,
+  updateStationPortal,
+} from "@/lib/stations-store";
 import { readMissions, writeMissions } from "@/lib/store";
 
 export const runtime = "nodejs";
@@ -25,16 +37,21 @@ export async function POST(request: Request) {
   const member = await getCurrentMember();
   if (!member) return NextResponse.json({ error: "stations.error_access_required" }, { status: 401 });
   const body: unknown = await request.json().catch(() => null);
-  const payload = body && typeof body === "object" ? body as Record<string, unknown> : {};
-  const portal = typeof payload.portal === "string"
-    ? payload.portal.toUpperCase()
-    : "";
+  const payload = body && typeof body === "object" ? (body as Record<string, unknown>) : {};
+  const portal = typeof payload.portal === "string" ? payload.portal.toUpperCase() : "";
   const galaxy = payload.galaxy;
   const name = typeof payload.name === "string" ? payload.name.trim() : "";
   const note = typeof payload.note === "string" ? payload.note.trim() : "";
   const requestedOwnerId = typeof payload.ownerId === "string" ? payload.ownerId.trim() : member.publicId;
   const decoded = decodePortalAddress(portal);
-  if (!decoded || decoded.errors.length > 0 || typeof galaxy !== "number" || !Number.isInteger(galaxy) || galaxy < 0 || galaxy > 255) {
+  if (
+    !decoded ||
+    decoded.errors.length > 0 ||
+    typeof galaxy !== "number" ||
+    !Number.isInteger(galaxy) ||
+    galaxy < 0 ||
+    galaxy > 255
+  ) {
     return NextResponse.json({ error: "stations.error_invalid_portal_and_galaxy" }, { status: 400 });
   }
   if (name.length > 80) {
@@ -46,8 +63,8 @@ export async function POST(request: Request) {
   try {
     const accessData = await readAccessData();
     const isModerator = hasRole(member, "moderator");
-    const ownerMember = accessData.members.find((candidate) =>
-      candidate.publicId === requestedOwnerId && candidate.membershipStatus === "approved",
+    const ownerMember = accessData.members.find(
+      (candidate) => candidate.publicId === requestedOwnerId && candidate.membershipStatus === "approved",
     );
     if (!ownerMember) {
       return NextResponse.json({ error: "stations.error_owner_must_be_approved" }, { status: 400 });
@@ -55,12 +72,12 @@ export async function POST(request: Request) {
     if (!isModerator && ownerMember.publicId !== member.publicId) {
       return NextResponse.json({ error: "stations.error_cannot_create_stations_for_another_member" }, { status: 403 });
     }
-    const [stations, missions] = await Promise.all([
-      readAllStationPortals(),
-      readMissions(),
-    ]);
+    const [stations, missions] = await Promise.all([readAllStationPortals(), readMissions()]);
     if (stations.some((station) => station.portal === portal && station.galaxy === galaxy)) {
-      return NextResponse.json({ error: "stations.this_portal_is_already_in_the_selected_owner_s_list" }, { status: 409 });
+      return NextResponse.json(
+        { error: "stations.this_portal_is_already_in_the_selected_owner_s_list" },
+        { status: 409 },
+      );
     }
     const conflictsWithRegisteredPlanet = [
       ...missions.map((mission) => ({ portal: mission.systemAddress, galaxy: mission.galaxy })),
@@ -82,22 +99,27 @@ export async function DELETE(request: Request) {
   const member = await getCurrentMember();
   if (!member) return NextResponse.json({ error: "stations.error_access_required" }, { status: 401 });
   const body: unknown = await request.json().catch(() => null);
-  const payload = body && typeof body === "object" ? body as Record<string, unknown> : {};
-  const portal = typeof payload.portal === "string"
-    ? payload.portal.toUpperCase()
-    : "";
+  const payload = body && typeof body === "object" ? (body as Record<string, unknown>) : {};
+  const portal = typeof payload.portal === "string" ? payload.portal.toUpperCase() : "";
   const galaxy = payload.galaxy;
   const ownerId = typeof payload.ownerId === "string" ? payload.ownerId.trim() : "";
   const decoded = decodePortalAddress(portal);
-  if (!decoded || decoded.errors.length > 0 || typeof galaxy !== "number" || !Number.isInteger(galaxy) || galaxy < 0 || galaxy > 255) {
+  if (
+    !decoded ||
+    decoded.errors.length > 0 ||
+    typeof galaxy !== "number" ||
+    !Number.isInteger(galaxy) ||
+    galaxy < 0 ||
+    galaxy > 255
+  ) {
     return NextResponse.json({ error: "stations.error_invalid_portal_or_galaxy" }, { status: 400 });
   }
 
   try {
     const accessData = await readAccessData();
     const isModerator = hasRole(member, "moderator");
-    const ownerMember = accessData.members.find((candidate) =>
-      candidate.publicId === (ownerId || member.publicId) && candidate.membershipStatus === "approved",
+    const ownerMember = accessData.members.find(
+      (candidate) => candidate.publicId === (ownerId || member.publicId) && candidate.membershipStatus === "approved",
     );
     if (!ownerMember) return NextResponse.json({ error: "stations.error_invalid_station_owner" }, { status: 400 });
     if (!isModerator && ownerMember.publicId !== member.publicId) {
@@ -105,7 +127,10 @@ export async function DELETE(request: Request) {
     }
     const missions = await readMissions();
     if (missions.some((mission) => mission.systemAddress.toUpperCase() === portal && mission.galaxy === galaxy)) {
-      return NextResponse.json({ error: "stations.error_station_associated_with_mission_cannot_be_removed" }, { status: 409 });
+      return NextResponse.json(
+        { error: "stations.error_station_associated_with_mission_cannot_be_removed" },
+        { status: 409 },
+      );
     }
     const ownedStations = await readStationPortals(ownerMember.publicId);
     if (!ownedStations.some((station) => station.portal === portal && station.galaxy === galaxy)) {
@@ -124,7 +149,7 @@ export async function PATCH(request: Request) {
   if (!member) return NextResponse.json({ error: "stations.error_access_required" }, { status: 401 });
 
   const body: unknown = await request.json().catch(() => null);
-  const payload = body && typeof body === "object" && !Array.isArray(body) ? body as Record<string, unknown> : {};
+  const payload = body && typeof body === "object" && !Array.isArray(body) ? (body as Record<string, unknown>) : {};
   const currentPortal = typeof payload.currentPortal === "string" ? payload.currentPortal.toUpperCase() : "";
   const currentGalaxy = payload.currentGalaxy;
   const currentOwnerId = typeof payload.currentOwnerId === "string" ? payload.currentOwnerId.trim() : "";
@@ -137,15 +162,26 @@ export async function PATCH(request: Request) {
   if (
     !decodePortalAddress(currentPortal) ||
     decodePortalAddress(currentPortal)?.errors.length !== 0 ||
-    typeof currentGalaxy !== "number" || !Number.isInteger(currentGalaxy) || currentGalaxy < 0 || currentGalaxy > 255 ||
+    typeof currentGalaxy !== "number" ||
+    !Number.isInteger(currentGalaxy) ||
+    currentGalaxy < 0 ||
+    currentGalaxy > 255 ||
     !currentOwnerId ||
     !decodePortalAddress(portal) ||
     decodePortalAddress(portal)?.errors.length !== 0 ||
-    typeof galaxy !== "number" || !Number.isInteger(galaxy) || galaxy < 0 || galaxy > 255 ||
+    typeof galaxy !== "number" ||
+    !Number.isInteger(galaxy) ||
+    galaxy < 0 ||
+    galaxy > 255 ||
     !ownerId ||
     name.length > 80 ||
     note.length > 1000 ||
-    Object.keys(payload).some((key) => !["currentPortal", "currentGalaxy", "currentOwnerId", "portal", "galaxy", "ownerId", "name", "note"].includes(key))
+    Object.keys(payload).some(
+      (key) =>
+        !["currentPortal", "currentGalaxy", "currentOwnerId", "portal", "galaxy", "ownerId", "name", "note"].includes(
+          key,
+        ),
+    )
   ) {
     return NextResponse.json({ error: "stations.error_invalid_station_data" }, { status: 400 });
   }
@@ -153,11 +189,11 @@ export async function PATCH(request: Request) {
 
   try {
     const access = await readAccessData();
-    const currentOwner = access.members.find((candidate) =>
-      candidate.publicId === currentOwnerId && candidate.membershipStatus === "approved",
+    const currentOwner = access.members.find(
+      (candidate) => candidate.publicId === currentOwnerId && candidate.membershipStatus === "approved",
     );
-    const owner = access.members.find((candidate) =>
-      candidate.publicId === ownerId && candidate.membershipStatus === "approved",
+    const owner = access.members.find(
+      (candidate) => candidate.publicId === ownerId && candidate.membershipStatus === "approved",
     );
     if (!currentOwner || !owner) {
       return NextResponse.json({ error: "stations.error_invalid_station_owner" }, { status: 400 });
@@ -170,51 +206,80 @@ export async function PATCH(request: Request) {
       readAllStationPortals(),
       readStationPortals(currentOwner.publicId),
     ]);
-    const currentStation = currentStations.find((station) =>
-      station.portal === currentPortal && station.galaxy === currentGalaxy,
+    const currentStation = currentStations.find(
+      (station) => station.portal === currentPortal && station.galaxy === currentGalaxy,
     );
     if (!currentStation) {
       return NextResponse.json({ error: "stations.error_station_not_found_in_owner_archive" }, { status: 404 });
     }
-    const hasAssociatedMission = missions.some((mission) =>
-      mission.systemAddress.toUpperCase() === currentPortal && mission.galaxy === currentGalaxy,
+    const hasAssociatedMission = missions.some(
+      (mission) => mission.systemAddress.toUpperCase() === currentPortal && mission.galaxy === currentGalaxy,
     );
     if (
       hasAssociatedMission &&
-      (portal !== currentPortal || galaxy !== currentGalaxy || (!isModerator && owner.publicId !== currentOwner.publicId))
+      (portal !== currentPortal ||
+        galaxy !== currentGalaxy ||
+        (!isModerator && owner.publicId !== currentOwner.publicId))
     ) {
       return NextResponse.json({ error: "stations.error_station_associated_with_mission_title_only" }, { status: 409 });
     }
-    if (stations.some((station) =>
-      station.portal === portal &&
-      station.galaxy === galaxy &&
-      !(station.ownerId === currentOwner.publicId && station.portal === currentPortal && station.galaxy === currentGalaxy),
-    )) {
-      return NextResponse.json({ error: "stations.this_portal_is_already_in_the_selected_owner_s_list" }, { status: 409 });
+    if (
+      stations.some(
+        (station) =>
+          station.portal === portal &&
+          station.galaxy === galaxy &&
+          !(
+            station.ownerId === currentOwner.publicId &&
+            station.portal === currentPortal &&
+            station.galaxy === currentGalaxy
+          ),
+      )
+    ) {
+      return NextResponse.json(
+        { error: "stations.this_portal_is_already_in_the_selected_owner_s_list" },
+        { status: 409 },
+      );
     }
     const conflictsWithRegisteredPlanet = [
       ...missions.map((mission) => ({ portal: mission.systemAddress, galaxy: mission.galaxy })),
       ...stations
-        .filter((station) => !(station.ownerId === currentOwner.publicId &&
-          station.portal === currentPortal && station.galaxy === currentGalaxy))
+        .filter(
+          (station) =>
+            !(
+              station.ownerId === currentOwner.publicId &&
+              station.portal === currentPortal &&
+              station.galaxy === currentGalaxy
+            ),
+        )
         .map((station) => ({ portal: station.portal, galaxy: station.galaxy })),
     ].some((entry) => isDifferentPlanetInSameSystem(portal, galaxy, entry.portal, entry.galaxy));
     if (conflictsWithRegisteredPlanet) {
       return NextResponse.json({ error: "errors.another_planet_from_system_already_registered" }, { status: 409 });
     }
 
-    const updated = await updateStationPortal(currentOwner.publicId, currentPortal, currentGalaxy, owner.publicId, portal, galaxy, name, note);
+    const updated = await updateStationPortal(
+      currentOwner.publicId,
+      currentPortal,
+      currentGalaxy,
+      owner.publicId,
+      portal,
+      galaxy,
+      name,
+      note,
+    );
     if (!updated) {
       return NextResponse.json({ error: "stations.error_station_missing_or_portal_already_saved" }, { status: 409 });
     }
     if (currentOwner.publicId !== owner.publicId) {
-      await writeMissions(missions.map((mission) =>
-        mission.stationOwnerMemberId === currentOwner.publicId &&
-        mission.systemAddress.toUpperCase() === currentPortal &&
-        mission.galaxy === currentGalaxy
-          ? { ...mission, stationOwnerMemberId: owner.publicId }
-          : mission,
-      ));
+      await writeMissions(
+        missions.map((mission) =>
+          mission.stationOwnerMemberId === currentOwner.publicId &&
+          mission.systemAddress.toUpperCase() === currentPortal &&
+          mission.galaxy === currentGalaxy
+            ? { ...mission, stationOwnerMemberId: owner.publicId }
+            : mission,
+        ),
+      );
     }
     await cacheStationPlanet(portal, galaxy);
     return NextResponse.json({ stations: await readStations(member) });
@@ -225,7 +290,8 @@ export async function PATCH(request: Request) {
 }
 
 async function readStations(member: AllianceMember) {
-  const canViewAllStations = hasRole(member, "moderator") ||
+  const canViewAllStations =
+    hasRole(member, "moderator") ||
     member.specialty === "explorer" ||
     member.specialty === "builder" ||
     member.specialty === "ranger";
@@ -238,18 +304,20 @@ async function readStations(member: AllianceMember) {
     readAccessData(),
   ]);
   return stations.map((station) => {
-    const owner = accessData.members.find((candidate) =>
-      candidate.publicId === station.ownerId && candidate.membershipStatus === "approved",
+    const owner = accessData.members.find(
+      (candidate) => candidate.publicId === station.ownerId && candidate.membershipStatus === "approved",
     );
-    const matchingMissions = missions.filter((mission) =>
-      mission.systemAddress.toUpperCase() === station.portal && mission.galaxy === station.galaxy,
+    const matchingMissions = missions.filter(
+      (mission) => mission.systemAddress.toUpperCase() === station.portal && mission.galaxy === station.galaxy,
     );
     const ownSpecialty = member.specialty;
-    const canOpenOwnSpecialtyMission = (ownSpecialty === "explorer" || ownSpecialty === "builder") &&
-      matchingMissions.some((mission) =>
-        coveredSpecialties(mission.targetSpecialty).includes(ownSpecialty) &&
-        ((mission.status === "pending" && !mission.assignedMemberId && !mission.assignedTo.trim()) ||
-          mission.assignedMemberId === member.publicId),
+    const canOpenOwnSpecialtyMission =
+      (ownSpecialty === "explorer" || ownSpecialty === "builder") &&
+      matchingMissions.some(
+        (mission) =>
+          coveredSpecialties(mission.targetSpecialty).includes(ownSpecialty) &&
+          ((mission.status === "pending" && !mission.assignedMemberId && !mission.assignedTo.trim()) ||
+            mission.assignedMemberId === member.publicId),
       );
     const completedSpecialties = new Set<MissionSpecialty>();
     for (const mission of matchingMissions) {
@@ -261,9 +329,13 @@ async function readStations(member: AllianceMember) {
         completedSpecialties.add(mission.targetSpecialty);
       }
     }
-    const availableSpecialties = completedSpecialties.size === 0
-      ? [...missionSpecialties]
-      : missionSpecialties.filter((specialty) => specialty !== "all" && specialty !== "explorer_builder" && !completedSpecialties.has(specialty));
+    const availableSpecialties =
+      completedSpecialties.size === 0
+        ? [...missionSpecialties]
+        : missionSpecialties.filter(
+            (specialty) =>
+              specialty !== "all" && specialty !== "explorer_builder" && !completedSpecialties.has(specialty),
+          );
 
     return {
       ...station,
@@ -276,11 +348,12 @@ async function readStations(member: AllianceMember) {
       hasMissions: matchingMissions.length > 0,
       canOpenOwnSpecialtyMission,
       hasAssignedMission: matchingMissions.some((mission) => mission.assignedMemberId === member.publicId),
-      missionStatus: matchingMissions.length === 0
-        ? "none"
-        : matchingMissions.every((mission) => mission.status === "completed")
-          ? "completed"
-          : "in_progress",
+      missionStatus:
+        matchingMissions.length === 0
+          ? "none"
+          : matchingMissions.every((mission) => mission.status === "completed")
+            ? "completed"
+            : "in_progress",
       availableSpecialties,
     };
   });
@@ -298,7 +371,14 @@ async function cacheStationPlanet(portal: string, galaxy: number) {
     if (!response.ok) return;
 
     const result: unknown = await response.json();
-    if (!result || typeof result !== "object" || !("portal" in result) || typeof result.portal !== "string" || result.portal.toUpperCase() !== portal) return;
+    if (
+      !result ||
+      typeof result !== "object" ||
+      !("portal" in result) ||
+      typeof result.portal !== "string" ||
+      result.portal.toUpperCase() !== portal
+    )
+      return;
     await writeAlmanacResponse(portal, galaxy, result);
   } catch (error) {
     console.error("Unable to cache station planet from NMS Almanac", error);

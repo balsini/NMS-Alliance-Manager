@@ -13,17 +13,40 @@ export async function PATCH(request: Request) {
   if (!member) return NextResponse.json({ error: "Accesso richiesto." }, { status: 401 });
   if (!hasRole(member, "admin")) return NextResponse.json({ error: "Permesso admin richiesto." }, { status: 403 });
   const input: unknown = await request.json().catch(() => null);
-  if (!input || typeof input !== "object") return NextResponse.json({ error: "Impostazioni non valide." }, { status: 400 });
+  if (!input || typeof input !== "object")
+    return NextResponse.json({ error: "Impostazioni non valide." }, { status: 400 });
   const value = input as Record<string, unknown>;
-  if (typeof value.name !== "string" || !value.name.trim() || value.name.length > 80 ||
-      typeof value.logoUrl !== "string" || typeof value.bannerUrl !== "string" ||
-      typeof value.discordUrl !== "string" || value.discordUrl.length > 300 || !isCommunityInviteUrl(value.discordUrl, ["discord.gg", "discord.com", "t.co"]) ||
-      typeof value.telegramUrl !== "string" || value.telegramUrl.length > 300 || !isCommunityInviteUrl(value.telegramUrl, ["t.me", "telegram.me", "t.co"]) ||
-      (value.heroGradientMode !== "none" && value.heroGradientMode !== "left" && value.heroGradientMode !== "full")) {
-    return NextResponse.json({ error: "Controlla il nome, le immagini e i link Discord/Telegram." }, { status: 400 });
+  if (
+    typeof value.name !== "string" ||
+    !value.name.trim() ||
+    value.name.length > 80 ||
+    (value.portalCode !== undefined &&
+      (typeof value.portalCode !== "string" ||
+        (value.portalCode !== "" && !/^[0-9A-F]{12}$/i.test(value.portalCode)))) ||
+    (value.galaxy !== undefined &&
+      (typeof value.galaxy !== "number" ||
+        !Number.isInteger(value.galaxy) ||
+        value.galaxy < 0 ||
+        value.galaxy > 255)) ||
+    typeof value.logoUrl !== "string" ||
+    typeof value.bannerUrl !== "string" ||
+    typeof value.discordUrl !== "string" ||
+    value.discordUrl.length > 300 ||
+    !isCommunityInviteUrl(value.discordUrl, ["discord.gg", "discord.com", "t.co"]) ||
+    typeof value.telegramUrl !== "string" ||
+    value.telegramUrl.length > 300 ||
+    !isCommunityInviteUrl(value.telegramUrl, ["t.me", "telegram.me", "t.co"]) ||
+    (value.heroGradientMode !== "none" && value.heroGradientMode !== "left" && value.heroGradientMode !== "full")
+  ) {
+    return NextResponse.json(
+      { error: "Controlla il nome, il codice portale, la galassia, le immagini e i link Discord/Telegram." },
+      { status: 400 },
+    );
   }
   const settings = await updateAllianceSettings({
     name: value.name.trim(),
+    portalCode: typeof value.portalCode === "string" ? value.portalCode.toUpperCase() : "",
+    galaxy: typeof value.galaxy === "number" ? value.galaxy : 0,
     logoUrl: value.logoUrl,
     bannerUrl: value.bannerUrl,
     discordUrl: value.discordUrl.trim(),
@@ -38,10 +61,9 @@ function isCommunityInviteUrl(value: string, allowedHosts: readonly string[]) {
   if (!trimmed) return true;
   try {
     const url = new URL(trimmed);
-    return url.protocol === "https:" &&
-      allowedHosts.includes(url.hostname.toLowerCase()) &&
-      !url.username &&
-      !url.password;
+    return (
+      url.protocol === "https:" && allowedHosts.includes(url.hostname.toLowerCase()) && !url.username && !url.password
+    );
   } catch {
     return false;
   }

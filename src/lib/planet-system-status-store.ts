@@ -1,6 +1,7 @@
 import { get, put } from "@vercel/blob";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { localDataPath } from "@/lib/local-data-path";
 import { getBlobAuthOptions } from "@/lib/blob-config";
 import {
   isMissionSystemStatus,
@@ -11,7 +12,7 @@ import {
 } from "@/lib/planet-system-status";
 
 const blobPath = "alliance-manager/planet-system-status.json";
-const localPath = path.join(process.cwd(), "data", "planet-system-status.json");
+const localPath = localDataPath("planet-system-status.json");
 
 function normalizeStatuses(value: unknown): {
   data: PlanetSystemStatuses;
@@ -116,13 +117,16 @@ export async function migrateLegacyPlanetSystemStatuses(value: unknown): Promise
       mission.galaxy < 0 ||
       mission.galaxy > 255 ||
       !Array.isArray(mission.systemStatus)
-    ) return [];
+    )
+      return [];
     const statuses = mission.systemStatus.map(normalizeMissionSystemStatus);
     if (!statuses.every((status): status is MissionSystemStatus => status !== null)) return [];
-    return [{
-      key: planetSystemStatusKey(mission.systemAddress, mission.galaxy),
-      statuses,
-    }];
+    return [
+      {
+        key: planetSystemStatusKey(mission.systemAddress, mission.galaxy),
+        statuses,
+      },
+    ];
   });
   if (legacyEntries.length === 0) return;
 

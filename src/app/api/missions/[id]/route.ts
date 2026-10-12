@@ -1,5 +1,11 @@
 import { NextResponse } from "next/server";
-import { isDifferentPlanetInSameSystem, isMissionInput, isMissionStatus, specialtyAlreadyCovered, type MissionStatus } from "@/lib/missions";
+import {
+  isDifferentPlanetInSameSystem,
+  isMissionInput,
+  isMissionStatus,
+  specialtyAlreadyCovered,
+  type MissionStatus,
+} from "@/lib/missions";
 import { readMissions, writeMissions } from "@/lib/store";
 import { getCurrentMember, hasRole } from "@/lib/authorization";
 import { isValidNmsFriendCode } from "@/lib/member-types";
@@ -25,16 +31,15 @@ export async function PATCH(request: Request, context: RouteContext) {
       const existingMission = missions[index];
       const stations = await readAllStationPortals();
       const conflictsWithRegisteredPlanet = [
-        ...missions.filter((mission) => mission.id !== id)
+        ...missions
+          .filter((mission) => mission.id !== id)
           .map((mission) => ({ portal: mission.systemAddress, galaxy: mission.galaxy })),
         ...stations.map((station) => ({ portal: station.portal, galaxy: station.galaxy })),
-      ].some((entry) => isDifferentPlanetInSameSystem(
-        input.systemAddress,
-        input.galaxy,
-        entry.portal,
-        entry.galaxy,
-      ));
-      if (input.targetSpecialty !== existingMission.targetSpecialty && specialtyAlreadyCovered(input.targetSpecialty, missions, input.systemAddress, input.galaxy, id)) {
+      ].some((entry) => isDifferentPlanetInSameSystem(input.systemAddress, input.galaxy, entry.portal, entry.galaxy));
+      if (
+        input.targetSpecialty !== existingMission.targetSpecialty &&
+        specialtyAlreadyCovered(input.targetSpecialty, missions, input.systemAddress, input.galaxy, id)
+      ) {
         return NextResponse.json({ error: "Esiste già una missione di questo tipo per la stazione." }, { status: 409 });
       }
       if (conflictsWithRegisteredPlanet) {
@@ -43,9 +48,14 @@ export async function PATCH(request: Request, context: RouteContext) {
       const access = await readAccessData();
       const assignedMemberId = input.assignedMemberId?.trim() || undefined;
       const assignedMember = assignedMemberId
-        ? access.members.find((candidate) => candidate.publicId === assignedMemberId &&
-          candidate.membershipStatus === "approved" && candidate.nmsName &&
-          (candidate.offline || isValidNmsFriendCode(candidate.nmsCode)) && candidate.specialty)
+        ? access.members.find(
+            (candidate) =>
+              candidate.publicId === assignedMemberId &&
+              candidate.membershipStatus === "approved" &&
+              candidate.nmsName &&
+              (candidate.offline || isValidNmsFriendCode(candidate.nmsCode)) &&
+              candidate.specialty,
+          )
         : null;
       if (assignedMemberId && !assignedMember && assignedMemberId !== existingMission.assignedMemberId) {
         return NextResponse.json({ error: "Membro assegnatario non trovato." }, { status: 400 });
@@ -53,8 +63,15 @@ export async function PATCH(request: Request, context: RouteContext) {
       const stationOwner = input.stationOwnerMemberId
         ? await findStationOwner(input.stationOwnerMemberId, input.systemAddress, input.galaxy)
         : null;
-      if (input.stationOwnerMemberId && !stationOwner && input.stationOwnerMemberId !== existingMission.stationOwnerMemberId) {
-        return NextResponse.json({ error: "Lo scopritore selezionato non risulta proprietario della stazione." }, { status: 400 });
+      if (
+        input.stationOwnerMemberId &&
+        !stationOwner &&
+        input.stationOwnerMemberId !== existingMission.stationOwnerMemberId
+      ) {
+        return NextResponse.json(
+          { error: "Lo scopritore selezionato non risulta proprietario della stazione." },
+          { status: 400 },
+        );
       }
       updated = {
         ...input,
@@ -63,14 +80,18 @@ export async function PATCH(request: Request, context: RouteContext) {
         createdByName: existingMission.createdByName,
         stationOwnerMemberId: stationOwner?.publicId,
         stationOwnerName: stationOwner?.name,
-        assignedTo: assignedMember?.nmsName || assignedMember?.name || (assignedMemberId ? existingMission.assignedTo : ""),
+        assignedTo:
+          assignedMember?.nmsName || assignedMember?.name || (assignedMemberId ? existingMission.assignedTo : ""),
         assignedMemberId: assignedMember?.publicId ?? assignedMemberId,
         systemAddress: input.systemAddress.toUpperCase(),
         id,
       };
     } else {
       if (missions[index].assignedMemberId !== member.publicId || !isProgressUpdate(input)) {
-        return NextResponse.json({ error: "Puoi aggiornare solo l'avanzamento delle missioni assegnate a te." }, { status: 403 });
+        return NextResponse.json(
+          { error: "Puoi aggiornare solo l'avanzamento delle missioni assegnate a te." },
+          { status: 403 },
+        );
       }
       if (missions[index].status === "completed" && input.status === "completed") {
         return NextResponse.json({ error: "La missione è già completata." }, { status: 409 });
@@ -89,8 +110,8 @@ export async function PATCH(request: Request, context: RouteContext) {
 
 async function findStationOwner(publicId: string, portal: string, galaxy: number) {
   const access = await readAccessData();
-  const owner = access.members.find((candidate) =>
-    candidate.publicId === publicId && candidate.membershipStatus === "approved",
+  const owner = access.members.find(
+    (candidate) => candidate.publicId === publicId && candidate.membershipStatus === "approved",
   );
   if (!owner) return null;
   const stations = await readStationPortals(owner.publicId);
@@ -122,8 +143,12 @@ export async function DELETE(_request: Request, context: RouteContext) {
 function isProgressUpdate(value: unknown): value is { status: MissionStatus; progress: number } {
   if (!value || typeof value !== "object") return false;
   const update = value as Record<string, unknown>;
-  return isMissionStatus(update.status) &&
-    typeof update.progress === "number" && Number.isInteger(update.progress) &&
-    update.progress >= 0 && update.progress <= 100 &&
-    Object.keys(update).every((key) => key === "status" || key === "progress");
+  return (
+    isMissionStatus(update.status) &&
+    typeof update.progress === "number" &&
+    Number.isInteger(update.progress) &&
+    update.progress >= 0 &&
+    update.progress <= 100 &&
+    Object.keys(update).every((key) => key === "status" || key === "progress")
+  );
 }

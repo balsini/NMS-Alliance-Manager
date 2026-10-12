@@ -28,7 +28,7 @@ const planetConditions = [
 ] as const;
 
 function asRecord(value: unknown): PlanetRecord | null {
-  return value && typeof value === "object" && !Array.isArray(value) ? value as PlanetRecord : null;
+  return value && typeof value === "object" && !Array.isArray(value) ? (value as PlanetRecord) : null;
 }
 
 function displayValue(value: unknown, tv: (value: string) => string = (text) => text): string | null {
@@ -45,15 +45,20 @@ function displayValue(value: unknown, tv: (value: string) => string = (text) => 
   const stars = starCount === null ? null : `${"★".repeat(starCount)}${"☆".repeat(3 - starCount)}`;
   const marks = Array.isArray(record.marks)
     ? record.marks.flatMap((mark) => {
-      const markRecord = asRecord(mark);
-      return typeof markRecord?.word === "string" ? [markRecord.word] : [];
-    })
+        const markRecord = asRecord(mark);
+        return typeof markRecord?.word === "string" ? [markRecord.word] : [];
+      })
     : [];
-  const parts = [word, note, stars, ...marks].map((part) => part && tv(part)).filter((part): part is string => Boolean(part));
+  const parts = [word, note, stars, ...marks]
+    .map((part) => part && tv(part))
+    .filter((part): part is string => Boolean(part));
   return parts.length > 0 ? parts.join(" · ") : null;
 }
 
-function PlanetFacts({ band, fields }: Readonly<{
+function PlanetFacts({
+  band,
+  fields,
+}: Readonly<{
   band: PlanetRecord | null;
   fields: ReadonlyArray<readonly [string, string]>;
 }>) {
@@ -66,25 +71,40 @@ function PlanetFacts({ band, fields }: Readonly<{
 
   return (
     <dl className="planet-fact-list">
-      {facts.map(({ label, value }) => <div className="planet-fact-row" key={label}><dt>{t(label)}</dt><dd>{value}</dd></div>)}
+      {facts.map(({ label, value }) => (
+        <div className="planet-fact-row" key={label}>
+          <dt>{t(label)}</dt>
+          <dd>{value}</dd>
+        </div>
+      ))}
     </dl>
   );
 }
 
 function PlanetSky({ sky }: Readonly<{ sky: PlanetRecord | null }>) {
   const { t } = useLocale();
-  const colors = sky ? [
-    { label: t("common.day"), color: sky.day },
-    { label: t("common.night"), color: sky.night },
-  ].filter((item): item is { label: string; color: string } =>
-    typeof item.color === "string" && /^#[0-9A-F]{6}$/i.test(item.color),
-  ) : [];
+  const colors = sky
+    ? [
+        { label: t("common.day"), color: sky.day },
+        { label: t("common.night"), color: sky.night },
+      ].filter(
+        (item): item is { label: string; color: string } =>
+          typeof item.color === "string" && /^#[0-9A-F]{6}$/i.test(item.color),
+      )
+    : [];
   if (colors.length === 0) return null;
 
   return (
     <div className="planet-sky-row">
       <span>{t("planet.sky")}</span>
-      <div>{colors.map(({ label, color }) => <span aria-label={`${label} ${color}`} className="planet-sky-color" key={label} title={`${label} ${color}`}><i style={{ backgroundColor: color }} />{label}</span>)}</div>
+      <div>
+        {colors.map(({ label, color }) => (
+          <span aria-label={`${label} ${color}`} className="planet-sky-color" key={label} title={`${label} ${color}`}>
+            <i style={{ backgroundColor: color }} />
+            {label}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
@@ -102,28 +122,50 @@ function PlanetResources({ carries }: Readonly<{ carries: unknown[] }>) {
     { name: "Plants", kinds: ["plant", "consumable"] },
     { name: "Valuables", kinds: ["tradeable"] },
     { name: "Finds", kinds: ["component"] },
-  ].map((group) => ({
-    ...group,
-    items: resources.filter((resource) => group.kinds.includes(resource.kind)).map((resource) => resource.name),
-  })).filter((group) => group.items.length > 0);
+  ]
+    .map((group) => ({
+      ...group,
+      items: resources.filter((resource) => group.kinds.includes(resource.kind)).map((resource) => resource.name),
+    }))
+    .filter((group) => group.items.length > 0);
   const otherResources = resources.filter((resource) => !groups.some((group) => group.kinds.includes(resource.kind)));
-  if (otherResources.length > 0) groups.push({ name: "Other resources", kinds: [], items: otherResources.map((resource) => resource.name) });
+  if (otherResources.length > 0)
+    groups.push({ name: "Other resources", kinds: [], items: otherResources.map((resource) => resource.name) });
   if (groups.length === 0) return null;
 
   return (
     <section aria-labelledby="planet-resources-title" className="planet-card-section planet-resources-section">
       <h4 id="planet-resources-title">{t("planet.resources")}</h4>
       <div className="planet-resource-groups">
-        {groups.map((group) => <div className="planet-resource-group" key={group.name}>
-          <h5><span>{t(group.name)}</span><span>{group.items.length}</span></h5>
-          <ul>{group.items.map((item) => <li key={item}>{tv(item)}</li>)}</ul>
-        </div>)}
+        {groups.map((group) => (
+          <div className="planet-resource-group" key={group.name}>
+            <h5>
+              <span>{t(group.name)}</span>
+              <span>{group.items.length}</span>
+            </h5>
+            <ul>
+              {group.items.map((item) => (
+                <li key={item}>{tv(item)}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
       </div>
     </section>
   );
 }
 
-export function PlanetCard({ portal, galaxy, title: cardTitle, contextLabel, missionDescription, initialPlanetPortal, initialPlanetData, inlinePreview = false, onClose }: Readonly<{
+export function PlanetCard({
+  portal,
+  galaxy,
+  title: cardTitle,
+  contextLabel,
+  missionDescription,
+  initialPlanetPortal,
+  initialPlanetData,
+  inlinePreview = false,
+  onClose,
+}: Readonly<{
   portal: string;
   galaxy: number;
   title: string;
@@ -247,50 +289,75 @@ export function PlanetCard({ portal, galaxy, title: cardTitle, contextLabel, mis
   const sky = asRecord(planet?.sky);
   const pictures = asRecord(planet?.pictures);
   const disc = pictures?.disc;
-  const imageUrl = typeof disc === "string" && disc.startsWith("/planets/")
-    ? `https://nmsalmanac.com/api${disc}`
-    : null;
+  const imageUrl =
+    typeof disc === "string" && disc.startsWith("/planets/") ? `https://nmsalmanac.com/api${disc}` : null;
   const carries = Array.isArray(planet?.carries) ? planet.carries : [];
 
   return (
     <div className={`dialog-backdrop planet-backdrop${inlinePreview ? " planet-backdrop-inline" : ""}`}>
-      <dialog aria-labelledby="planet-card-title" aria-modal={inlinePreview ? undefined : true} className="mission-dialog planet-dialog" open>
+      <dialog
+        aria-labelledby="planet-card-title"
+        aria-modal={inlinePreview ? undefined : true}
+        className="mission-dialog planet-dialog"
+        open
+      >
         <div className="dialog-heading">
           <div>
-            <span className="eyebrow">{t("planet.details_eyebrow")} <span>·</span> {galaxyLabel(galaxy).toUpperCase()}</span>
+            <span className="eyebrow">
+              {t("planet.details_eyebrow")} <span>·</span> {galaxyLabel(galaxy).toUpperCase()}
+            </span>
             <h2 id="planet-card-title">{cardTitle}</h2>
             {missionDescription?.trim() && <p className="planet-dialog-mission-description">{missionDescription}</p>}
           </div>
-          <button aria-label={t("planet.close_planet_details")} className="icon-button" onClick={onClose} type="button"><X size={18} /></button>
+          <button aria-label={t("planet.close_planet_details")} className="icon-button" onClick={onClose} type="button">
+            <X size={18} />
+          </button>
         </div>
         <div className="planet-card-body">
-          <div className="planet-card-address"><GlyphStrip address={selectedPortal} large /><code>{selectedPortal}</code></div>
-          {loading && <p aria-live="polite" className="planet-card-message">{t("common.loading_archived_details")}</p>}
+          <div className="planet-card-address">
+            <GlyphStrip address={selectedPortal} large />
+            <code>{selectedPortal}</code>
+          </div>
+          {loading && (
+            <p aria-live="polite" className="planet-card-message">
+              {t("common.loading_archived_details")}
+            </p>
+          )}
           {!loading && error && <p className="planet-card-message planet-card-error">{t(error)}</p>}
-          {planetEntries.length > 1 && <nav aria-label={t("planet.planets_in_system")} className="planet-system-tabs">
-            {planetEntries.map((entry, index) => {
-              const entryLines = asRecord(entry.planet.lines);
-              const entryHeadline = asRecord(entryLines?.headline);
-              const entryBand = asRecord(entryLines?.band);
-              const entryPlanetType = displayValue(entryBand?.type);
-              const entryName = typeof entryHeadline?.word === "string"
-                ? entryHeadline.word
-                : entryPlanetType ?? `${t("planet.planet_label")} ${index + 1}`;
-              return <button
-                aria-pressed={entry.portal === selectedPortal}
-                className={entry.portal === selectedPortal ? "selected" : ""}
-                key={entry.portal}
-                onClick={() => setSelectedPortal(entry.portal)}
-                type="button"
-              >{entryName}</button>;
-            })}
-          </nav>}
+          {planetEntries.length > 1 && (
+            <nav aria-label={t("planet.planets_in_system")} className="planet-system-tabs">
+              {planetEntries.map((entry, index) => {
+                const entryLines = asRecord(entry.planet.lines);
+                const entryHeadline = asRecord(entryLines?.headline);
+                const entryBand = asRecord(entryLines?.band);
+                const entryPlanetType = displayValue(entryBand?.type);
+                const entryName =
+                  typeof entryHeadline?.word === "string"
+                    ? entryHeadline.word
+                    : (entryPlanetType ?? `${t("planet.planet_label")} ${index + 1}`);
+                return (
+                  <button
+                    aria-pressed={entry.portal === selectedPortal}
+                    className={entry.portal === selectedPortal ? "selected" : ""}
+                    key={entry.portal}
+                    onClick={() => setSelectedPortal(entry.portal)}
+                    type="button"
+                  >
+                    {entryName}
+                  </button>
+                );
+              })}
+            </nav>
+          )}
           {planet && (
             <>
               <section aria-labelledby="planet-intro-title" className="planet-card-intro">
-                {imageUrl && <Image alt="" className="planet-card-image" height={256} src={imageUrl} unoptimized width={256} />}
+                {imageUrl && (
+                  <Image alt="" className="planet-card-image" height={256} src={imageUrl} unoptimized width={256} />
+                )}
                 <div>
-                  <h3 id="planet-intro-title">{title}
+                  <h3 id="planet-intro-title">
+                    {title}
                     <button
                       aria-label={t("help.request_help")}
                       className="member-icon-action planet-help-button"
@@ -302,21 +369,43 @@ export function PlanetCard({ portal, galaxy, title: cardTitle, contextLabel, mis
                       }}
                       title={t("help.request_help")}
                       type="button"
-                    ><Siren size={15} /></button>
+                    >
+                      <Siren size={15} />
+                    </button>
                   </h3>
                   {helpSent && <p className="address-validation address-valid">{t("help.request_sent")}</p>}
-                  {helpOpen && <form className="planet-help-form" onSubmit={(event) => void sendHelpRequest(event)}>
-                    <label className="field">
-                      <span>{t("help.request_help_for", { subject: title })}</span>
-                      <textarea autoFocus maxLength={2000} onChange={(event) => setHelpBody(event.target.value)} required rows={3} value={helpBody} />
-                    </label>
-                    <label className="message-acknowledgement">
-                  <input checked={helpAcknowledged} onChange={(event) => setHelpAcknowledged(event.target.checked)} required type="checkbox" />
-                  <span>{t("profile.message_mission_only_notice")}</span>
-                </label>
-                    {helpError && <p className="form-error">{t(helpError)}</p>}
-                    <button className="primary-button" disabled={helpSending || !helpBody.trim() || !helpAcknowledged} type="submit">{t("help.send_request")}</button>
-                  </form>}
+                  {helpOpen && (
+                    <form className="planet-help-form" onSubmit={(event) => void sendHelpRequest(event)}>
+                      <label className="field">
+                        <span>{t("help.request_help_for", { subject: title })}</span>
+                        <textarea
+                          autoFocus
+                          maxLength={2000}
+                          onChange={(event) => setHelpBody(event.target.value)}
+                          required
+                          rows={3}
+                          value={helpBody}
+                        />
+                      </label>
+                      <label className="message-acknowledgement">
+                        <input
+                          checked={helpAcknowledged}
+                          onChange={(event) => setHelpAcknowledged(event.target.checked)}
+                          required
+                          type="checkbox"
+                        />
+                        <span>{t("profile.message_mission_only_notice")}</span>
+                      </label>
+                      {helpError && <p className="form-error">{t(helpError)}</p>}
+                      <button
+                        className="primary-button"
+                        disabled={helpSending || !helpBody.trim() || !helpAcknowledged}
+                        type="submit"
+                      >
+                        {t("help.send_request")}
+                      </button>
+                    </form>
+                  )}
                   {contextLabel && <p>{contextLabel}</p>}
                   {planet.paradise === true && <span className="planet-paradise-flag">{t("planet.paradise")}</span>}
                   <span className="planet-intro-code">{selectedPortal}</span>
@@ -332,10 +421,17 @@ export function PlanetCard({ portal, galaxy, title: cardTitle, contextLabel, mis
                 <PlanetFacts band={band} fields={systemAttributes} />
               </section>
               <PlanetResources carries={carries} />
-              <div className="planet-card-attribution">{t("common.data")} <a href="https://nmsalmanac.com" rel="noreferrer" target="_blank">NMS Almanac</a></div>
+              <div className="planet-card-attribution">
+                {t("common.data")}{" "}
+                <a href="https://nmsalmanac.com" rel="noreferrer" target="_blank">
+                  NMS Almanac
+                </a>
+              </div>
             </>
           )}
-          {!loading && !planet && !error && <p className="planet-card-message">{t("planet.no_almanac_details_are_archived_for_this_mission")}</p>}
+          {!loading && !planet && !error && (
+            <p className="planet-card-message">{t("planet.no_almanac_details_are_archived_for_this_mission")}</p>
+          )}
         </div>
       </dialog>
     </div>

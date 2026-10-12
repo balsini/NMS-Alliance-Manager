@@ -1,0 +1,19 @@
+node_modules/
+.next/
+out/
+build/
+coverage/
+.vercel/
+data/
+data-test/
+public/
+src/lib/nms-core/
+package-lock.json
+*.tsbuildinfo
+next-env.d.ts
+
+# Markdown: AGENTS.md has a block rewritten by `next dev`, docs are user-facing Italian text
+*.md
+
+# CSS is written one rule per line on purpose
+src/styles/
