@@ -14,15 +14,21 @@ npm install
 npm run dev     # Next.js dev server (Turbopack) on http://localhost:3000
 npm run dev:local   # Same, with the local development accounts (no Google)
 npm run dev:test    # Same, with the 9 fixed test accounts and populated data in data-test/ (copied from fixtures/test-data/)
-npm test        # Unit tests (Vitest)
-npm run test:coverage   # Same, with a coverage report for src/lib in coverage/ (git-ignored)
+npm test        # All tests (Vitest)
+npm run test:watch      # Same, in watch mode
+npm run test:coverage   # Same, with a coverage report in coverage/ (git-ignored)
 npm run lint    # ESLint
 npm run format  # Prettier (write)
 npm run format:check  # Prettier (check only)
 npm run build   # Production build (also runs the TypeScript type check)
 ```
 
-Unit tests live next to the code (`*.test.ts` / `*.test.tsx`) and cover the pure logic in `src/lib/`. Use `renderWithLocale()` from `src/test/render-with-locale.tsx` to render a component inside `LocaleProvider`. Modules that read or write storage (`access-store.ts`, `store.ts`, `*-store.ts`) are not covered yet. **`src/lib/nms-core/` is vendored third-party code: don't write tests for it** (it is excluded in `vitest.config.mts`). Verify changes with `npm test`, `npm run lint` and `npm run build`.
+Tests come in two places, both run by `npm test` (one Vitest config, `vitest.config.mts`, with two projects):
+
+- **Unit tests next to the code** (`*.test.ts` / `*.test.tsx`, project `unit`) cover the pure logic in `src/lib/`. Use `renderWithLocale()` from `src/test/render-with-locale.tsx` to render a component inside `LocaleProvider`.
+- **`tests/`** (project `integration`) mirrors the source: `tests/lib` (pure logic), `tests/stores` (`*-store.ts`), `tests/api` (route handlers), `tests/components` and `tests/pages` (React, with jsdom). `tests/setup.ts` moves each test file into a fresh temporary directory, so the stores write to an isolated `data/`, and clears auth and Blob variables. API tests mock only `@/auth` (`tests/helpers/auth.ts`, `signInAs`), so the real `getCurrentMember` runs. Seed data with `tests/helpers/members.ts`. Component test files start with `// @vitest-environment jsdom`.
+
+**`src/lib/nms-core/` is vendored third-party code: don't write tests for it** (it is excluded in `vitest.config.mts`). When you change behaviour, update or add the matching tests. Verify changes with `npm test`, `npm run lint` and `npm run build`. CI (`.github/workflows/ci.yml`) runs lint, tests with coverage (failing below the thresholds in `vitest.config.mts`) and the build on every push to `main` and every pull request, plus `npm run audit:prod`.
 
 Formatting uses Prettier (`prettier.config.mjs`, `.prettierignore`), wired into ESLint through `eslint-config-prettier`. The existing code was never formatted with it, so don't run `npm run format` on the whole repo inside an unrelated change: format only the files you create or edit (`npx prettier --write <files>`). Markdown, CSS in `src/styles/`, `public/`, `data/` and `nms-core` are ignored.
 

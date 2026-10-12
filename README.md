@@ -81,8 +81,9 @@ All sections are shown as cards. Regular users always use the simplified view; a
 ## Development and verification
 
 ```bash
-npm test               # unit tests (Vitest)
-npm run test:coverage  # tests with a coverage report for src/lib in coverage/ (git-ignored)
+npm test               # all tests (Vitest)
+npm run test:watch     # tests in watch mode
+npm run test:coverage  # tests with a coverage report in coverage/ (git-ignored, open coverage/index.html)
 npm run lint           # ESLint
 npm run format         # Prettier (write)
 npm run format:check   # Prettier (check only)
@@ -90,7 +91,9 @@ npm run build          # production build, includes the TypeScript type check
 npm run audit:prod     # npm audit on the production dependencies only
 ```
 
-Unit tests live next to the code (`*.test.ts` / `*.test.tsx`). `src/lib/nms-core/` is vendored third-party code and is excluded from tests, coverage and formatting. The existing code is not fully formatted with Prettier yet, so format only the files you create or edit.
+Unit tests for pure logic live next to the code (`*.test.ts` / `*.test.tsx`); store, API route, component and page tests live in `tests/`. `src/lib/nms-core/` is vendored third-party code and is excluded from tests, coverage and formatting. The existing code is not fully formatted with Prettier yet, so format only the files you create or edit.
+
+GitHub CI runs lint, tests with coverage and the build on every push to `main` and every pull request, plus `npm run audit:prod`. The coverage summary appears on the job page and the HTML report is uploaded as the `coverage-report` artifact.
 
 The `CI` GitHub Actions workflow (`.github/workflows/ci.yml`) runs the tests and `npm run audit:prod` on every pull request.
 
