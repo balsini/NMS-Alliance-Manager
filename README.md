@@ -17,6 +17,16 @@ npm run dev
 
 Apri http://localhost:3000. Senza `NMS_READ_WRITE_TOKEN` (o `BLOB_READ_WRITE_TOKEN` come fallback), l'app salva i dati in `data/` nella cartella di progetto. I file dati sono esclusi da Git.
 
+### Modalità locale senza Google
+
+Per provare l'app senza configurare Google OAuth, imposta in `.env.local`:
+
+```bash
+LOCAL_AUTH=true
+```
+
+La schermata di accesso mostra un pulsante per ogni account di sviluppo: `admin@local` (admin, Ranger), `moderator@local` (moderatore, Esploratore), `ranger@local`, `explorer@local` e `builder@local` (utenti normali). Gli account sono già approvati e con profilo completo; ruolo e approvazione vengono ripristinati a ogni accesso. In questa modalità le variabili Google e `ALLIANCE_ADMIN_EMAIL` non servono, e i dati sono sempre salvati in `data/`, anche se è configurato uno store Blob. La modalità è ignorata in produzione (`NODE_ENV=production`, quindi anche con `npm run build` / `npm start`) e su Vercel.
+
 ## Deploy su Vercel
 
 1. Importa il repository in Vercel e crea un Blob Store privato dal pannello Storage del progetto.

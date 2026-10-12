@@ -1,6 +1,12 @@
 import NextAuth from "next-auth";
+import Credentials from "next-auth/providers/credentials";
+import { ensureLocalMember } from "@/lib/access-store";
+import { findLocalAccount, isLocalAuthEnabled } from "@/lib/local-auth";
+
+const localAuth = isLocalAuthEnabled();
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  ...(localAuth ? { secret: process.env.AUTH_SECRET || "local-auth-development-secret", trustHost: true } : {}),
   providers: [{
     id: "google",
     name: "Google",
@@ -21,9 +27,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         image: profile.picture,
       };
     },
-  }],
+  }, ...(localAuth ? [Credentials({
+    id: "local",
+    name: "Local",
+    credentials: { email: {} },
+    async authorize(credentials) {
+      const account = isLocalAuthEnabled() ? findLocalAccount(credentials?.email) : undefined;
+      if (!account) return null;
+      await ensureLocalMember(account);
+      return { id: account.email, name: account.name, email: account.email, image: "" };
+    },
+  })] : [])],
   callbacks: {
-    signIn({ profile }) {
+    signIn({ account, profile }) {
+      if (account?.provider === "local") return isLocalAuthEnabled();
       return Boolean(profile?.email && profile.email_verified === true);
     },
   },

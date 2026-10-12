@@ -1,8 +1,9 @@
 import { auth } from "@/auth";
+import { getMissingAuthConfiguration } from "@/lib/local-auth";
 import { registerMember, type AllianceMember, type MemberRole } from "@/lib/access-store";
 
 export async function getCurrentMember(options: Readonly<{ allowPending?: boolean; allowBlocked?: boolean }> = {}): Promise<AllianceMember | null> {
-  if (!process.env.AUTH_SECRET || !process.env.AUTH_GOOGLE_ID || !process.env.AUTH_GOOGLE_SECRET) return null;
+  if (getMissingAuthConfiguration().some((key) => key !== "ALLIANCE_ADMIN_EMAIL")) return null;
   const session = await auth();
   const email = session?.user?.email;
   if (!email) return null;
