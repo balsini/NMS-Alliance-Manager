@@ -6,7 +6,7 @@
 .station-toolbar-actions .station-export-button { width: 32px; height: 32px; position: relative; display: grid; place-items: center; padding: 0; color: #cbd6ce; border: 1px solid #394548; border-radius: 3px; background: #171e21; cursor: pointer; }
 .station-export-button:hover:not(:disabled) { color: var(--lime); border-color: var(--lime); }
 .station-export-button:disabled { cursor: wait; opacity: .65; }
-.station-toolbar-actions .station-export-button[data-tooltip]::after { position: absolute; z-index: 30; right: 0; bottom: calc(100% + 7px); padding: 6px 8px; color: #f1eee7; border: 1px solid #394548; border-radius: 3px; background: #111719; box-shadow: 0 4px 14px #0008; content: attr(data-tooltip); font-family: "Raleway", sans-serif; font-size: 9px; font-weight: 500; line-height: 1.2; opacity: 0; pointer-events: none; transform: translateY(3px); transition: opacity .12s, transform .12s; white-space: nowrap; }
+.station-toolbar-actions .station-export-button[data-tooltip]::after { position: absolute; z-index: 30; top: calc(100% + 7px); right: 0; padding: 6px 8px; color: #f1eee7; border: 1px solid #394548; border-radius: 3px; background: #111719; box-shadow: 0 4px 14px #0008; content: attr(data-tooltip); font-family: "Raleway", sans-serif; font-size: 9px; font-weight: 500; line-height: 1.2; opacity: 0; pointer-events: none; transform: translateY(-3px); transition: opacity .12s, transform .12s; white-space: nowrap; }
 .station-toolbar-actions .station-export-button[data-tooltip]:hover::after,
 .station-toolbar-actions .station-export-button[data-tooltip]:focus-visible::after { opacity: 1; transform: translateY(0); }
 .station-list { margin: 0; padding: 0; list-style: none; }

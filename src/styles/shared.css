@@ -252,7 +252,7 @@
 
 .member-icon-action.scope-toggle.selected { color: var(--lime); border-color: var(--lime); background: #252d30; }
 .scope-toggle[data-tooltip] { position: relative; }
-.scope-toggle[data-tooltip]::after { position: absolute; z-index: 30; top: calc(100% + 7px); left: 0; padding: 6px 8px; color: #f1eee7; border: 1px solid #394548; border-radius: 3px; background: #111719; box-shadow: 0 4px 14px #0008; content: attr(data-tooltip); font-size: 9px; font-weight: 500; line-height: 1.2; opacity: 0; pointer-events: none; text-transform: none; transform: translateY(-3px); transition: opacity .12s, transform .12s; white-space: nowrap; }
+.scope-toggle[data-tooltip]::after { position: absolute; z-index: 30; top: calc(100% + 7px); right: 0; left: auto; padding: 6px 8px; color: #f1eee7; border: 1px solid #394548; border-radius: 3px; background: #111719; box-shadow: 0 4px 14px #0008; content: attr(data-tooltip); font-size: 9px; font-weight: 500; line-height: 1.2; opacity: 0; pointer-events: none; text-transform: none; transform: translateY(-3px); transition: opacity .12s, transform .12s; white-space: nowrap; }
 .scope-toggle[data-tooltip]:hover::after, .scope-toggle[data-tooltip]:focus-visible::after { opacity: 1; transform: translateY(0); }
 .sidebar-compact ~ .main-panel .mission-card-system .glyph-strip { min-height: 30px; gap: 4px; }
 .sidebar-compact ~ .main-panel .mission-card-system .glyph-slot { width: 28px; height: 30px; flex-basis: 28px; }
