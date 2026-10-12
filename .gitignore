@@ -3,6 +3,8 @@ node_modules/
 out/
 .vercel/
 data/
+# Test coverage reports
+coverage/
 .env*
 !.env.example
 npm-debug.log*
