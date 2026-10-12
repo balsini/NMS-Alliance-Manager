@@ -172,6 +172,18 @@ describe("PATCH /api/profile", () => {
       expect(await response.json()).toMatchObject({ nmsName: member.nmsName, simpleView: true });
     });
 
+    it("treats omitted contact names as unchanged empty names", async () => {
+      const member = fixedMember();
+      seedMembers([...castMembers(cast), member]);
+      signInAs(member);
+      const body: Record<string, unknown> = unchangedProfile(member);
+      delete body.telegramName;
+      delete body.discordName;
+      expect((await patch(body)).status).toBe(200);
+      const refused = await patch({ ...body, discordName: "new#1" });
+      expect(refused.status).toBe(403);
+    });
+
     it("does not restrict development accounts", async () => {
       vi.stubEnv("LOCAL_AUTH_SET", "");
       const member = makeMember({ email: "user@local" });

@@ -97,6 +97,14 @@ describe("MemberList", () => {
     expect(cardNames()).toEqual(["c@example.com"]);
   });
 
+  it("searches members without a specialty by their other fields", () => {
+    renderMembers({
+      members: [...members, managed({ name: "Dana", nmsName: "Drift", email: "d@example.com", specialty: "" })],
+      search: "drift",
+    });
+    expect(cardNames()).toEqual(["d@example.com"]);
+  });
+
   it("shows the empty message for the filter", () => {
     renderMembers({ search: "nobody" });
     expect(screen.getByText("No users match this filter.")).toBeInTheDocument();

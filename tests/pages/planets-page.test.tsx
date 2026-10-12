@@ -255,4 +255,122 @@ describe("PlanetsPage", () => {
     renderPlanets({ planets: [] });
     expect(screen.getByText(t("planet.no_mission_planets"))).toBeInTheDocument();
   });
+
+  it("sorts every filter option", async () => {
+    const barren = planet({
+      id: "3234567890AD:0",
+      portal: "3234567890AD",
+      planetPortal: "3234567890AD",
+      almanacName: "Dusty",
+      almanacFacts: [
+        { label: "planet.size", value: "Small" },
+        { label: "planet.water", value: "Dry" },
+        { label: "planet.weather", value: "Arid" },
+        { label: "planet.sentinels", value: "Aggressive" },
+      ],
+      systemFacts: [
+        { label: "planet.star", value: "Blue" },
+        { label: "common.economy", value: "Mining" },
+        { label: "common.conflict", value: "High" },
+        { label: "common.race", value: "Korvax" },
+      ],
+      planetType: "Barren",
+      economyStars: 1,
+      plants: ["Cactus Flesh"],
+      minerals: ["Ammonia"],
+      valuables: ["Ancient Bones"],
+    });
+    mockFetch({});
+    const { user } = renderPlanets({ planets: [planet(), frozen, barren] });
+    await user.click(screen.getByRole("button", { name: t("planet.filters") }));
+
+    const values = (label: string) =>
+      within(screen.getByRole("combobox", { name: t(label) }))
+        .getAllByRole("option")
+        .slice(1)
+        .map((option) => option.getAttribute("value"));
+    expect(values("planet.filter_economy")).toEqual(["Mining", "Trading"]);
+    expect(values("planet.filter_economy_stars")).toEqual(["1", "2"]);
+    expect(values("planet.filter_star")).toEqual(["Blue", "Red", "Yellow"]);
+    expect(values("planet.filter_race")).toEqual(["Gek", "Korvax", "Unknown"]);
+    expect(values("planet.filter_water")).toEqual(["Dry", "Ocean"]);
+    expect(values("planet.filter_weather")).toEqual(["Arid", "Humid"]);
+    expect(values("planet.filter_conflict")).toEqual(["High", "Low"]);
+    expect(values("planet.filter_sentinels")).toEqual(["Aggressive", "Low"]);
+    expect(values("planet.filter_plants")).toEqual(["Cactus Flesh", "Star Bulb"]);
+    expect(values("planet.filter_minerals")).toEqual(["Ammonia", "Copper", "Dioxite"]);
+    expect(values("planet.filter_valuables")).toEqual(["Ancient Bones", "Gold"]);
+  });
+
+  it("orders untitled planets by portal and searches planets without an almanac name", async () => {
+    const untitled = (portal: string, planetNumber: number) =>
+      planet({
+        id: `${portal}:0`,
+        portal,
+        planetPortal: portal,
+        planetNumber,
+        title: undefined,
+        almanacName: undefined,
+        almanacSearchIndex: "",
+        station: undefined,
+      });
+    mockFetch({});
+    const { user } = renderPlanets({ planets: [untitled("BBBB00000000", 2), untitled("AAAA00000000", 1)] });
+
+    const first = screen.getByText(t("planet.planet_number", { number: 1 }));
+    const second = screen.getByText(t("planet.planet_number", { number: 2 }));
+    expect(first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    await user.type(screen.getByRole("searchbox", { name: t("planet.search_almanac_values") }), "bbbb");
+    expect(screen.queryByText(t("planet.planet_number", { number: 1 }))).not.toBeInTheDocument();
+    expect(screen.getByText(t("planet.planet_number", { number: 2 }))).toBeInTheDocument();
+  });
+
+  it("titles the planet card with the system label, the mission title or a fallback", async () => {
+    mockFetch({ "/api/missions/planet": { planet: { lines: { headline: { word: "Verdant" } } } } });
+    const { user } = renderPlanets({
+      planets: [planet({ station: undefined, system: "Sol · Euclid" }), { ...frozen, title: undefined }],
+    });
+
+    await user.click(screen.getByRole("button", { name: /Verdant/ }));
+    let dialog = await screen.findByRole("dialog", { name: "Alpha mission" });
+    expect(await within(dialog).findByText("Sol · Euclid")).toBeInTheDocument();
+    await user.click(within(dialog).getByRole("button", { name: t("planet.close_planet_details") }));
+
+    await user.click(screen.getByRole("button", { name: /Glacia/ }));
+    dialog = await screen.findByRole("dialog", { name: t("planet.mission_planet") });
+    expect(dialog).toBeInTheDocument();
+  });
+
+  it("lets an admin save the alliance settings and the own profile", async () => {
+    const admin = makeMember({ publicId: "admin", nmsName: "Chief", role: "admin" });
+    mockFetch({
+      "GET /api/alliance": defaultAlliance,
+      "PATCH /api/alliance": { ...defaultAlliance, name: "Renamed Alliance" },
+      "PATCH /api/profile": { ...admin, nmsName: "Captain" },
+    });
+    const { user } = renderPlanets({ currentMember: admin });
+
+    await user.click(screen.getByRole("button", { name: t("admin.alliance_settings") }));
+    const settings = screen.getByRole("dialog", { name: t("admin.alliance") });
+    await waitFor(() =>
+      expect(within(settings).getByRole("textbox", { name: t("admin.alliance_name") })).toHaveValue("Test Alliance"),
+    );
+    await user.click(within(settings).getByRole("button", { name: t("admin.save_settings") }));
+    await waitFor(() => expect(screen.getAllByText("Renamed Alliance").length).toBeGreaterThan(0));
+    await user.click(within(settings).getByRole("button", { name: t("common.close") }));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: t("profile.my_profile") }));
+    let profile = screen.getByRole("dialog", { name: t("profile.my_nms_profile") });
+    await user.click(within(profile).getAllByRole("button", { name: t("common.close") })[0]);
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: t("profile.my_profile") }));
+    profile = screen.getByRole("dialog", { name: t("profile.my_nms_profile") });
+    await user.click(within(profile).getByRole("button", { name: t("profile.save_profile") }));
+    await waitFor(() =>
+      expect(screen.getByRole("img", { name: `Captain · ${t("admin.administrator")}` })).toBeInTheDocument(),
+    );
+  });
 });

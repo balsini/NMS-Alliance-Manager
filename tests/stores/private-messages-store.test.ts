@@ -193,6 +193,16 @@ describe("legacy email migration", () => {
     expect(storedMessages()[0]).not.toHaveProperty("senderEmail");
   });
 
+  it("drops legacy emails that match no member instead of inventing a member id", async () => {
+    seedMembers([]);
+    writeDataFile(fileName, [help({ senderMemberId: undefined, senderEmail: "gone@example.com" })]);
+    const { readHelpRequests } = await load();
+    const [request] = await readHelpRequests();
+    expect(request).toEqual(help({ senderMemberId: undefined }));
+    expect(request).not.toHaveProperty("senderMemberId");
+    expect(request).not.toHaveProperty("senderEmail");
+  });
+
   it.todo(
     "keeps messages readable when a legacy sender/recipient email has no matching member (currently the migrated record fails validation on the next read, see report)",
   );

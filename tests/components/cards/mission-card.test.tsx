@@ -2,7 +2,12 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MissionCard } from "@/components/cards/mission-card";
-import { readPlanetNotes, type MissionCardProps } from "@/components/cards/mission-card/parts";
+import {
+  MemberAvatar,
+  planetNotesRequests,
+  readPlanetNotes,
+  type MissionCardProps,
+} from "@/components/cards/mission-card/parts";
 import type { AllianceMember } from "@/lib/member-types";
 import type { Mission } from "@/lib/missions";
 import type { Locale } from "@/lib/translations";
@@ -547,5 +552,126 @@ describe("MissionCard planet thumbnail", () => {
     renderMissionCard({ mission: mission({ systemAddress: "XYZ" }) });
     await waitFor(() => expect(fetchMock).toHaveBeenCalled());
     expect(fetchMock.mock.calls.some(([url]) => String(url).startsWith("/api/missions/planet?"))).toBe(false);
+  });
+});
+
+describe.each([
+  ["extended", false],
+  ["simple", true],
+])("MissionCard (%s) with legacy data", (_variant, simpleView) => {
+  it("falls back to Euclid and all specialties for missions missing those fields", async () => {
+    const fetchMock = stubFetch();
+    const legacy = assignedToMe({
+      galaxy: undefined as unknown as number,
+      targetSpecialty: undefined as unknown as Mission["targetSpecialty"],
+    });
+    const { container } = renderMissionCard({
+      currentMember: makeMember({ publicId: "me", specialty: undefined, simpleView }),
+      mission: legacy,
+    });
+    expect(screen.getByText("Euclide")).not.toHaveClass("mission-galaxy-alert");
+    expect(container.querySelector(".badge--specialty-all")).toHaveTextContent("All");
+    expect(container.querySelector(".mission-card-planet-fallback")).not.toBeNull();
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    expect(fetchMock.mock.calls.some(([url]) => String(url).startsWith("/api/missions/planet?"))).toBe(false);
+  });
+});
+
+describe("MissionCard (simple) system tasks", () => {
+  it("lets the assignee tick their specialty's system tasks", async () => {
+    const target = assignedToMe();
+    const { user, props } = renderMissionCard({
+      currentMember: makeMember({ publicId: "me", specialty: "explorer", role: "user", simpleView: true }),
+      mission: target,
+    });
+    await user.click(screen.getByRole("checkbox", { name: "Mapped" }));
+    expect(props.onToggleSystemStatus).toHaveBeenCalledWith(target, "mapped", true);
+  });
+});
+
+describe("MissionCard planet notes edge cases", () => {
+  it("ignores a failed lookup that resolves after the card unmounts", async () => {
+    let reject: (error: Error) => void = () => undefined;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((url: string) =>
+        url.includes("/planet-notes")
+          ? new Promise<Response>((_resolve, rejectFetch) => {
+              reject = rejectFetch;
+            })
+          : Promise.resolve(new Response("{}", { status: 404 })),
+      ),
+    );
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const target = mission();
+    const { unmount } = renderMissionCard({ mission: target });
+    await waitFor(() => expect(planetNotesRequests.has(target.id)).toBe(true));
+    unmount();
+    reject(new Error("offline"));
+    await waitFor(() => expect(planetNotesRequests.has(target.id)).toBe(false));
+    expect(consoleError).not.toHaveBeenCalled();
+  });
+
+  it("does nothing when re-reading expired notes fails on click", async () => {
+    stubFetch({ notes: () => new Response(JSON.stringify({ note: "Beware" })) });
+    const target = mission();
+    const { user, props } = renderMissionCard({ mission: target });
+    const button = await screen.findByRole("button", { name: `View station notes for ${target.title}` });
+    const now = Date.now();
+    const dateNow = vi.spyOn(Date, "now").mockReturnValue(now + 60_000);
+    const fetchMock = stubFetch({ notes: () => new Response(JSON.stringify({ error: "gone" }), { status: 500 }) });
+    await user.click(button);
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith(`/api/missions/${target.id}/planet-notes`, expect.anything()),
+    );
+    await waitFor(() => expect(planetNotesRequests.has(target.id)).toBe(false));
+    expect(props.onViewPlanetNotes).not.toHaveBeenCalled();
+    dateNow.mockRestore();
+  });
+});
+
+describe("readPlanetNotes with a superseded request", () => {
+  it.each([
+    ["resolves", () => new Response(JSON.stringify({ note: "n" }))],
+    ["fails", () => new Response(JSON.stringify({ error: "nope" }), { status: 500 })],
+  ])("keeps a newer in-flight request when the old one %s", async (_label, notes) => {
+    stubFetch({ notes });
+    const target = mission();
+    const stale = readPlanetNotes(target);
+    const newer = Promise.resolve(["newer"]);
+    planetNotesRequests.set(target.id, newer);
+    await stale.catch(() => undefined);
+    expect(planetNotesRequests.get(target.id)).toBe(newer);
+    planetNotesRequests.delete(target.id);
+  });
+});
+
+describe("MemberAvatar", () => {
+  it("shows a dash when the label is empty", () => {
+    const { container } = renderWithLocale(<MemberAvatar label="" />);
+    expect(container.querySelector(".assignee-avatar")).toHaveTextContent("—");
+  });
+});
+
+describe("MissionCard planet thumbnail edge cases", () => {
+  it("keeps the fallback when the planet payload is not an object", async () => {
+    const fetchMock = stubFetch({ planet: () => new Response(JSON.stringify({ planet: ["x"] })) });
+    const { container } = renderMissionCard();
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    expect(container.querySelector(".mission-card-planet-thumb img")).toBeNull();
+    expect(container.querySelector(".mission-card-planet-fallback")).not.toBeNull();
+  });
+
+  it("keeps the fallback when the lookup request throws", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url.includes("/planet-notes")) return new Response(JSON.stringify({ note: "" }));
+      throw new TypeError("network down");
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const { container } = renderMissionCard();
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    expect(container.querySelector(".mission-card-planet-fallback")).not.toBeNull();
+    expect(consoleError).not.toHaveBeenCalled();
   });
 });

@@ -276,6 +276,29 @@ describe("alliance settings normalization", () => {
     expect((await readAccessData()).alliance.heroGradientMode).toBe(expected);
   });
 
+  it.each([
+    [
+      { portalCode: "0123456789ab", galaxy: 255 },
+      { portalCode: "0123456789AB", galaxy: 255 },
+    ],
+    [
+      { portalCode: "0123456789A", galaxy: 256 },
+      { portalCode: "", galaxy: 0 },
+    ],
+    [
+      { portalCode: 123, galaxy: 1.5 },
+      { portalCode: "", galaxy: 0 },
+    ],
+    [
+      { portalCode: "0123456789AB", galaxy: -1 },
+      { portalCode: "0123456789AB", galaxy: 0 },
+    ],
+  ])("normalizes the alliance portal %j to %j", async (stored, expected) => {
+    writeDataFile("access.json", { members: [], alliance: { ...defaultAlliance, ...stored } });
+    const { readAccessData } = await load();
+    expect((await readAccessData()).alliance).toMatchObject(expected);
+  });
+
   it("drops non-string alliance fields", async () => {
     writeDataFile("access.json", {
       members: [],

@@ -217,6 +217,72 @@ describe("MissionList", () => {
     expect(fetchMock.mock.calls.some(([url]) => String(url).startsWith("/api/members"))).toBe(false);
   });
 
+  it.each([
+    ["a non-list body", () => new Response(JSON.stringify({ images: [] }))],
+    [
+      "a network error",
+      () => {
+        throw new TypeError("offline");
+      },
+    ],
+  ])("keeps initials when the members API returns %s", async (_label, members) => {
+    const fetchMock = stubFetch((url) =>
+      url.startsWith("/api/members") ? members() : new Response(JSON.stringify({ note: "" })),
+    );
+    renderMissions({
+      missions: [makeMission({ id: `j-${counter}`, stationOwnerMemberId: "disc", stationOwnerName: "Disc" })],
+    });
+    await waitFor(() =>
+      expect(fetchMock.mock.calls.some(([url]) => String(url).startsWith("/api/members"))).toBe(true),
+    );
+    expect(screen.getByRole("button", { name: "Disc" })).toHaveTextContent("DIDisc");
+  });
+
+  it("drops discoverer images that arrive after the list unmounts", async () => {
+    let respond: (response: Response) => void = () => undefined;
+    const fetchMock = vi.fn((url: string) => {
+      if (url.startsWith("/api/members"))
+        return new Promise<Response>((resolve) => {
+          respond = resolve;
+        });
+      if (url.startsWith("/api/missions/planet?")) return Promise.resolve(new Response("{}", { status: 404 }));
+      return Promise.resolve(new Response(JSON.stringify({ note: "" })));
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const { unmount } = renderMissions({
+      missions: [makeMission({ id: `u-${counter}`, stationOwnerMemberId: "disc", stationOwnerName: "Disc" })],
+    });
+    await waitFor(() =>
+      expect(fetchMock.mock.calls.some(([url]) => String(url).startsWith("/api/members"))).toBe(true),
+    );
+    const [, init] = fetchMock.mock.calls.find(([url]) => String(url).startsWith("/api/members")) as unknown as [
+      string,
+      RequestInit,
+    ];
+    unmount();
+    expect(init.signal?.aborted).toBe(true);
+    respond(new Response(JSON.stringify([{ publicId: "disc", image: "https://example.com/disc.png" }])));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(consoleError).not.toHaveBeenCalled();
+  });
+
+  it("shows mission notes in a dialog to the assignee", async () => {
+    const { user } = renderMissions({
+      missions: [
+        makeMission({
+          id: `a-${counter}`,
+          title: "Mine",
+          notes: "Bring fuel",
+          assignedMemberId: "me",
+          assignedTo: "Me",
+        }),
+      ],
+    });
+    await user.click(screen.getByRole("button", { name: "View notes for Mine" }));
+    expect(screen.getByRole("dialog", { name: "Mission notes" })).toHaveTextContent("Bring fuel");
+  });
+
   it("ignores a failed discoverer image request", async () => {
     const fetchMock = stubFetch((url) =>
       url.startsWith("/api/members") ? new Response("[]", { status: 500 }) : new Response(JSON.stringify({ note: "" })),

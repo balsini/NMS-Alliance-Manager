@@ -238,4 +238,128 @@ describe("MembersPage", () => {
     await user.click(screen.getByRole("button", { name: t("profile.my_profile") }));
     expect(screen.getByRole("dialog", { name: t("profile.my_nms_profile") })).toBeInTheDocument();
   });
+
+  it("falls back to generic messages when the requests fail without details", async () => {
+    mockFetch({ "GET /api/admin/members": json({}, 500) });
+    renderMembers();
+    expect(await screen.findByText(t("Unable to load the user list."))).toBeInTheDocument();
+  });
+
+  it("shows a generic load error when the request cannot be sent", async () => {
+    mockFetch({
+      "GET /api/admin/members": () => {
+        throw "offline";
+      },
+    });
+    renderMembers();
+    expect(await screen.findByText(t("errors.unable_to_load_the_user_list"))).toBeInTheDocument();
+  });
+
+  it("shows generic update and deletion errors", async () => {
+    const unnamed = makeMember({ publicId: "u1", email: "unnamed@example.com", name: "Dana", nmsName: "" });
+    const patch = vi
+      .fn()
+      .mockReturnValueOnce(json({}, 500))
+      .mockImplementationOnce(() => {
+        throw "offline";
+      });
+    const remove = vi
+      .fn()
+      .mockReturnValueOnce(json({}, 500))
+      .mockImplementationOnce(() => {
+        throw "offline";
+      });
+    mockFetch({
+      "GET /api/admin/members": [pending, unnamed],
+      "PATCH /api/admin/members": patch,
+      "DELETE /api/admin/members": remove,
+    });
+    const confirm = vi.spyOn(window, "confirm").mockReturnValue(true);
+    const { user } = renderMembers();
+
+    const approve = await screen.findByRole("button", {
+      name: t("common.approve_email", { email: "pending@example.com" }),
+    });
+    await user.click(approve);
+    expect(await screen.findByText(t("Update failed."))).toBeInTheDocument();
+    await user.click(approve);
+    expect(await screen.findByText(t("errors.update_failed"))).toBeInTheDocument();
+
+    const deleteButton = screen.getByRole("button", {
+      name: t("common.delete_email", { email: "unnamed@example.com" }),
+    });
+    await user.click(deleteButton);
+    expect(confirm).toHaveBeenLastCalledWith(
+      t("auth.remove_member_from_the_alliance_signing_in_again_will_require_a_new_approval", { member: "Dana" }),
+    );
+    expect(await screen.findByText(t("Deletion failed."))).toBeInTheDocument();
+    await user.click(deleteButton);
+    expect(await screen.findByText(t("errors.deletion_failed"))).toBeInTheDocument();
+  });
+
+  it("reports administrator and member role changes", async () => {
+    mockFetch({ "GET /api/admin/members": [approved], "PATCH /api/admin/members": { ok: true } });
+    const { user } = renderMembers();
+
+    const role = await screen.findByRole("combobox", {
+      name: t("members.role_for_email", { email: "approved@example.com" }),
+    });
+    await user.selectOptions(role, "admin");
+    expect(await screen.findByText(t("Role updated: Administrator."))).toBeInTheDocument();
+    await user.selectOptions(role, "user");
+    expect(await screen.findByText(t("Role updated: Member."))).toBeInTheDocument();
+  });
+
+  it("updates only the edited member and closes the editor without saving", async () => {
+    mockFetch({
+      "GET /api/admin/members": [approved, blocked],
+      "PATCH /api/admin/members": { ...approved, nmsName: "Bobby" },
+    });
+    const { user } = renderMembers();
+
+    await screen.findByText("approved@example.com");
+    const [editBob] = screen.getAllByRole("button", { name: t("members.edit_member_profile") });
+    await user.click(editBob);
+    let dialog = screen.getByRole("dialog", { name: t("members.edit_member_profile") });
+    await user.click(within(dialog).getAllByRole("button", { name: t("common.close") })[0]);
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+
+    await user.click(editBob);
+    dialog = screen.getByRole("dialog", { name: t("members.edit_member_profile") });
+    await user.click(within(dialog).getByRole("button", { name: t("profile.save_profile") }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    expect(screen.getByText("Bobby")).toBeInTheDocument();
+    expect(screen.getByText("Carl")).toBeInTheDocument();
+  });
+
+  it("saves the alliance settings and the own profile", async () => {
+    mockFetch({
+      "GET /api/admin/members": [],
+      "GET /api/alliance": defaultAlliance,
+      "PATCH /api/alliance": { ...defaultAlliance, name: "Renamed Alliance" },
+      "PATCH /api/profile": { ...admin, nmsName: "Captain" },
+    });
+    const { user } = renderMembers();
+
+    await user.click(screen.getByRole("button", { name: t("admin.alliance_settings") }));
+    const settings = screen.getByRole("dialog", { name: t("admin.alliance") });
+    await waitFor(() =>
+      expect(within(settings).getByRole("textbox", { name: t("admin.alliance_name") })).toHaveValue("Test Alliance"),
+    );
+    await user.click(within(settings).getByRole("button", { name: t("admin.save_settings") }));
+    await waitFor(() => expect(screen.getAllByText("Renamed Alliance").length).toBeGreaterThan(0));
+    await user.click(within(settings).getByRole("button", { name: t("common.close") }));
+
+    await user.click(screen.getByRole("button", { name: t("profile.my_profile") }));
+    let profile = screen.getByRole("dialog", { name: t("profile.my_nms_profile") });
+    await user.click(within(profile).getAllByRole("button", { name: t("common.close") })[0]);
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: t("profile.my_profile") }));
+    profile = screen.getByRole("dialog", { name: t("profile.my_nms_profile") });
+    await user.click(within(profile).getByRole("button", { name: t("profile.save_profile") }));
+    await waitFor(() =>
+      expect(screen.getByRole("img", { name: `Captain · ${t("admin.administrator")}` })).toBeInTheDocument(),
+    );
+  });
 });

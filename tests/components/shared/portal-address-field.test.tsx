@@ -260,6 +260,26 @@ describe("SystemAddressField", () => {
     expect(onLookupResolved).toHaveBeenCalledWith({ address: validAddress, galaxy: 0, status: "unavailable" });
   });
 
+  it("drops a lookup aborted because the field unmounted", async () => {
+    const fetchMock = vi.fn(
+      (_url: string, init: RequestInit) =>
+        new Promise<Response>((_resolve, reject) => {
+          init.signal?.addEventListener("abort", () => reject(new DOMException("Aborted", "AbortError")));
+        }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    const onLookupResolved = vi.fn();
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const { unmount } = renderWithLocale(
+      <ControlledField galaxy={0} initial={validAddress} onLookupResolved={onLookupResolved} />,
+    );
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    unmount();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(onLookupResolved).not.toHaveBeenCalled();
+    expect(consoleError).not.toHaveBeenCalled();
+  });
+
   it("does not query the Almanac for an invalid address", async () => {
     const fetchMock = stubFetchJson({ found: true });
     const onStateChange = vi.fn();

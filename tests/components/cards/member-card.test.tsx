@@ -68,6 +68,13 @@ describe("MemberCard", () => {
     expect(within(card).getByText("N")).toBeInTheDocument();
   });
 
+  it("shows the profile picture instead of the initial", () => {
+    const { container } = renderCard(managed({ image: "https://example.com/nova.png" }));
+    const avatar = container.querySelector(".member-admin-avatar");
+    expect(avatar?.querySelector("span")).toHaveStyle({ backgroundImage: 'url("https://example.com/nova.png")' });
+    expect(avatar).not.toHaveTextContent("N");
+  });
+
   it("marks an incomplete profile, in Italian", () => {
     renderCard(
       managed({ nmsName: "", name: "zed", nmsCode: "", platforms: [], specialty: "", membershipStatus: "blocked" }),

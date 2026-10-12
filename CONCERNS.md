@@ -121,3 +121,30 @@ It says canonical keys are English strings, but every catalog key is now a dotte
 - `src/lib/almanac-lookup.ts:59`: `!results.has(key)` is always true in that branch.
 - `src/app/api/missions/[id]/planet-notes/route.ts:27-31`: choosing among several stations can't happen, since the station list keeps one station per portal and galaxy.
 - `src/lib/access-store.ts:203-220`: `registerMember` drops `offline: true` when rewriting a member not seen in 15 minutes (not exploitable today, since nobody can log in as an offline email).
+
+## C-uytlgm: A station cannot be added from a mission (2026-10-12)
+
+`src/components/pages/stations-page.tsx:91-93`, `:705-717`
+
+When the page opens with `initialCreateStation` (adding the station of a mission), `validation` starts as `{ valid: true, lookup: null }` and the address field is hidden (`!creatingFromMission`, `:613`, `:634`), so nothing ever updates it. The submit button is disabled while `!editingStation && validation.valid && !validation.lookup`, so it stays disabled with a spinner and the station can never be saved. `tests/pages/stations-page-names.test.tsx` documents the current behaviour.
+
+## C-a515pe: Header's `onProfileSaved` callback is never called (2026-10-12)
+
+`src/components/layout/header.tsx:18`, `:25`, `:91`
+
+`Header` only checks whether `onProfileSaved` is passed (to show the simple-view toggle) and never calls it; the toggle reloads or redirects instead. Every page still passes a callback (`stations-page.tsx:527`, `mission-dashboard.tsx:430`, `planets-page.tsx:229`, `offline-players-page.tsx:153`, `help-requests-page.tsx:174`, `messages-page.tsx:349`, `members-page.tsx:139`, `leaderboard-page.tsx:72`, `guide-app-page.tsx:48`), which is dead code and the main gap left in test coverage. Replace the prop with a boolean, or call it.
+
+## C-5rjw6s: Unreachable defensive branches left out of test coverage (2026-10-12)
+
+These branches can't be reached with the current types and call sites, so they are the rest of what keeps coverage below 100% (besides C-uytlgm, C-a515pe, C-xklfgl and the `missions.ts:161-162` item of C-ehkvo3). Remove them, or keep them knowingly.
+
+- `src/components/pages/stations-page.tsx:231`: `?? ""` after `cachedPlanetTitle()`, which always returns a string. `:303`: the `savingStatusKeys` guard, since the checkbox is disabled while saving. `:579`: `note ?? ""`, since the button renders only when `station.note` is set. `:781`, `:793`, `:795`: fallbacks for a mission form whose station has left the list. `:807`: `onDelete` with `mission={null}`.
+- `src/components/pages/mission-dashboard.tsx:334`: `member.specialty ?? ""` (never nullish). `:368`: `if (!target) return;`, recomputed from the same state that rendered the button.
+- `src/components/pages/messages-page.tsx:246`: the no-delete-button case needs a non-admin viewing someone else's message, which no tab shows.
+- `src/components/cards/mission-card/extended.tsx:91`, `:96`, `simple.tsx:92`, `:96`, `parts.tsx:518`: `mission.systemAddress ?? ""` on a required string. `simple.tsx:53`: `|| !canManage`, always short-circuited in the simple view.
+- `src/components/cards/member-card.tsx:234`, `:244`: `member.nmsName || member.name` inside a `member.nmsName &&` guard.
+- `src/components/cards/station-card/parts.tsx:147`: `|| "—"` after `stationOwnerName()`, which is never empty.
+- `src/components/shared/mission-system-progress.tsx:48`: `editable && !itemEditable`, already excluded by the role filter at `:43`.
+- `src/app/leaderboard/page.tsx:93`: `?? 0` after a `counts.has()` filter. `src/app/api/messages/route.ts:84`: `?? ""` after `params.has("recipientId")`. `src/app/api/stations/export/route.ts:53`: `codePointAt(0) ?? 0` on a non-empty character. `src/lib/private-messages-store.ts:101`: the `undefined` side, already rejected by `parseMessages`.
+
+`src/lib/access-store.ts:280` also shows as uncovered in the full-suite report although `tests/stores/access-store.test.ts` runs it; it is 100% when that file is measured alone (a V8 coverage merge artefact).

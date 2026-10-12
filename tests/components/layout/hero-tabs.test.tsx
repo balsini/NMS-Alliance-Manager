@@ -1,11 +1,12 @@
 // @vitest-environment jsdom
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { Hero, HeroAddButton } from "@/components/layout/hero";
 import { Tabs } from "@/components/layout/tabs";
+import { galaxyLabel } from "@/lib/galaxies";
 import { defaultAlliance } from "../../helpers/members";
-import { renderWithLocale } from "../helpers";
+import { renderWithLocale, tr } from "../helpers";
 
 describe("Hero", () => {
   it("renders the translated title, subtitle and children", () => {
@@ -46,6 +47,40 @@ describe("Hero", () => {
     );
     expect(container.querySelector("section")?.className).toBe("mission-banner");
     expect(container.querySelector(".banner-alliance-logo svg")).not.toBeNull();
+  });
+});
+
+describe("Hero alliance portal", () => {
+  it("opens and closes the alliance portal dialog from the logo", async () => {
+    const settings = {
+      ...defaultAlliance,
+      name: "  ",
+      portalCode: "0123456789AB",
+      galaxy: 1,
+      logoUrl: "https://example.com/l.png",
+    };
+    const { user } = renderWithLocale(<Hero settings={settings} subtitle="s" title="t" />);
+    const logo = screen.getByRole("button", { name: tr("admin.view_alliance_portal") });
+    expect(logo).toHaveStyle({ backgroundImage: 'url("https://example.com/l.png")' });
+    expect(logo.querySelector("svg")).toBeNull();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+
+    await user.click(logo);
+    const dialog = screen.getByRole("dialog", { name: tr("admin.alliance") });
+    expect(within(dialog).getByText("0123456789AB")).toBeInTheDocument();
+    expect(within(dialog).getByText(galaxyLabel(1))).toBeInTheDocument();
+
+    await user.click(within(dialog).getByRole("button", { name: tr("common.close") }));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("shows the default logo on the portal button and names the dialog after the alliance", async () => {
+    const settings = { ...defaultAlliance, name: "Atlas Pact", portalCode: "0123456789ab", logoUrl: "" };
+    const { user } = renderWithLocale(<Hero settings={settings} subtitle="s" title="t" />);
+    const logo = screen.getByRole("button", { name: tr("admin.view_alliance_portal") });
+    expect(logo.querySelector("svg")).not.toBeNull();
+    await user.click(logo);
+    expect(screen.getByRole("dialog", { name: "Atlas Pact" })).toBeInTheDocument();
   });
 });
 

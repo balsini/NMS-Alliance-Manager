@@ -355,7 +355,7 @@ describe("MissionDashboard as a moderator", () => {
   it("edits a mission through the form", async () => {
     const mission = makeMission({ id: "m-edit", title: "Old title" });
     const { requests } = mockFetch(
-      dashboardRoutes([mission], {
+      dashboardRoutes([mission, makeMission({ id: "m-keep", title: "Untouched", systemAddress: "1234567890AC" })], {
         "/api/missions/verify-system": { found: true, systemLabel: "Known system" },
         "PATCH /api/missions/m-edit": { ...mission, title: "New title" },
       }),
@@ -378,6 +378,7 @@ describe("MissionDashboard as a moderator", () => {
     });
     expect(screen.queryByRole("dialog", { name: t("missions.edit_mission") })).not.toBeInTheDocument();
     expect(screen.getByText("New title")).toBeInTheDocument();
+    expect(screen.getByText("Untouched")).toBeInTheDocument();
   });
 
   it("creates a mission and reports the three-mission split", async () => {

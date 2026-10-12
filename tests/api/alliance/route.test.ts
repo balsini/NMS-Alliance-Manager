@@ -95,6 +95,12 @@ describe("PATCH /api/alliance", () => {
     ["an overly long Telegram URL", { telegramUrl: `https://t.me/${"a".repeat(300)}` }],
     ["a Telegram URL on a Discord host", { telegramUrl: "https://discord.gg/abc" }],
     ["an unknown gradient mode", { heroGradientMode: "half" }],
+    ["a non-string portal code", { portalCode: 123456789012 }],
+    ["a portal code that is not 12 hex glyphs", { portalCode: "0123456789AG" }],
+    ["a non-numeric galaxy", { galaxy: "1" }],
+    ["a fractional galaxy", { galaxy: 1.5 }],
+    ["a negative galaxy", { galaxy: -1 }],
+    ["a galaxy above 255", { galaxy: 256 }],
   ])("rejects %s", async (_label, overrides) => {
     signInAs(cast.admin);
     const response = await patch(settings(overrides));
@@ -131,5 +137,23 @@ describe("PATCH /api/alliance", () => {
       telegramUrl: "https://T.CO/abc",
       heroGradientMode: "none",
     });
+  });
+
+  it("saves the alliance portal code in upper case with its galaxy", async () => {
+    signInAs(cast.admin);
+    const response = await patch(settings({ portalCode: "0123456789ab", galaxy: 255 }));
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ portalCode: "0123456789AB", galaxy: 255 });
+    expect(readDataFile<{ alliance: Record<string, unknown> }>("access.json").alliance).toMatchObject({
+      portalCode: "0123456789AB",
+      galaxy: 255,
+    });
+  });
+
+  it("accepts an empty portal code", async () => {
+    signInAs(cast.admin);
+    const response = await patch(settings({ portalCode: "", galaxy: 0 }));
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ portalCode: "", galaxy: 0 });
   });
 });

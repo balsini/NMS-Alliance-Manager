@@ -1,9 +1,11 @@
 // @vitest-environment jsdom
 import { act, screen, waitFor, within } from "@testing-library/react";
+import { renderToString } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Sidebar, storePlanetCount } from "@/components/layout/sidebar";
-import { useNavigationSearchState } from "@/components/shared/navigation-search-reset";
+import { NavigationSearchResetProvider, useNavigationSearchState } from "@/components/shared/navigation-search-reset";
 import { defaultAlliance, makeMember } from "../../helpers/members";
+import { LocaleProvider } from "@/components/providers/locale-provider";
 import { renderWithLocale } from "../helpers";
 
 vi.mock("next/image", async () => (await import("../helpers")).nextImageModule);
@@ -108,6 +110,60 @@ describe("Sidebar", () => {
     await waitFor(() => expect(fetch).toHaveBeenCalledTimes(2));
     expect(screen.getByLabelText("0 unread")).not.toHaveClass("nav-unread-active");
     expect(screen.getByRole("link", { name: /Help requests/ })).toHaveTextContent("Help requests0");
+  });
+
+  it("ignores the unread count when the messages API answers with an error", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) =>
+        url.startsWith("/api/messages")
+          ? new Response(JSON.stringify({ count: 5 }), { status: 500 })
+          : new Response(JSON.stringify({ count: 0 })),
+      ),
+    );
+    renderWithLocale(<Sidebar {...baseProps} currentMember={makeMember()} />);
+    await waitFor(() => expect(fetch).toHaveBeenCalledTimes(2));
+    expect(screen.getByLabelText("0 unread")).not.toHaveClass("nav-unread-active");
+  });
+
+  it.each([
+    ["missioni", "/missions"],
+    ["pianeti", "/planets"],
+    ["offline", "/offline-players"],
+    ["classifica", "/leaderboard"],
+    ["aiuto", "/help-requests"],
+    ["messaggi", "/messages"],
+    ["guida", "/member-guide"],
+  ] as const)("highlights the %s section", (activeSection, href) => {
+    stubCounters();
+    renderWithLocale(
+      <Sidebar {...baseProps} activeSection={activeSection} currentMember={makeMember({ role: "moderator" })} />,
+    );
+    const links = within(screen.getByRole("navigation", { name: "Main navigation" })).getAllByRole("link");
+    expect(links.filter((link) => link.classList.contains("active")).map((link) => link.getAttribute("href"))).toEqual([
+      href,
+    ]);
+  });
+
+  it("falls back to the account name without an NMS name", () => {
+    stubCounters();
+    renderWithLocale(<Sidebar {...baseProps} currentMember={makeMember({ nmsName: "", name: "Zed Account" })} />);
+    expect(screen.getByText("Zed Account")).toBeInTheDocument();
+  });
+
+  it("renders no stored planet count on the server", () => {
+    window.localStorage.setItem("nms-planet-count", "8");
+    const html = renderToString(
+      <LocaleProvider fixedLocale="en">
+        <NavigationSearchResetProvider>
+          <Sidebar {...baseProps} currentMember={makeMember()} />
+        </NavigationSearchResetProvider>
+      </LocaleProvider>,
+    );
+    const container = document.createElement("div");
+    container.innerHTML = html;
+    const planets = container.querySelector('a[href="/planets"]');
+    expect(planets).toHaveTextContent(/^Planets$/);
   });
 
   it("reloads counters when the app announces changes", async () => {

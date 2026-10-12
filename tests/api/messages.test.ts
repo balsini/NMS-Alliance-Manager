@@ -142,6 +142,24 @@ describe("GET /api/messages", () => {
     expect(((await response.json()) as { id: string }[]).map((entry) => entry.id)).toEqual(["a"]);
   });
 
+  it("shows legacy messages from and to unknown emails as former members", async () => {
+    writeDataFile("private-messages.json", [
+      {
+        ...message({ id: "legacy", senderMemberId: undefined, recipientMemberId: undefined }),
+        senderEmail: "gone@example.com",
+        recipientEmail: "left@example.com",
+      },
+    ]);
+    signInAs(cast.admin);
+    const response = await getMessages("?scope=all");
+    expect(response.status).toBe(200);
+    const [entry] = (await response.json()) as Record<string, unknown>[];
+    expect(entry).toMatchObject({ id: "legacy", senderName: "Former member", recipientName: "Former member" });
+    expect(entry).not.toHaveProperty("senderMemberId");
+    expect(entry).not.toHaveProperty("recipientMemberId");
+    expect(entry).not.toHaveProperty("senderEmail");
+  });
+
   it("counts the member's unread received messages", async () => {
     writeDataFile("private-messages.json", [
       message({ recipientMemberId: cast.user.publicId, senderMemberId: cast.moderator.publicId }),
@@ -174,6 +192,7 @@ describe("GET /api/messages", () => {
 
     it.each([
       ["a missing recipient", `?recipientId=&portal=${portal}&galaxy=0`],
+      ["a missing portal and galaxy", "?recipientId=x"],
       ["a malformed portal", `?recipientId=x&portal=XYZ&galaxy=0`],
       ["an invalid planet index", `?recipientId=x&portal=7123456789AB&galaxy=0`],
       ["a non-numeric galaxy", `?recipientId=x&portal=${portal}&galaxy=-1`],
@@ -231,6 +250,7 @@ describe("POST /api/messages", () => {
     ["a malformed body", "{", "profile.message_text_required"],
     ["an array body", [], "profile.message_text_required"],
     ["a blank message", { message: "   " }, "profile.message_text_required"],
+    ["a non-string message", { message: 42 }, "profile.message_text_required"],
     ["a message over 2000 characters", { message: "x".repeat(2001) }, "profile.message_text_too_long"],
   ])("rejects %s", async (_label, body, error) => {
     signInAs(cast.user);

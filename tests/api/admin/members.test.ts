@@ -314,6 +314,18 @@ describe("DELETE /api/admin/members", () => {
     expect(missions.find((mission) => mission.id === "M-2")?.stationOwnerMemberId).toBe(cast.moderator.publicId);
   });
 
+  it("hands the stations to a root admin without in-game name", async () => {
+    const rootAdmin = { ...cast.rootAdmin, nmsName: "" };
+    seedMembers([...castMembers(cast).filter((member) => member !== cast.rootAdmin), rootAdmin]);
+    writeDataFile("missions.json", [storedMission({ id: "M-1", stationOwnerMemberId: cast.user.publicId })]);
+    signInAs(cast.admin);
+    expect((await remove({ email: cast.user.email })).status).toBe(200);
+    const [mission] = readDataFile<Record<string, unknown>[]>("missions.json");
+    expect(mission.stationOwnerMemberId).toBe(rootAdmin.publicId);
+    // Il nome è un campo derivato: non viene salvato.
+    expect(mission).not.toHaveProperty("stationOwnerName");
+  });
+
   it("leaves missions alone when the removed member owned none", async () => {
     signInAs(cast.admin);
     expect((await remove({ email: cast.offline.email })).status).toBe(200);

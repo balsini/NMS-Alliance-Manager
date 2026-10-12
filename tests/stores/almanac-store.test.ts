@@ -48,6 +48,21 @@ describe("reading (local filesystem)", () => {
     expect(await readAlmanacResponse("0123456789AB", 0)).toEqual({ portal: "fresh" });
   });
 
+  it("leaves malformed JSON in place when it cannot be moved aside", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(1_000);
+    mkdirSync(`${dataDir()}/${fileName}.corrupt-1000/blocker`, { recursive: true });
+    writeFileSync(`${dataDir()}/${fileName}`, "nope");
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    try {
+      const { readAlmanacResponse } = await load();
+      expect(await readAlmanacResponse("0123456789AB", 0)).toBeNull();
+      expect(dataFileExists(fileName)).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("rethrows non-ENOENT read errors", async () => {
     mkdirSync(`${dataDir()}/${fileName}`, { recursive: true });
     const { readAlmanacResponse } = await load();
@@ -188,6 +203,15 @@ describe("Blob backend", () => {
     blobMock.get.mockResolvedValueOnce({ statusCode: 304, stream: null });
     expect(await readAlmanacResponse("0123456789AB", 0)).toBeNull();
     expect(await readAlmanacResponse("0123456789AB", 0)).toEqual({ ok: true });
+  });
+
+  it("keeps saving after a failed write", async () => {
+    const { writeAlmanacResponse, readAlmanacResponse } = await load();
+    blobMock.put.mockRejectedValueOnce(new Error("Blob unavailable"));
+    await expect(writeAlmanacResponse("0123456789AB", 0, { v: 1 })).rejects.toThrow("Blob unavailable");
+    await writeAlmanacResponse("0123456789AB", 1, { v: 2 });
+    expect(await readAlmanacResponse("0123456789AB", 0)).toBeNull();
+    expect(await readAlmanacResponse("0123456789AB", 1)).toEqual({ v: 2 });
   });
 
   it("writes private JSON with overwrite enabled", async () => {

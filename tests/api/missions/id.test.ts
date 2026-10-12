@@ -163,6 +163,20 @@ describe("PATCH /api/missions/[id]", () => {
       });
     });
 
+    it("uses the account name of a new station owner without in-game name", async () => {
+      const namelessOwner = makeMember({ specialty: "ranger", nmsName: "", name: "Owner Account" });
+      seedMembers([moderator, explorer, namelessOwner]);
+      seedStations([{ portal: PORTAL, galaxy: 0, ownerId: namelessOwner.publicId }]);
+      signInAs(moderator);
+      const res = await patch(mission.id, editInput({ stationOwnerMemberId: namelessOwner.publicId }));
+      expect(res.status).toBe(200);
+      expect(await res.json()).toMatchObject({
+        stationOwnerMemberId: namelessOwner.publicId,
+        stationOwnerName: "Owner Account",
+      });
+      expect(readStoredMissions()[0].stationOwnerMemberId).toBe(namelessOwner.publicId);
+    });
+
     it("can unassign a mission", async () => {
       signInAs(moderator);
       const res = await patch(mission.id, editInput({ assignedMemberId: "  " }));

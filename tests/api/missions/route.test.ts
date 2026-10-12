@@ -240,6 +240,25 @@ describe("POST /api/missions", () => {
       });
     });
 
+    it("uses the account name for a creator and station owner without in-game name", async () => {
+      const namelessModerator = makeMember({ role: "moderator", specialty: "", nmsName: "", name: "Mod Account" });
+      const namelessOwner = makeMember({ specialty: "ranger", nmsName: "", name: "Owner Account" });
+      seedMembers([moderator, namelessModerator, namelessOwner]);
+      seedStations([{ portal: THIRD_PORTAL, galaxy: 0, ownerId: namelessOwner.publicId }]);
+      signInAs(namelessModerator);
+      const res = await post(
+        missionInput({ systemAddress: THIRD_PORTAL, stationOwnerMemberId: namelessOwner.publicId }),
+      );
+      expect(res.status).toBe(201);
+      const [created] = (await res.json()) as Mission[];
+      expect(created).toMatchObject({
+        createdByMemberId: namelessModerator.publicId,
+        createdByName: "Mod Account",
+        stationOwnerMemberId: namelessOwner.publicId,
+        stationOwnerName: "Owner Account",
+      });
+    });
+
     it("accepts an offline member without friend code as assignee", async () => {
       signInAs(moderator);
       const res = await post(missionInput({ assignedMemberId: offlineExplorer.publicId }));

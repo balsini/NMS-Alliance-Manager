@@ -9,6 +9,7 @@ import { createPlanetListExamplePlanet } from "@/components/guide/planet-list-ex
 import { PlanetListExampleView } from "@/components/guide/planet-list-example-view";
 import { guideStationInit } from "@/components/guide/station-init";
 import { emptyPlanetFilterValues } from "@/components/forms/planet-filters";
+import { defaultAlliance } from "../helpers/members";
 import { mockFetch, renderPage, t } from "./helpers";
 
 vi.mock("next/image", async () => (await import("./helpers")).nextImageModule);
@@ -33,6 +34,18 @@ describe("guide page", () => {
     expect(screen.getByRole("link", { name: /Unisciti a noi/ })).toHaveAttribute("href", "/");
     expect(screen.getAllByRole("heading", { name: "Esempi di card" }).length).toBeGreaterThan(0);
     expect(screen.getAllByRole("article").length).toBeGreaterThan(5);
+  });
+});
+
+describe("guide content inside the app", () => {
+  it("drops the hero and uses the in-app layout when not standalone", async () => {
+    mockFetch({});
+    const { container } = renderPage(await GuideContent({ alliance: defaultAlliance, standalone: false }));
+
+    expect(screen.queryByRole("heading", { level: 1 })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Unisciti a noi/ })).not.toBeInTheDocument();
+    expect(container.querySelector(".guide-root")).toHaveClass("guide-root-in-app");
+    expect(screen.getByRole("main")).toHaveClass("content-wrap", "guide-page");
   });
 });
 

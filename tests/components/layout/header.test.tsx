@@ -159,6 +159,20 @@ describe("Header", () => {
     expect(toggle).toBeEnabled();
   });
 
+  it("reloads the page after switching views on a page available in both", async () => {
+    const fetchMock = vi.fn(async () => new Response("{}", { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+    const reload = vi.fn();
+    vi.stubGlobal("location", { ...window.location, pathname: "/stations", reload });
+    const member = makeMember({ role: "moderator", simpleView: false });
+    const { user } = renderWithLocale(<Header currentMember={member} onProfileSaved={vi.fn()} settings={settings} />);
+
+    await user.click(screen.getByRole("button", { name: "Switch to simple view" }));
+
+    await waitFor(() => expect(reload).toHaveBeenCalledTimes(1));
+    expect(mocks.replace).not.toHaveBeenCalled();
+  });
+
   it("asks to return to the admin view when the simple view is active", async () => {
     const fetchMock = vi.fn(async () => new Response("{}", { status: 400 }));
     vi.stubGlobal("fetch", fetchMock);

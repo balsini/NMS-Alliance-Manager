@@ -388,3 +388,271 @@ describe("StationsPage as a moderator", () => {
     expect(replaceState).toHaveBeenCalledWith(null, "", "/stations");
   });
 });
+
+describe("StationsPage filters and panels", () => {
+  const planetStation = station({
+    portal: "1234567890AD",
+    name: undefined,
+    ownerName: undefined,
+    planet: { lines: { headline: { word: "Planetia" }, band: { type: { word: "Lush" } } } },
+    missionStatus: "completed",
+    hasMissions: true,
+  });
+
+  it("filters a member's stations by mission state", async () => {
+    mockFetch(
+      stationRoutes([
+        station(),
+        station({
+          portal: "1234567890AC",
+          name: "Assigned Base",
+          missionStatus: "in_progress",
+          hasAssignedMission: true,
+        }),
+        planetStation,
+      ]),
+    );
+    const { user } = renderStations();
+
+    expect((await screen.findAllByText("Assigned Base")).length).toBeGreaterThan(0);
+    await user.type(
+      screen.getByRole("textbox", { name: t("stations.search_stations_by_portal_owner_or_galaxy_or_notes") }),
+      "planetia",
+    );
+    expect(screen.queryAllByText("Home Base")).toHaveLength(0);
+    expect(screen.getAllByText("Planetia").length).toBeGreaterThan(0);
+    await user.clear(
+      screen.getByRole("textbox", { name: t("stations.search_stations_by_portal_owner_or_galaxy_or_notes") }),
+    );
+
+    await user.click(screen.getByRole("tab", { name: new RegExp(t("stations.filter_my_missions")) }));
+    expect(screen.getAllByText("Assigned Base").length).toBeGreaterThan(0);
+    expect(screen.queryAllByText("Home Base")).toHaveLength(0);
+
+    await user.click(screen.getByRole("tab", { name: new RegExp(t("common.pending_status_label")) }));
+    expect(screen.getAllByText("Home Base").length).toBeGreaterThan(0);
+    expect(screen.queryAllByText("Assigned Base")).toHaveLength(0);
+
+    await user.click(screen.getByRole("tab", { name: new RegExp(t("stations.filter_mission_completed")) }));
+    expect(screen.getAllByText("Planetia").length).toBeGreaterThan(0);
+    expect(screen.queryAllByText("Home Base")).toHaveLength(0);
+  });
+
+  it("keeps the notes filter harmless after the profile drops the moderator role", async () => {
+    const { requests } = mockFetch(
+      stationRoutes([station({ note: "Bring fuel" }), station({ portal: "1234567890AC", name: "Far Outpost" })], {
+        "PATCH /api/profile": { ...moderator, nmsName: "Modded", role: "user" },
+      }),
+    );
+    const { user } = renderStations(moderator);
+
+    await user.click(await screen.findByRole("tab", { name: new RegExp(t("stations.filter_with_notes")) }));
+    expect(screen.getAllByText("Home Base").length).toBeGreaterThan(0);
+    expect(screen.queryAllByText("Far Outpost")).toHaveLength(0);
+
+    await user.click(screen.getByRole("button", { name: t("profile.my_profile") }));
+    let profile = screen.getByRole("dialog", { name: t("profile.my_nms_profile") });
+    await user.click(within(profile).getAllByRole("button", { name: t("common.close") })[0]);
+    expect(screen.queryByRole("dialog", { name: t("profile.my_nms_profile") })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: t("profile.my_profile") }));
+    profile = screen.getByRole("dialog", { name: t("profile.my_nms_profile") });
+    await user.click(within(profile).getByRole("button", { name: t("profile.save_profile") }));
+    expect(await within(profile).findByText(t("profile.profile_saved"))).toBeInTheDocument();
+    expect(requests("PATCH", "/api/profile")).toHaveLength(1);
+
+    // Senza ruolo da moderatore il filtro delle note non filtra più nulla.
+    expect(screen.getAllByText("Far Outpost").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Home Base").length).toBeGreaterThan(0);
+    expect(screen.queryByRole("button", { name: t("stations.export_stations_to_excel") })).not.toBeInTheDocument();
+  });
+
+  it("lets the admin edit the alliance settings", async () => {
+    const admin = makeMember({ publicId: "admin-1", nmsName: "Boss", role: "admin", simpleView: false });
+    mockFetch(
+      stationRoutes([], {
+        "GET /api/alliance": defaultAlliance,
+        "PATCH /api/alliance": { ...defaultAlliance, name: "Renamed Alliance" },
+      }),
+    );
+    const { user } = renderStations(admin);
+
+    await user.click(screen.getByRole("button", { name: t("admin.alliance_settings") }));
+    const settings = screen.getByRole("dialog", { name: t("admin.alliance") });
+    await waitFor(() =>
+      expect(within(settings).getByRole("textbox", { name: t("admin.alliance_name") })).toHaveValue("Test Alliance"),
+    );
+    await user.click(within(settings).getByRole("button", { name: t("admin.save_settings") }));
+    expect(await within(settings).findByText(t("admin.alliance_settings_saved"))).toBeInTheDocument();
+    await waitFor(() => expect(document.title).toBe("Renamed Alliance"));
+
+    await user.click(within(settings).getByRole("button", { name: t("common.close") }));
+    expect(screen.queryByRole("dialog", { name: t("admin.alliance") })).not.toBeInTheDocument();
+  });
+
+  it("opens and closes the owner's profile card", async () => {
+    mockFetch(
+      stationRoutes([station({ ownerId: "other-1", ownerName: "Other Pilot" })], {
+        "/api/members?id=other-1": { ...otherMember, role: "user" },
+      }),
+    );
+    const { user } = renderStations();
+
+    const [owner] = await screen.findAllByRole("button", { name: "Other Pilot" });
+    await user.click(owner);
+    const card = screen.getByRole("dialog", { name: t("profile.nms_profile") });
+    await user.click(within(card).getByRole("button", { name: t("common.close") }));
+    expect(screen.queryByRole("dialog", { name: t("profile.nms_profile") })).not.toBeInTheDocument();
+  });
+});
+
+describe("StationsPage owners and missions", () => {
+  async function addStationFor(user: ReturnType<typeof renderStations>["user"], ownerId: string, portal: string) {
+    await user.click(screen.getByRole("button", { name: t("stations.add_station") }));
+    const dialog = screen.getByRole("dialog", { name: t("stations.add_station") });
+    const owner = within(dialog).getByRole("combobox", { name: t("stations.station_owner") });
+    await waitFor(() => expect(within(owner).getAllByRole("option")).toHaveLength(3));
+    await user.selectOptions(owner, ownerId);
+    await user.type(within(dialog).getByRole("textbox", { name: t("stations.12_glyph_portal_address") }), portal);
+    const add = within(dialog).getByRole("button", { name: t("common.add") });
+    await waitFor(() => expect(add).toBeEnabled(), { timeout: 2000 });
+    await user.click(add);
+  }
+
+  it("names the owner in the notice with the profile name or a placeholder", async () => {
+    const realName = makeMember({ publicId: "real-1", nmsName: "", name: "Real Name" });
+    const nameless = makeMember({ publicId: "anon-1", nmsName: "", name: "" });
+    mockFetch(
+      stationRoutes([], {
+        "/api/members": [moderator, realName, nameless],
+        "/api/missions/verify-system": { found: true },
+        "POST /api/stations": { stations: [] },
+      }),
+    );
+    const { user } = renderStations(moderator);
+
+    await addStationFor(user, "real-1", "1234567890AB");
+    expect(
+      await screen.findByText(t("stations.station_added_to_owner_s_archive", { owner: "Real Name" })),
+    ).toBeInTheDocument();
+
+    await addStationFor(user, "anon-1", "1234567890AC");
+    expect(
+      await screen.findByText(t("stations.station_added_to_owner_s_archive", { owner: t("common.not_specified") })),
+    ).toBeInTheDocument();
+  });
+
+  it("lets an explorer open a mission for their own specialty", async () => {
+    const explorer = makeMember({
+      publicId: "explorer-1",
+      nmsName: "",
+      name: "Explorer Real",
+      specialty: "explorer",
+      role: "user",
+      simpleView: false,
+    });
+    const { requests } = mockFetch(
+      stationRoutes([{ ...planetlessName(), ownerId: "other-1", ownerName: "Other Pilot" }], {
+        "/api/missions/verify-system": { found: true },
+        "POST /api/missions": [{ id: "a" }],
+      }),
+    );
+    const { user } = renderStations(explorer);
+
+    await user.click(
+      await screen.findByRole("button", { name: t("stations.create_mission_from_portal", { portal: "1234567890AB" }) }),
+    );
+    const dialog = screen.getByRole("dialog", { name: t("missions.new_mission") });
+    expect(within(dialog).getByDisplayValue("Planetia")).toBeInTheDocument();
+    const create = within(dialog).getByRole("button", { name: t("missions.create_mission") });
+    await waitFor(() => expect(create).toBeEnabled(), { timeout: 2000 });
+    await user.click(create);
+
+    expect(await screen.findByText(t("stations.mission_created_from_station"))).toBeInTheDocument();
+    expect(requests("POST", "/api/missions")[0].body).toMatchObject({
+      targetSpecialty: "explorer",
+      assignedMemberId: "explorer-1",
+      assignedTo: "Explorer Real",
+      stationOwnerMemberId: "other-1",
+    });
+  });
+
+  it("lets a ranger open an explorer mission on their own station", async () => {
+    const { requests } = mockFetch(
+      stationRoutes([station({ availableSpecialties: ["builder", "ranger"] })], {
+        "/api/missions/verify-system": { found: true },
+        "POST /api/missions": [{ id: "a" }],
+      }),
+    );
+    const { user } = renderStations();
+
+    await user.click(
+      await screen.findByRole("button", { name: t("stations.create_mission_from_portal", { portal: "1234567890AB" }) }),
+    );
+    const dialog = screen.getByRole("dialog", { name: t("missions.new_mission") });
+    const create = within(dialog).getByRole("button", { name: t("missions.create_mission") });
+    await waitFor(() => expect(create).toBeEnabled(), { timeout: 2000 });
+    await user.click(create);
+
+    expect(await screen.findByText(t("stations.mission_created_from_station"))).toBeInTheDocument();
+    expect(requests("POST", "/api/missions")[0].body).toMatchObject({ targetSpecialty: "builder" });
+  });
+
+  it("defaults the mission specialty for a moderator without one", async () => {
+    const plainModerator = makeMember({
+      publicId: "mod-2",
+      nmsName: "Plain",
+      specialty: "",
+      role: "moderator",
+      simpleView: false,
+    });
+    const { requests } = mockFetch(
+      stationRoutes(
+        [
+          station({ availableSpecialties: ["ranger"] }),
+          station({ portal: "1234567890AC", name: "Far Outpost", availableSpecialties: ["builder", "explorer"] }),
+        ],
+        { "/api/missions/verify-system": { found: true }, "POST /api/missions": [{ id: "a" }] },
+      ),
+    );
+    const { user } = renderStations(plainModerator);
+
+    for (const portal of ["1234567890AB", "1234567890AC"]) {
+      await user.click(
+        await screen.findByRole("button", { name: t("stations.create_mission_from_portal", { portal }) }),
+      );
+      const dialog = screen.getByRole("dialog", { name: t("missions.new_mission") });
+      const create = within(dialog).getByRole("button", { name: t("missions.create_mission") });
+      await waitFor(() => expect(create).toBeEnabled(), { timeout: 2000 });
+      await user.click(create);
+      await waitFor(() =>
+        expect(screen.queryByRole("dialog", { name: t("missions.new_mission") })).not.toBeInTheDocument(),
+      );
+    }
+
+    expect(screen.getByText(t("stations.mission_created_from_station"))).toBeInTheDocument();
+    expect(requests("POST", "/api/missions").map((call) => call.body)).toMatchObject([
+      { systemAddress: "1234567890AB", targetSpecialty: "ranger" },
+      { systemAddress: "1234567890AC", targetSpecialty: "explorer" },
+    ]);
+  });
+
+  it("prefills the edit form with the planet title of an unnamed station", async () => {
+    mockFetch(stationRoutes([planetlessName()]));
+    const { user } = renderStations();
+
+    await user.click(
+      await screen.findByRole("button", { name: t("stations.edit_station_portal", { portal: "1234567890AB" }) }),
+    );
+    const dialog = screen.getByRole("dialog", { name: t("stations.edit_station") });
+    expect(within(dialog).getByRole("textbox", { name: t("stations.station_name") })).toHaveValue("Planetia");
+  });
+});
+
+// Stazione senza nome: il titolo arriva dai dati del pianeta in cache.
+function planetlessName() {
+  return station({
+    name: undefined,
+    planet: { lines: { headline: { word: "Planetia" } } },
+  });
+}

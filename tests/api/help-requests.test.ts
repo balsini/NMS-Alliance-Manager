@@ -141,6 +141,16 @@ describe("GET /api/help-requests", () => {
     ]);
   });
 
+  it("shows requests from an unknown legacy email as from a former member", async () => {
+    writeDataFile("private-messages.json", [
+      { ...helpEntry({ id: "legacy", senderMemberId: undefined }), senderEmail: "gone@example.com" },
+    ]);
+    signInAs(cast.user);
+    const [entry] = (await (await getRequests()).json()) as Record<string, unknown>[];
+    expect(entry).toMatchObject({ id: "legacy", senderName: "Former member", replies: [] });
+    expect(entry).not.toHaveProperty("senderMemberId");
+  });
+
   it("returns 503 when storage fails", async () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     writeRawDataFile("private-messages.json", "{broken");
@@ -162,7 +172,9 @@ describe("POST /api/help-requests", () => {
     it.each([
       ["a blank message", { message: " " }, "profile.message_text_required"],
       ["a long message", { message: "x".repeat(2001) }, "profile.message_text_too_long"],
+      ["a non-string message", { message: 1 }, "profile.message_text_required"],
       ["a blank subject", { subject: "  " }, "help.request_invalid"],
+      ["a non-string subject", { subject: 3 }, "help.request_invalid"],
       ["a long subject", { subject: "s".repeat(161) }, "help.request_invalid"],
       ["a missing galaxy", { galaxy: undefined }, "help.request_invalid"],
       ["a fractional galaxy", { galaxy: 1.5 }, "help.request_invalid"],

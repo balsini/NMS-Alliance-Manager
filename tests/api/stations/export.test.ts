@@ -206,6 +206,15 @@ describe("GET /api/stations/export", () => {
     expect(rows[3].slice(10, 13)).toEqual(["Ex membro", "", "Ex membro"]);
   });
 
+  it("keeps private-use and astral characters but drops XML-invalid ones", async () => {
+    writeDataFile("stations-v2.json", [
+      { portal: P0, galaxy: 0, ownerId: cast.user.publicId, name: "Base \uE000\uFFFE\u{1F680}\uD800" },
+    ]);
+    signInAs(cast.moderator);
+    const { rows } = await readWorkbook(await exportStations());
+    expect(rows[1][0]).toBe("Base \uE000\u{1F680}");
+  });
+
   it("returns 503 when the data cannot be read", async () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     writeRawDataFile("stations-v2.json", "{broken");

@@ -5,6 +5,7 @@ import HelpRequestsRoute from "@/app/help-requests/page";
 import RootLayout, { metadata } from "@/app/layout";
 import LeaderboardRoute from "@/app/leaderboard/page";
 import Loading from "@/app/loading";
+import MemberGuideRoute from "@/app/member-guide/page";
 import MessagesRoute from "@/app/messages/page";
 import MissionsRoute from "@/app/missions/page";
 import OfflinePlayersRoute from "@/app/offline-players/page";
@@ -12,6 +13,7 @@ import Home from "@/app/page";
 import PlanetsRoute from "@/app/planets/page";
 import StationsRoute from "@/app/stations/page";
 import UsersPage from "@/app/users/page";
+import { GuideAppPage } from "@/components/pages/guide-app-page";
 import { HelpRequestsPage } from "@/components/pages/help-requests-page";
 import { LeaderboardPage, type LeaderboardBoard } from "@/components/pages/leaderboard-page";
 import { LoginScreen } from "@/components/pages/login-screen";
@@ -136,6 +138,7 @@ const sectionRoutes: [string, () => Promise<ReactElement>, unknown][] = [
   ["leaderboard", () => LeaderboardRoute(), LeaderboardPage],
   ["users", () => UsersPage(), MembersPage],
   ["offline players", () => OfflinePlayersRoute(), OfflinePlayersPage],
+  ["member guide", () => MemberGuideRoute(), GuideAppPage],
 ];
 
 describe.each(sectionRoutes)("%s route", (_name, route, Page) => {
@@ -335,6 +338,26 @@ describe("messages and help requests routes", () => {
   });
 });
 
+describe("member guide route", () => {
+  it("counts all stations and shows the member counters only to moderators", async () => {
+    vi.mocked(readMissions).mockResolvedValue([makeMission(), makeMission({ id: "mission-2" })]);
+    signIn(user);
+    expect(props(await MemberGuideRoute())).toMatchObject({
+      missionCount: 2,
+      stationCount: 2,
+      offlineCount: undefined,
+      userCount: undefined,
+    });
+    signIn(admin);
+    expect(props(await MemberGuideRoute())).toMatchObject({
+      missionCount: 2,
+      stationCount: 2,
+      offlineCount: 1,
+      userCount: 7,
+    });
+  });
+});
+
 describe("planets route", () => {
   const verdant = {
     lines: {
@@ -451,6 +474,65 @@ describe("planets route", () => {
     expect(writeMissions).not.toHaveBeenCalled();
   });
 
+  it("tolerates sparse or unreadable almanac entries and a failed label update", async () => {
+    vi.mocked(readMissions).mockResolvedValue([
+      makeMission({ id: "m1", systemAddress: "1234567890AB", system: "", createdAt: "2026-01-01T00:00:00.000Z" }),
+      makeMission({ id: "m2", systemAddress: "1234567890AC", system: "Named", createdAt: "2026-03-01T00:00:00.000Z" }),
+    ]);
+    const sparse = {
+      lines: { band: { economy: { stars: "many" } } },
+      pictures: { disc: "https://example.com/disc.png" },
+      carries: "none",
+      extra: null,
+    };
+    const unreadable = {
+      get lines(): unknown {
+        throw new Error("broken entry");
+      },
+    };
+    const almanac: Record<string, Record<string, unknown>> = {
+      "1234567890AB": verdant,
+      "2234567890AB": sparse,
+      "2234567890AC": unreadable,
+    };
+    vi.mocked(lookupAlmanacPlanets).mockImplementation(
+      async (targets) =>
+        new Map(
+          targets.map(({ portal, galaxy }) => [
+            `${portal}:${galaxy}`,
+            { planet: almanac[portal] ?? null, failed: false },
+          ]),
+        ),
+    );
+    vi.mocked(writeMissions).mockRejectedValueOnce(new Error("disk full"));
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    signIn(user);
+
+    const element = await PlanetsRoute();
+    const { planets, almanacLookupFailed } = props(element) as {
+      planets: Record<string, unknown>[];
+      almanacLookupFailed: boolean;
+    };
+    // Solo la missione senza etichetta viene completata; il salvataggio fallito non blocca la pagina.
+    expect(writeMissions).toHaveBeenCalledWith([
+      expect.objectContaining({ id: "m1", system: "Yellow · Trading · Low · Gek" }),
+      expect.objectContaining({ id: "m2", system: "Named" }),
+    ]);
+    expect(consoleError).toHaveBeenCalledWith("Unable to reconcile mission system labels", expect.any(Error));
+    // La voce illeggibile conta come lookup fallito.
+    expect(almanacLookupFailed).toBe(true);
+    expect(planets.map((planet) => planet.planetPortal)).toEqual(["1234567890AB", "2234567890AB"]);
+    // La stazione creata dopo la missione non sposta la data di scoperta.
+    expect(planets[0].createdAt).toBe("2026-01-01T00:00:00.000Z");
+    const sparsePlanet = planets[1];
+    expect(sparsePlanet).toMatchObject({ plants: [], minerals: [], valuables: [], almanacFacts: [], systemFacts: [] });
+    for (const key of ["imageUrl", "almanacName", "planetType", "economyStars"])
+      expect(sparsePlanet).not.toHaveProperty(key);
+    expect(sparsePlanet.almanacSearchIndex).toBe(
+      "lines band pictures disc https://example.com/disc.png carries none extra",
+    );
+  });
+
   it("limits members without specialty to their own stations", async () => {
     signIn(plainUser);
     await PlanetsRoute();
@@ -515,5 +597,33 @@ describe("leaderboard route", () => {
     // La missione costruttori su 1234567890AC dà il merito all'assegnatario, non al proprietario della stazione.
     expect(section("builder", "buildings_built").entries.map((entry) => entry.publicId)).toEqual([id.user]);
     expect(props(element)).toMatchObject({ stationCount: 1, offlineCount: undefined });
+  });
+
+  it("credits a task once, names members without NMS name and skips invalid systems", async () => {
+    const unnamed = makeMember({ publicId: "00000000-0000-4000-8000-000000000009", nmsName: "", name: "Zed" });
+    seedMembers([admin, moderator, user, unnamed]);
+    vi.mocked(readAllStationPortals).mockResolvedValue([]);
+    vi.mocked(readMissions).mockResolvedValue([
+      makeMission({ id: "m1", status: "completed", assignedMemberId: unnamed.publicId, systemAddress: "1234567890AB" }),
+      makeMission({ id: "m2", status: "completed", assignedMemberId: id.user, systemAddress: "1234567890AB" }),
+      makeMission({ id: "m3", assignedMemberId: id.user, systemAddress: "1234567890AB", galaxy: 1 }),
+      makeMission({ id: "m4", systemAddress: "XYZ" }),
+    ]);
+    vi.mocked(readPlanetSystemStatuses).mockResolvedValue({ "0:1234567890AB": ["mapped"] });
+    vi.mocked(readAlmanacCache).mockResolvedValue((_portal, galaxy) => (galaxy === 0 ? {} : null));
+    signIn(moderator);
+
+    const boards = props(await LeaderboardRoute()).boards as LeaderboardBoard[];
+    const board = (boardId: string) => boards.find((item) => item.id === boardId)!;
+    const mapped = board("explorer_tasks").sections!.find((item) => item.id === "mapped")!;
+    expect(mapped.entries.map((entry) => [entry.publicId, entry.name, entry.count])).toEqual([
+      [unnamed.publicId, "Zed", 1],
+    ]);
+    expect(board("missions").entries.map((entry) => [entry.name, entry.count])).toEqual([
+      [user.nmsName, 1],
+      ["Zed", 1],
+    ]);
+    // L'indirizzo non valido non blocca il conteggio: restano i due pianeti in cache del sistema in Euclid.
+    expect(board("alliance_stats").stats).toContainEqual({ label: "leaderboard.stat_planets", value: 2 });
   });
 });

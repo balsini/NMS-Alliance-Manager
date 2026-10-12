@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { screen, within } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { LeaderboardPage, type LeaderboardBoard } from "@/components/pages/leaderboard-page";
 import { defaultAlliance, makeMember } from "../helpers/members";
@@ -97,6 +97,77 @@ describe("LeaderboardPage", () => {
     );
 
     await user.click(screen.getByRole("button", { name: t("profile.my_profile") }));
-    expect(screen.getByRole("dialog", { name: t("profile.my_nms_profile") })).toBeInTheDocument();
+    const dialog = screen.getByRole("dialog", { name: t("profile.my_nms_profile") });
+    await user.click(within(dialog).getAllByRole("button", { name: t("common.close") })[0]);
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("shows an icon for builder and explorer task boards", () => {
+    mockFetch({});
+    renderPage(
+      <LeaderboardPage
+        alliance={defaultAlliance}
+        boards={[
+          {
+            id: "builder_tasks",
+            title: "common.builder",
+            empty: "leaderboard.empty_task",
+            role: "builder",
+            entries: [],
+          },
+          {
+            id: "explorer_tasks",
+            title: "common.explorer",
+            empty: "leaderboard.empty_task",
+            role: "explorer",
+            entries: [],
+          },
+        ]}
+        currentMember={me}
+        missionCount={0}
+        stationCount={0}
+      />,
+    );
+
+    for (const name of [t("common.builder"), t("common.explorer")]) {
+      const heading = screen.getByRole("heading", { name, level: 3 });
+      expect(heading.querySelector("svg")).not.toBeNull();
+      expect(within(heading.closest("section")!).getByText(t("leaderboard.empty_task"))).toBeInTheDocument();
+    }
+  });
+
+  it("lets an admin save the alliance settings and the own profile", async () => {
+    const admin = makeMember({ publicId: "admin", nmsName: "Chief", role: "admin" });
+    mockFetch({
+      "GET /api/alliance": defaultAlliance,
+      "PATCH /api/alliance": { ...defaultAlliance, name: "Renamed Alliance" },
+      "PATCH /api/profile": { ...admin, nmsName: "Captain" },
+    });
+    const { user } = renderPage(
+      <LeaderboardPage
+        alliance={defaultAlliance}
+        boards={[]}
+        currentMember={admin}
+        missionCount={0}
+        stationCount={0}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: t("admin.alliance_settings") }));
+    const settings = screen.getByRole("dialog", { name: t("admin.alliance") });
+    await waitFor(() =>
+      expect(within(settings).getByRole("textbox", { name: t("admin.alliance_name") })).toHaveValue("Test Alliance"),
+    );
+    await user.click(within(settings).getByRole("button", { name: t("admin.save_settings") }));
+    await waitFor(() => expect(screen.getAllByText("Renamed Alliance").length).toBeGreaterThan(0));
+    await user.click(within(settings).getByRole("button", { name: t("common.close") }));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: t("profile.my_profile") }));
+    const profile = screen.getByRole("dialog", { name: t("profile.my_nms_profile") });
+    await user.click(within(profile).getByRole("button", { name: t("profile.save_profile") }));
+    await waitFor(() =>
+      expect(screen.getByRole("img", { name: `Captain · ${t("admin.administrator")}` })).toBeInTheDocument(),
+    );
   });
 });

@@ -185,6 +185,18 @@ describe.each([
     });
   });
 
+  it.each([
+    ["the cached planet title", lushPlanet, "Verdant World"],
+    ["the cached planet type", planet({ lines: { band: { type: { word: "Barren" } } } }), "Barren"],
+  ])("labels the owner message context with %s for unnamed stations", async (_label, cached, subjectLabel) => {
+    const { user, props } = renderStation({ member: viewer(), station: station({ planet: cached }) });
+    await user.click(screen.getByRole("button", { name: "Owner Name" }));
+    expect(props.onOpenProfile).toHaveBeenCalledWith({
+      memberId: "owner",
+      messageContext: { type: "planet", portal, galaxy: 0, subjectLabel },
+    });
+  });
+
   it("hides e-mail owner names and falls back to initials when the avatar fails", () => {
     const { container } = renderStation({
       member: viewer(),

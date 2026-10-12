@@ -55,4 +55,29 @@ describe("StationSystemCoreInfo", () => {
     await waitFor(() => expect(container).toBeEmptyDOMElement());
     expect(nmsCore.systemAttributes).not.toHaveBeenCalled();
   });
+
+  it("discards the summary computed after the component unmounts", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const { unmount } = renderWithLocale(<StationSystemCoreInfo galaxy={0} portal="0123456789AB" />);
+    unmount();
+    await waitFor(() => expect(nmsCore.planetSeeds).toHaveBeenCalled());
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(consoleError).not.toHaveBeenCalled();
+  });
+
+  it("only logs a calculation error that happens after the component unmounts", async () => {
+    nmsCore.systemAttributes.mockImplementation(() => {
+      throw new Error("boom");
+    });
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const { unmount } = renderWithLocale(<StationSystemCoreInfo galaxy={0} portal="0123456789AB" />);
+    unmount();
+    await waitFor(() =>
+      expect(consoleError).toHaveBeenCalledWith(
+        "Unable to calculate station system details with nms-core",
+        expect.any(Error),
+      ),
+    );
+    expect(consoleError).toHaveBeenCalledTimes(1);
+  });
 });
