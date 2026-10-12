@@ -4,7 +4,7 @@ import { guideStationInit } from "./station-init";
 import type { PlanetDestination } from "@/components/cards/planet-destination-card";
 
 function asRecord(value: unknown): Record<string, unknown> | null {
-  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null;
+  return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
 }
 
 function word(value: unknown): string | undefined {
@@ -13,22 +13,27 @@ function word(value: unknown): string | undefined {
 }
 
 function facts(entries: readonly (readonly [string, string | undefined])[]) {
-  return entries.flatMap(([label, value]) => value ? [{ label, value }] : []);
+  return entries.flatMap(([label, value]) => (value ? [{ label, value }] : []));
 }
 
 function resourceNames(carries: unknown, kinds: readonly string[]) {
   if (!Array.isArray(carries)) return [];
-  return [...new Set(carries.flatMap((entry) => {
-    const record = asRecord(entry);
-    return typeof record?.name === "string" && typeof record.kind === "string" && kinds.includes(record.kind)
-      ? [record.name]
-      : [];
-  }))];
+  return [
+    ...new Set(
+      carries.flatMap((entry) => {
+        const record = asRecord(entry);
+        return typeof record?.name === "string" && typeof record.kind === "string" && kinds.includes(record.kind)
+          ? [record.name]
+          : [];
+      }),
+    ),
+  ];
 }
 
 export async function createPlanetListExamplePlanet(): Promise<PlanetDestination> {
-  const planetAddress = (await getSystemPlanetAddresses(guideStationInit.portal, guideStationInit.galaxy))
-    .find(({ portal }) => portal === guideStationInit.portal);
+  const planetAddress = (await getSystemPlanetAddresses(guideStationInit.portal, guideStationInit.galaxy)).find(
+    ({ portal }) => portal === guideStationInit.portal,
+  );
   if (!planetAddress) throw new Error("Guide sample planet address was not found in its system.");
 
   const response = guideStationInit.response;
@@ -39,9 +44,10 @@ export async function createPlanetListExamplePlanet(): Promise<PlanetDestination
   const economy = asRecord(band?.economy);
   const sentinels = asRecord(band?.sentinels);
   const name = typeof headline?.word === "string" ? headline.word : guideStationInit.portal;
-  const discImage = typeof pictures?.disc === "string" && pictures.disc.startsWith("/planets/")
-    ? `https://nmsalmanac.com/api${pictures.disc}`
-    : undefined;
+  const discImage =
+    typeof pictures?.disc === "string" && pictures.disc.startsWith("/planets/")
+      ? `https://nmsalmanac.com/api${pictures.disc}`
+      : undefined;
   const almanacFacts = facts([
     ["common.planet_type_label", word(band?.type)],
     ["planet.size", word(band?.size)],

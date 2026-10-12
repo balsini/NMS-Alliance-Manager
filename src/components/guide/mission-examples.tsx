@@ -28,8 +28,20 @@ const explorer: AllianceMember = {
   simpleView: true,
 };
 
-const ranger: AllianceMember = { ...explorer, publicId: "guide-ranger", name: "Ranger", nmsName: "Ranger", specialty: "ranger" };
-const builder: AllianceMember = { ...explorer, publicId: "guide-builder", name: "Costruttore", nmsName: "Costruttore", specialty: "builder" };
+const ranger: AllianceMember = {
+  ...explorer,
+  publicId: "guide-ranger",
+  name: "Ranger",
+  nmsName: "Ranger",
+  specialty: "ranger",
+};
+const builder: AllianceMember = {
+  ...explorer,
+  publicId: "guide-builder",
+  name: "Costruttore",
+  nmsName: "Costruttore",
+  specialty: "builder",
+};
 
 type Scenario = Readonly<{
   title: string;
@@ -43,26 +55,103 @@ type Scenario = Readonly<{
 
 const explorerScenarios: Scenario[] = [
   { title: "Missione libera: puoi prenderla in carico", status: "pending", assigned: false, progress: 0, statuses: [] },
-  { title: "Missione assegnata a te, in attesa: puoi iniziarla", status: "pending", assigned: true, progress: 0, statuses: [] },
-  { title: "Missione in corso, con note e voci da completare", status: "in_progress", assigned: true, progress: 27, statuses: ["mapped"], notes: true },
-  { title: "Missione in corso con tutte le tue voci spuntate: puoi completarla", status: "in_progress", assigned: true, progress: 80, statuses: ["mapped", "planets_classified", "data_uploaded"] },
-  { title: "Missione completata: puoi riaprirla o richiedere l'intervento di un'altra specializzazione", status: "completed", assigned: true, progress: 100, statuses: ["mapped", "planets_classified", "data_uploaded"], request: true },
+  {
+    title: "Missione assegnata a te, in attesa: puoi iniziarla",
+    status: "pending",
+    assigned: true,
+    progress: 0,
+    statuses: [],
+  },
+  {
+    title: "Missione in corso, con note e voci da completare",
+    status: "in_progress",
+    assigned: true,
+    progress: 27,
+    statuses: ["mapped"],
+    notes: true,
+  },
+  {
+    title: "Missione in corso con tutte le tue voci spuntate: puoi completarla",
+    status: "in_progress",
+    assigned: true,
+    progress: 80,
+    statuses: ["mapped", "planets_classified", "data_uploaded"],
+  },
+  {
+    title: "Missione completata: puoi riaprirla o richiedere l'intervento di un'altra specializzazione",
+    status: "completed",
+    assigned: true,
+    progress: 100,
+    statuses: ["mapped", "planets_classified", "data_uploaded"],
+    request: true,
+  },
 ];
 
 const rangerScenarios: Scenario[] = [
   { title: "Missione libera: puoi prenderla in carico", status: "pending", assigned: false, progress: 0, statuses: [] },
-  { title: "Missione assegnata a te, in attesa: puoi iniziarla", status: "pending", assigned: true, progress: 0, statuses: [] },
-  { title: "Missione in corso, con note e voci da completare", status: "in_progress", assigned: true, progress: 27, statuses: ["station_claimed"], notes: true },
-  { title: "Missione in corso con tutte le tue voci spuntate: puoi completarla", status: "in_progress", assigned: true, progress: 80, statuses: ["station_claimed", "renamed"] },
-  { title: "Missione completata: puoi riaprirla", status: "completed", assigned: true, progress: 100, statuses: ["station_claimed", "renamed"] },
+  {
+    title: "Missione assegnata a te, in attesa: puoi iniziarla",
+    status: "pending",
+    assigned: true,
+    progress: 0,
+    statuses: [],
+  },
+  {
+    title: "Missione in corso, con note e voci da completare",
+    status: "in_progress",
+    assigned: true,
+    progress: 27,
+    statuses: ["station_claimed"],
+    notes: true,
+  },
+  {
+    title: "Missione in corso con tutte le tue voci spuntate: puoi completarla",
+    status: "in_progress",
+    assigned: true,
+    progress: 80,
+    statuses: ["station_claimed", "renamed"],
+  },
+  {
+    title: "Missione completata: puoi riaprirla",
+    status: "completed",
+    assigned: true,
+    progress: 100,
+    statuses: ["station_claimed", "renamed"],
+  },
 ];
 
 const builderScenarios: Scenario[] = [
   { title: "Missione libera: puoi prenderla in carico", status: "pending", assigned: false, progress: 0, statuses: [] },
-  { title: "Missione assegnata a te, in attesa: puoi iniziarla", status: "pending", assigned: true, progress: 0, statuses: [] },
-  { title: "Missione in corso, con note e voci da completare", status: "in_progress", assigned: true, progress: 27, statuses: ["buildings_built"], notes: true },
-  { title: "Missione in corso con tutte le tue voci spuntate: puoi completarla", status: "in_progress", assigned: true, progress: 80, statuses: ["buildings_built", "bases_uploaded"] },
-  { title: "Missione completata: puoi riaprirla o richiedere l'intervento di un'altra specializzazione", status: "completed", assigned: true, progress: 100, statuses: ["buildings_built", "bases_uploaded"], request: true },
+  {
+    title: "Missione assegnata a te, in attesa: puoi iniziarla",
+    status: "pending",
+    assigned: true,
+    progress: 0,
+    statuses: [],
+  },
+  {
+    title: "Missione in corso, con note e voci da completare",
+    status: "in_progress",
+    assigned: true,
+    progress: 27,
+    statuses: ["buildings_built"],
+    notes: true,
+  },
+  {
+    title: "Missione in corso con tutte le tue voci spuntate: puoi completarla",
+    status: "in_progress",
+    assigned: true,
+    progress: 80,
+    statuses: ["buildings_built", "bases_uploaded"],
+  },
+  {
+    title: "Missione completata: puoi riaprirla o richiedere l'intervento di un'altra specializzazione",
+    status: "completed",
+    assigned: true,
+    progress: 100,
+    statuses: ["buildings_built", "bases_uploaded"],
+    request: true,
+  },
 ];
 
 const noop = () => undefined;
@@ -80,7 +169,12 @@ export function RangerMissionExamples({ sample }: Readonly<{ sample: Sample }>) 
   return <MissionExamples member={ranger} sample={sample} scenarios={rangerScenarios} />;
 }
 
-function MissionExamples({ member, request, sample, scenarios }: Readonly<{ member: AllianceMember; request?: "builder" | "explorer"; sample: Sample; scenarios: Scenario[] }>) {
+function MissionExamples({
+  member,
+  request,
+  sample,
+  scenarios,
+}: Readonly<{ member: AllianceMember; request?: "builder" | "explorer"; sample: Sample; scenarios: Scenario[] }>) {
   const name = typeof sample.response.name === "string" ? sample.response.name : sample.portal;
   const disc = (sample.response.pictures as { disc?: unknown } | undefined)?.disc;
   const planetImageUrl = typeof disc === "string" ? `https://nmsalmanac.com/api${disc}` : "";

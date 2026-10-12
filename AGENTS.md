@@ -43,7 +43,7 @@ There is no database. Each domain has a `*-store.ts` module in `src/lib/` (`stor
 
 ### Pages
 
-Each `src/app/<section>/page.tsx` is a thin server component. It loads access data, handles missing config, the login screen and pending approval, then renders a client component from `src/components/pages/` (e.g. `MissionDashboard`). Client components fetch from `/api/*`. `/` redirects to `/stations`. UI is built from cards in `src/components/cards/`, which have `simple` and `extended` variants. `src/app/guide/` is a user guide that renders live example components.
+Each `src/app/<section>/page.tsx` is a thin server component. It loads access data, handles missing config, the login screen and pending approval, then renders a client component from `src/components/pages/` (e.g. `MissionDashboard`). Client components fetch from `/api/*`. `/` redirects to `/stations`. UI is built from cards in `src/components/cards/`, which have `simple` and `extended` variants. `src/app/guide/` is a user guide that renders live example components, which live in `src/components/guide/`. Keep `src/app/` for routes only (`page.tsx`, `layout.tsx`, `route.ts`, `not-found.tsx`): put any other component or helper in `src/components/` or `src/lib/`.
 
 ### NMS domain
 
