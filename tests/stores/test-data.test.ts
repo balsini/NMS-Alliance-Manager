@@ -1,34 +1,36 @@
 import { cp, mkdtemp, readFile, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
-import { decodePortalAddress, isMissionInput, missionStatuses } from "./missions";
-import { testLocalAccounts } from "./local-auth";
+import { decodePortalAddress, isMissionInput, missionStatuses } from "@/lib/missions";
+import { testLocalAccounts } from "@/lib/local-auth";
 
 // The fixtures in fixtures/test-data/ are the starting data of `npm run dev:test`. They are read here with the real
 // store readers, from a temporary copy, so a fixture the app cannot load fails the tests.
 let dataDir = "";
-let access: Awaited<ReturnType<typeof import("./access-store").readAccessData>>;
-let missions: Awaited<ReturnType<typeof import("./store").readMissions>>;
-let stations: Awaited<ReturnType<typeof import("./stations-store").readAllStationPortals>>;
-let statuses: Awaited<ReturnType<typeof import("./planet-system-status-store").readPlanetSystemStatuses>>;
-let messages: Awaited<ReturnType<typeof import("./private-messages-store").readPrivateMessages>>;
+let access: Awaited<ReturnType<typeof import("@/lib/access-store").readAccessData>>;
+let missions: Awaited<ReturnType<typeof import("@/lib/store").readMissions>>;
+let stations: Awaited<ReturnType<typeof import("@/lib/stations-store").readAllStationPortals>>;
+let statuses: Awaited<ReturnType<typeof import("@/lib/planet-system-status-store").readPlanetSystemStatuses>>;
+let messages: Awaited<ReturnType<typeof import("@/lib/private-messages-store").readPrivateMessages>>;
 let missionsBefore: unknown;
 let missionsAfter: unknown;
 
 beforeAll(async () => {
   dataDir = await mkdtemp(path.join(os.tmpdir(), "nms-test-data-"));
-  await cp(path.resolve("fixtures/test-data"), dataDir, { recursive: true });
+  // tests/setup.ts changes the working directory, so resolve the fixtures from this file.
+  await cp(fileURLToPath(new URL("../../fixtures/test-data", import.meta.url)), dataDir, { recursive: true });
   vi.stubEnv("NMS_DATA_DIR", dataDir);
   vi.stubEnv("LOCAL_AUTH", "true");
   vi.resetModules();
 
   const [accessStore, missionsStore, stationsStore, statusStore, messagesStore] = await Promise.all([
-    import("./access-store"),
-    import("./store"),
-    import("./stations-store"),
-    import("./planet-system-status-store"),
-    import("./private-messages-store"),
+    import("@/lib/access-store"),
+    import("@/lib/store"),
+    import("@/lib/stations-store"),
+    import("@/lib/planet-system-status-store"),
+    import("@/lib/private-messages-store"),
   ]);
   missionsBefore = JSON.parse(await readFile(path.join(dataDir, "missions.json"), "utf8"));
   access = await accessStore.readAccessData();

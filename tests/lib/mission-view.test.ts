@@ -103,6 +103,12 @@ describe("serializeMission", () => {
     });
   });
 
+  it("does not modify the original mission", () => {
+    const mission = makeMission({ createdByName: "gone@example.com" });
+    serializeMission(mission, []);
+    expect(mission.createdByName).toBe("gone@example.com");
+  });
+
   it("preserves the other mission fields", () => {
     const mission = makeMission({ title: "Keep", progress: 40, status: "in_progress" });
     expect(serializeMission(mission, [])).toMatchObject({

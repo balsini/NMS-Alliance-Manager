@@ -109,5 +109,18 @@ describe("NotFound", () => {
 
     expect(screen.getByRole("heading", { name: t("errors.page_not_found") })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: t("errors.return_to_first_page") })).toHaveAttribute("href", "/stations");
+    expect(screen.getByText("Coordinates off course")).toBeInTheDocument();
+    expect(screen.getByText("404 · Signal lost")).toBeInTheDocument();
+  });
+
+  it("is translated into Italian", () => {
+    renderPage(<NotFound />, { locale: "it" });
+
+    expect(screen.getByText("Coordinate fuori rotta")).toBeInTheDocument();
+    expect(screen.getByText("404 · Segnale perso")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: t("errors.return_to_first_page", undefined, "it") })).toHaveAttribute(
+      "href",
+      "/stations",
+    );
   });
 });

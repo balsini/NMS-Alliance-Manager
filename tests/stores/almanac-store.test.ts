@@ -19,6 +19,7 @@ vi.mock("@vercel/blob", async () => (await import("./helpers")).blobModule);
 const load = () => import("@/lib/almanac-store");
 const fileName = "almanac.json";
 const blobPath = "alliance-manager/almanac.json";
+const portalFor = (index: number) => index.toString(16).toUpperCase().padStart(12, "0");
 
 beforeEach(() => {
   resetStores();
@@ -37,11 +38,14 @@ describe("reading (local filesystem)", () => {
     mkdirSync(dataDir(), { recursive: true });
     writeFileSync(`${dataDir()}/${fileName}`, "nope");
     const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
-    const { readAlmanacResponse } = await load();
+    const { readAlmanacResponse, writeAlmanacResponse } = await load();
     expect(await readAlmanacResponse("0123456789AB", 0)).toBeNull();
     expect(error).toHaveBeenCalledWith("Unreadable Almanac cache, starting from an empty one", expect.any(SyntaxError));
     expect(dataFileExists(fileName)).toBe(false);
     expect(readdirSync(dataDir()).some((name) => name.startsWith(`${fileName}.corrupt-`))).toBe(true);
+
+    await writeAlmanacResponse("0123456789AB", 0, { portal: "fresh" });
+    expect(await readAlmanacResponse("0123456789AB", 0)).toEqual({ portal: "fresh" });
   });
 
   it("rethrows non-ENOENT read errors", async () => {
@@ -135,6 +139,39 @@ describe("writing (local filesystem)", () => {
     const { writeAlmanacResponses } = await load();
     await writeAlmanacResponses([]);
     expect(dataFileExists(fileName)).toBe(false);
+  });
+
+  it("keeps every entry when many lookups are saved at the same time", async () => {
+    const { writeAlmanacResponse, readAlmanacResponse } = await load();
+    const count = 40;
+    await Promise.all(
+      Array.from({ length: count }, (_, index) =>
+        writeAlmanacResponse(portalFor(index + 1), 0, { portal: portalFor(index + 1), index }),
+      ),
+    );
+    expect(() => readDataFile(fileName)).not.toThrow();
+    for (let index = 0; index < count; index += 1) {
+      expect(await readAlmanacResponse(portalFor(index + 1), 0), `entry ${index}`).toMatchObject({ index });
+    }
+  });
+
+  it("keeps the entries of batch writes that run at the same time", async () => {
+    const { writeAlmanacResponse, writeAlmanacResponses, readAlmanacCache } = await load();
+    await Promise.all([
+      writeAlmanacResponses([{ portalCode: portalFor(1), galaxy: 0, response: { portal: "a" } }]),
+      writeAlmanacResponses([{ portalCode: portalFor(2), galaxy: 1, response: { portal: "b" } }]),
+      writeAlmanacResponse(portalFor(3), 2, { portal: "c" }),
+    ]);
+    const cache = await readAlmanacCache();
+    expect(cache(portalFor(1), 0)).toEqual({ portal: "a" });
+    expect(cache(portalFor(2), 1)).toEqual({ portal: "b" });
+    expect(cache(portalFor(3), 2)).toEqual({ portal: "c" });
+  });
+
+  it("does not leave temporary files behind", async () => {
+    const { writeAlmanacResponse } = await load();
+    await Promise.all([1, 2, 3].map((index) => writeAlmanacResponse(portalFor(index), 0, { index })));
+    expect(readdirSync(dataDir()).filter((name) => name.endsWith(".tmp"))).toEqual([]);
   });
 });
 

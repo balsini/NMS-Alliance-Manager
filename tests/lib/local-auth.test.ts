@@ -8,7 +8,7 @@ import {
   getLocalAccounts,
   isFixedLocalAccount,
   testLocalAccounts,
-} from "./local-auth";
+} from "@/lib/local-auth";
 
 describe.each([
   ["development", devLocalAccounts],

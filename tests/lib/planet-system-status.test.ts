@@ -39,11 +39,13 @@ describe("normalizeMissionSystemStatus", () => {
     expect(normalizeMissionSystemStatus("Errore dati")).toBe("data_error");
     expect(normalizeMissionSystemStatus("Bases uploaded")).toBe("bases_uploaded");
     expect(normalizeMissionSystemStatus("Data uploaded")).toBe("data_uploaded");
+    expect(normalizeMissionSystemStatus("Buildings built")).toBe("buildings_built");
   });
 
   it("rejects unknown and non-string values", () => {
     expect(normalizeMissionSystemStatus("unknown")).toBeNull();
     expect(normalizeMissionSystemStatus(42)).toBeNull();
+    expect(normalizeMissionSystemStatus(null)).toBeNull();
   });
 
   it.todo('rejects Object.prototype keys such as "constructor" (currently returns the inherited function)');

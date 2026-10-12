@@ -12,6 +12,8 @@ process.chdir(workDir);
 // Nessuna variabile reale di auth o Blob deve influenzare i test.
 for (const key of [
   "LOCAL_AUTH",
+  "LOCAL_AUTH_SET",
+  "NMS_DATA_DIR",
   "VERCEL",
   "VERCEL_OIDC_TOKEN",
   "NMS_STORE_ID",
