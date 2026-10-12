@@ -6,6 +6,7 @@ import { MessageTabsExample } from "@/components/guide/message-tabs-example";
 import { translate } from "@/lib/translations";
 import { readAccessData } from "@/lib/access-store";
 import {
+  BookOpen,
   CirclePlus,
   Compass,
   Crosshair,
@@ -248,6 +249,12 @@ const sections = [
     color: "#8f9bff",
     tasks:
       "Leggi e rispondi ai messaggi privati, segnali come letti o li elimini. Si scrivono dal profilo di un membro, su una stazione o una missione",
+  },
+  {
+    name: "Guida",
+    icon: BookOpen,
+    color: "var(--lime)",
+    tasks: "Consulta questa guida per istruzioni ed esempi sull'uso dell'alleanza.",
   },
 ];
 
