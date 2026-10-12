@@ -4,6 +4,7 @@ import { linkOfflineMember } from "@/lib/offline-members";
 import { updateMemberProfile, createOfflineMember, updateOfflineMember, isMemberProfileInput, deleteMember, readAccessData, memberRoles, updateMemberApproval, updateMemberRole } from "@/lib/access-store";
 import { readMissions, writeMissions } from "@/lib/store";
 import { membershipStatuses } from "@/lib/member-types";
+import { isFixedLocalAccount } from "@/lib/local-auth";
 
 const profileConflictMessages = { name: "members.duplicate_in_game_name", code: "members.duplicate_friend_code" } as const;
 export async function GET() {
@@ -27,6 +28,9 @@ export async function PATCH(request: Request) {
   if (typeof email !== "string") return NextResponse.json({ error: "Email non valida." }, { status: 400 });
 
   if ((input as Record<string, unknown>).action === "profile") {
+    if (isFixedLocalAccount(member.email)) {
+      return NextResponse.json({ error: "Questo account locale è fisso per i test: i profili non sono modificabili." }, { status: 403 });
+    }
     if (!isMemberProfileInput(input)) return NextResponse.json({ error: "Profilo non valido." }, { status: 400 });
     const data = await readAccessData();
     const target = data.members.find((item) => item.email === email.trim().toLowerCase());

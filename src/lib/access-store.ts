@@ -5,7 +5,7 @@ import { randomUUID } from "node:crypto";
 import { getBlobAuthOptions } from "@/lib/blob-config";
 import { isValidNmsFriendCode, memberRoles, memberSpecialties, membershipStatuses, normalizeNmsFriendCode, nmsPlatforms } from "@/lib/member-types";
 import type { AllianceMember, AllianceSettings, MemberRole, MemberSpecialty, MembershipStatus, NmsPlatform } from "@/lib/member-types";
-import type { LocalAccount } from "@/lib/local-auth";
+import { isFixedLocalAccount, type LocalAccount } from "@/lib/local-auth";
 
 export { memberRoles, memberSpecialties, membershipStatuses, nmsPlatforms } from "@/lib/member-types";
 export type { AllianceMember, AllianceSettings, MemberRole, MemberSpecialty, MembershipStatus, NmsPlatform } from "@/lib/member-types";
@@ -163,23 +163,25 @@ export async function registerMember(identity: Pick<AllianceMember, "email" | "n
   return { member, alliance: data.alliance };
 }
 
-// LOCAL_AUTH: a ogni accesso ripristina ruolo, specializzazione e approvazione dell'account di sviluppo e completa il profilo se vuoto.
+// LOCAL_AUTH: on every login restores role and approval of the development account. The main local admin keeps its profile edits;
+// the other local accounts are fixed test accounts and get their profile reset to the values in localAccounts.
 export async function ensureLocalMember(account: LocalAccount) {
   const data = await readAccessData();
   const index = data.members.findIndex((member) => member.email === account.email);
   const existingMember = data.members[index];
+  const fixedProfile = isFixedLocalAccount(account.email);
   const now = new Date().toISOString();
   const member: AllianceMember = {
     publicId: existingMember?.publicId ?? randomUUID(),
     email: account.email,
     name: account.name,
     image: "",
-    nmsName: existingMember?.nmsName || account.nmsName,
-    nmsCode: existingMember?.nmsCode || account.nmsCode,
-    ...(existingMember?.telegramName ? { telegramName: existingMember.telegramName } : {}),
-    ...(existingMember?.discordName ? { discordName: existingMember.discordName } : {}),
-    platforms: existingMember?.platforms.length ? existingMember.platforms : [...account.platforms],
-    specialty: account.specialty,
+    nmsName: (!fixedProfile && existingMember?.nmsName) || account.nmsName,
+    nmsCode: (!fixedProfile && existingMember?.nmsCode) || account.nmsCode,
+    ...(!fixedProfile && existingMember?.telegramName ? { telegramName: existingMember.telegramName } : {}),
+    ...(!fixedProfile && existingMember?.discordName ? { discordName: existingMember.discordName } : {}),
+    platforms: !fixedProfile && existingMember?.platforms.length ? existingMember.platforms : [...account.platforms],
+    specialty: (!fixedProfile && existingMember?.specialty) || account.specialty,
     role: account.role,
     membershipStatus: "approved",
     simpleView: account.role === "user" || existingMember?.simpleView === true,

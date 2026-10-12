@@ -1,60 +1,57 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { isValidNmsFriendCode } from "@/lib/member-types";
-import { findLocalAccount, getLocalAccountOptions, localAccounts } from "./local-auth";
+import { editableLocalAccounts, findLocalAccount, getLocalAccountOptions, isFixedLocalAccount, localAccounts } from "./local-auth";
 
 describe("localAccounts", () => {
-  it("has a unique email and specialty pair for every login", () => {
-    const logins = localAccounts.map((account) => `${account.email}:${account.specialty}`);
-    expect(new Set(logins).size).toBe(logins.length);
-  });
-
-  it("has a unique label for every login", () => {
-    const labels = localAccounts.map((account) => account.label ?? account.name);
-    expect(new Set(labels).size).toBe(labels.length);
-  });
-
-  it("recognizes every variant of the same email as the same member", () => {
-    const byEmail = Map.groupBy(localAccounts, (account) => account.email);
-    for (const accounts of byEmail.values()) {
-      for (const field of ["name", "nmsName", "nmsCode", "role"] as const) {
-        expect(new Set(accounts.map((account) => account[field])).size).toBe(1);
-      }
-    }
-  });
-
-  it("gives each member a unique in-game name and friend code", () => {
-    const members = [...Map.groupBy(localAccounts, (account) => account.email).values()].map((accounts) => accounts[0]);
-    for (const field of ["nmsName", "nmsCode"] as const) {
-      const values = members.map((member) => member[field].toLowerCase());
-      expect(new Set(values).size).toBe(values.length);
-    }
+  it.each(["email", "nmsName", "nmsCode"] as const)("has a unique %s for every account", (field) => {
+    const values = localAccounts.map((account) => account[field].toLowerCase());
+    expect(new Set(values).size).toBe(values.length);
   });
 
   it("uses valid NMS friend codes", () => {
     for (const account of localAccounts) expect(isValidNmsFriendCode(account.nmsCode)).toBe(true);
   });
+
+  it("has a main admin with explorer as the default specialty", () => {
+    const [mainAdmin] = localAccounts.filter((account) => account.role === "admin");
+    expect(mainAdmin.specialty).toBe("explorer");
+  });
 });
 
 describe("findLocalAccount", () => {
-  const admins = localAccounts.filter((account) => account.role === "admin");
-
-  it("offers one admin login per specialty", () => {
-    expect(admins.map((account) => account.specialty)).toEqual(["ranger", "explorer", "builder"]);
-  });
-
-  it("selects the admin variant matching the requested specialty", () => {
-    for (const admin of admins) {
-      expect(findLocalAccount(admin.email, admin.specialty)?.specialty).toBe(admin.specialty);
-    }
-  });
-
-  it("falls back to the first variant without a specialty", () => {
-    expect(findLocalAccount(admins[0].email)?.specialty).toBe(admins[0].specialty);
+  it("finds an account by email, ignoring case and spaces", () => {
+    const account = localAccounts[0];
+    expect(findLocalAccount(` ${account.email.toUpperCase()} `)).toBe(account);
   });
 
   it("ignores unknown emails", () => {
     expect(findLocalAccount("nobody@local")).toBeUndefined();
     expect(findLocalAccount(undefined)).toBeUndefined();
+  });
+});
+
+describe("isFixedLocalAccount", () => {
+  afterEach(() => vi.unstubAllEnvs());
+
+  it("fixes every local account except the editable ones when local login is on", () => {
+    vi.stubEnv("LOCAL_AUTH", "true");
+    for (const email of editableLocalAccounts) {
+      expect(isFixedLocalAccount(email)).toBe(false);
+      expect(isFixedLocalAccount(` ${email.toUpperCase()} `)).toBe(false);
+    }
+    for (const account of localAccounts.filter((item) => !editableLocalAccounts.includes(item.email))) {
+      expect(isFixedLocalAccount(account.email)).toBe(true);
+    }
+  });
+
+  it("never affects Google users", () => {
+    vi.stubEnv("LOCAL_AUTH", "true");
+    expect(isFixedLocalAccount("someone@gmail.com")).toBe(false);
+  });
+
+  it("is off when local login is disabled", () => {
+    vi.stubEnv("LOCAL_AUTH", "false");
+    expect(isFixedLocalAccount("moderator@local")).toBe(false);
   });
 });
 

@@ -63,13 +63,8 @@ export function GoogleLogin({
             {localAccounts?.map((account) => (
               <button
                 className="google-login-button"
-                key={`${account.email}:${account.specialty}`}
-                onClick={() =>
-                  signIn("local", {
-                    email: account.email,
-                    specialty: account.specialty,
-                  })
-                }
+                key={account.email}
+                onClick={() => signIn("local", { email: account.email })}
                 type="button"
               >
                 {account.label}
