@@ -130,6 +130,7 @@ export const translations: TranslationCatalog = {
     "navigation.sign_out": "Esci",
     "navigation.main_navigation": "Navigazione principale",
     "navigation.planets": "Pianeti",
+    "navigation.guide": "Guida",
   },
   missions: {
     "missions.section_title": "Missioni",
