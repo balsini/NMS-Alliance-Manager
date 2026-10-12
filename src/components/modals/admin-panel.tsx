@@ -4,6 +4,7 @@ import { useEffect, useState, type SubmitEvent } from "react";
 import { Check, CircleAlert, ImagePlus, ShieldCheck, X } from "lucide-react";
 import type { AllianceSettings } from "@/lib/access-store";
 import { useLocale } from "@/components/providers/locale-provider";
+import { galaxyNames } from "@/lib/galaxies";
 
 export function AdminPanel({
   onClose,
@@ -15,6 +16,8 @@ export function AdminPanel({
   const { t } = useLocale();
   const [settings, setSettings] = useState<AllianceSettings>({
     name: "",
+    portalCode: "",
+    galaxy: 0,
     logoUrl: "",
     bannerUrl: "",
     discordUrl: "",
@@ -103,6 +106,39 @@ export function AdminPanel({
                 required
                 value={settings.name}
               />
+            </label>
+            <label className="field">
+              <span>{t("admin.alliance_portal_code")}</span>
+              <input
+                autoComplete="off"
+                maxLength={12}
+                onChange={(event) =>
+                  setSettings((current) => ({
+                    ...current,
+                    portalCode: event.target.value
+                      .toUpperCase()
+                      .replace(/[^0-9A-F]/g, "")
+                      .slice(0, 12),
+                  }))
+                }
+                pattern="[0-9A-Fa-f]{12}"
+                placeholder={t("admin.alliance_portal_code_placeholder")}
+                spellCheck={false}
+                value={settings.portalCode}
+              />
+            </label>
+            <label className="field">
+              <span>{t("admin.alliance_galaxy")}</span>
+              <select
+                onChange={(event) => setSettings((current) => ({ ...current, galaxy: Number(event.target.value) }))}
+                value={settings.galaxy}
+              >
+                {galaxyNames.map((name, index) => (
+                  <option key={index} value={index}>
+                    {name}
+                  </option>
+                ))}
+              </select>
             </label>
             <div className="field admin-default-view">
               <span>{t("common.hero_image_gradient")}</span>

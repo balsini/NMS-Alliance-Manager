@@ -42,7 +42,16 @@ const localPath = localDataPath("access.json");
 const publicIdPattern = /^[\da-f]{8}-[\da-f]{4}-4[\da-f]{3}-[89ab][\da-f]{3}-[\da-f]{12}$/i;
 const defaultData: AccessData = {
   members: [],
-  alliance: { name: "", logoUrl: "", bannerUrl: "", discordUrl: "", telegramUrl: "", heroGradientMode: "full" },
+  alliance: {
+    name: "",
+    portalCode: "",
+    galaxy: 0,
+    logoUrl: "",
+    bannerUrl: "",
+    discordUrl: "",
+    telegramUrl: "",
+    heroGradientMode: "full",
+  },
 };
 
 function normalizeAccessData(value: unknown): AccessData {
@@ -56,6 +65,17 @@ function normalizeAccessData(value: unknown): AccessData {
       : [],
     alliance: {
       name: storedAllianceName.trim().toLowerCase() === "nomad syndicate" ? "" : storedAllianceName,
+      portalCode:
+        typeof storedAlliance?.portalCode === "string" && /^[0-9A-F]{12}$/i.test(storedAlliance.portalCode)
+          ? storedAlliance.portalCode.toUpperCase()
+          : "",
+      galaxy:
+        typeof storedAlliance?.galaxy === "number" &&
+        Number.isInteger(storedAlliance.galaxy) &&
+        storedAlliance.galaxy >= 0 &&
+        storedAlliance.galaxy <= 255
+          ? storedAlliance.galaxy
+          : 0,
       logoUrl: typeof storedAlliance?.logoUrl === "string" ? storedAlliance.logoUrl : "",
       bannerUrl: typeof storedAlliance?.bannerUrl === "string" ? storedAlliance.bannerUrl : "",
       discordUrl: typeof storedAlliance?.discordUrl === "string" ? storedAlliance.discordUrl : "",

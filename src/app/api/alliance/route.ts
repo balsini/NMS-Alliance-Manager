@@ -20,6 +20,14 @@ export async function PATCH(request: Request) {
     typeof value.name !== "string" ||
     !value.name.trim() ||
     value.name.length > 80 ||
+    (value.portalCode !== undefined &&
+      (typeof value.portalCode !== "string" ||
+        (value.portalCode !== "" && !/^[0-9A-F]{12}$/i.test(value.portalCode)))) ||
+    (value.galaxy !== undefined &&
+      (typeof value.galaxy !== "number" ||
+        !Number.isInteger(value.galaxy) ||
+        value.galaxy < 0 ||
+        value.galaxy > 255)) ||
     typeof value.logoUrl !== "string" ||
     typeof value.bannerUrl !== "string" ||
     typeof value.discordUrl !== "string" ||
@@ -30,10 +38,15 @@ export async function PATCH(request: Request) {
     !isCommunityInviteUrl(value.telegramUrl, ["t.me", "telegram.me", "t.co"]) ||
     (value.heroGradientMode !== "none" && value.heroGradientMode !== "left" && value.heroGradientMode !== "full")
   ) {
-    return NextResponse.json({ error: "Controlla il nome, le immagini e i link Discord/Telegram." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Controlla il nome, il codice portale, la galassia, le immagini e i link Discord/Telegram." },
+      { status: 400 },
+    );
   }
   const settings = await updateAllianceSettings({
     name: value.name.trim(),
+    portalCode: typeof value.portalCode === "string" ? value.portalCode.toUpperCase() : "",
+    galaxy: typeof value.galaxy === "number" ? value.galaxy : 0,
     logoUrl: value.logoUrl,
     bannerUrl: value.bannerUrl,
     discordUrl: value.discordUrl.trim(),

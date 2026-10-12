@@ -80,6 +80,7 @@ export function Header({
   let roleLabel = t("members.member_role_label");
   if (displayRole === "admin") roleLabel = t("admin.administrator");
   else if (displayRole === "moderator") roleLabel = t("common.moderator");
+  const accountLabel = `${currentMember.nmsName || currentMember.name} · ${roleLabel}`;
   return (
     <header className="topbar">
       <div className="breadcrumb">
@@ -87,9 +88,6 @@ export function Header({
       </div>
       <div className="topbar-tools">
         <LanguageSelector />
-        <span className="account-label">
-          {currentMember.nmsName || currentMember.name} · {roleLabel}
-        </span>
         {onProfileSaved && displayRole !== "user" && (
           <button
             aria-label={t(viewToggleLabel)}
@@ -103,17 +101,7 @@ export function Header({
             <LayoutList size={16} />
           </button>
         )}
-        {onProfileOpen && (
-          <button
-            aria-label={t("profile.my_profile")}
-            className="square-button"
-            onClick={onProfileOpen}
-            data-tooltip={t("profile.my_profile")}
-            type="button"
-          >
-            <UserRound size={16} />
-          </button>
-        )}
+
         {currentMember.role === "admin" && onAdminOpen && (
           <button
             aria-label={t("admin.alliance_settings")}
@@ -125,6 +113,17 @@ export function Header({
             <Settings2 size={16} />
           </button>
         )}
+        {onProfileOpen && (
+          <button
+            aria-label={t("profile.my_profile")}
+            className="square-button"
+            onClick={onProfileOpen}
+            data-tooltip={t("profile.my_profile")}
+            type="button"
+          >
+            <UserRound size={16} />
+          </button>
+        )}
         <button
           aria-label={t("navigation.sign_out")}
           className="square-button"
@@ -134,12 +133,14 @@ export function Header({
         >
           <LogOut size={16} />
         </button>
-        <span className="top-avatar">
-          {currentMember.image ? (
-            <span style={{ backgroundImage: `url("${currentMember.image}")` }} />
-          ) : (
-            (currentMember.nmsName || currentMember.name).slice(0, 2).toUpperCase()
-          )}
+        <span className="top-avatar-tooltip" data-tooltip={accountLabel}>
+          <span aria-label={accountLabel} className="top-avatar" role="img">
+            {currentMember.image ? (
+              <span style={{ backgroundImage: `url("${currentMember.image}")` }} />
+            ) : (
+              (currentMember.nmsName || currentMember.name).slice(0, 2).toUpperCase()
+            )}
+          </span>
         </span>
       </div>
     </header>

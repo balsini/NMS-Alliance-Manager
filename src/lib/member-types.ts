@@ -48,6 +48,8 @@ export type AllianceMember = {
 
 export type AllianceSettings = {
   name: string;
+  portalCode: string;
+  galaxy: number;
   logoUrl: string;
   bannerUrl: string;
   discordUrl: string;
