@@ -140,15 +140,24 @@ export function RangerStationExamples({ sample }: Readonly<{ sample: Sample }>) 
   return <StationExamples member={ranger} sample={sample} scenarios={rangerScenarios} />;
 }
 
+export function RangerOwnStationExample({ sample }: Readonly<{ sample: Sample }>) {
+  return <StationExamples member={ranger} sample={sample} scenarios={[rangerScenarios[0]]} showCaption={false} />;
+}
+
 export function ExplorerBuilderStationExamples({ sample }: Readonly<{ sample: Sample }>) {
   return <StationExamples member={explorer} sample={sample} scenarios={explorerScenarios} />;
+}
+
+export function ExplorerAvailableStationExample({ sample }: Readonly<{ sample: Sample }>) {
+  return <StationExamples member={explorer} sample={sample} scenarios={[explorerScenarios[2]]} showCaption={false} />;
 }
 
 function StationExamples({
   member,
   sample,
   scenarios,
-}: Readonly<{ member: AllianceMember; sample: Sample; scenarios: Scenario[] }>) {
+  showCaption = true,
+}: Readonly<{ member: AllianceMember; sample: Sample; scenarios: Scenario[]; showCaption?: boolean }>) {
   return (
     <div className="guide-examples">
       {scenarios.map((scenario) => {
@@ -172,7 +181,7 @@ function StationExamples({
         };
         return (
           <figure className="guide-example" key={scenario.title}>
-            <figcaption>{scenario.title}</figcaption>
+            {showCaption && <figcaption>{scenario.title}</figcaption>}
             <ul className="station-list station-list-cards">
               <StationCardSimple
                 canCreateMissions={false}

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Hero } from "@/components/layout/hero";
+import { AddStationButtonExample } from "@/components/guide/add-station-button-example";
 import { translate } from "@/lib/translations";
 import { readAccessData } from "@/lib/access-store";
 import {
@@ -26,9 +27,18 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
-import { ExplorerBuilderStationExamples, RangerStationExamples } from "@/components/guide/station-examples";
 import {
+  ExplorerAvailableStationExample,
+  ExplorerBuilderStationExamples,
+  RangerOwnStationExample,
+  RangerStationExamples,
+} from "@/components/guide/station-examples";
+import {
+  BuilderAvailableMissionExample,
+  BuilderMissionProgressExamples,
   BuilderMissionExamples,
+  ExplorerAvailableMissionExample,
+  ExplorerMissionProgressExamples,
   ExplorerMissionExamples,
   RangerMissionExamples,
 } from "@/components/guide/mission-examples";
@@ -256,6 +266,30 @@ export default async function GuideRoute() {
         <strong>Indice</strong>
         <ul>
           <li>
+            <a className="guide-index-profile" href="#primo-accesso">
+              <UserRound aria-hidden="true" size={15} />
+              Primo accesso e profilo
+            </a>
+          </li>
+          <li>
+            <a className="guide-index-specialty-ranger" href="#guida-rapida-ranger">
+              <Compass aria-hidden="true" size={15} />
+              Ranger
+            </a>
+          </li>
+          <li>
+            <a className="guide-index-specialty-explorer" href="#guida-rapida-esploratore">
+              <Search aria-hidden="true" size={15} />
+              Esploratore
+            </a>
+          </li>
+          <li>
+            <a className="guide-index-specialty-builder" href="#guida-rapida-costruttore">
+              <Hammer aria-hidden="true" size={15} />
+              Costruttore
+            </a>
+          </li>
+          <li>
             <a className="guide-index-basics" href="#nozioni-di-base">
               <Info aria-hidden="true" size={15} />
               Nozioni di base
@@ -272,9 +306,6 @@ export default async function GuideRoute() {
               </li>
               <li>
                 <a href="#pulsanti-comuni">Pulsanti generali</a>
-              </li>
-              <li>
-                <a href="#primo-accesso">Primo accesso e profilo</a>
               </li>
             </ul>
           </li>
@@ -371,6 +402,243 @@ export default async function GuideRoute() {
       </nav>
       <LocaleProvider fixedLocale="it">
         <main className="guide-page">
+          <section>
+            <section id="primo-accesso">
+              <h2 style={{ color: "var(--lime)" }}>
+                <UserRound aria-hidden="true" size={20} />
+                Primo accesso e profilo
+              </h2>
+              <ul>
+                <li>
+                  Accedi con Google. L&apos;account resta <strong>in attesa</strong> finché un moderatore o un admin non
+                  lo approva; nel frattempo puoi solo completare il profilo.
+                </li>
+                <li>
+                  Profilo: nome in gioco, codice amico NMS (13 caratteri alfanumerici, i trattini sono ignorati), una o
+                  più piattaforme, specializzazione, contatti Telegram/Discord opzionali.
+                </li>
+                <li>Senza profilo completo non puoi prendere missioni né ricevere assegnazioni.</li>
+              </ul>
+            </section>
+            <h2 id="guida-rapida-ranger" style={{ color: "#5fd68a" }}>
+              <Compass aria-hidden="true" size={20} />
+              Ranger
+            </h2>
+            <p>
+              Registra le stazioni dei sistemi scoperti e aggiorna le relative attività Ranger. Se serve, crea dalla
+              stazione una missione per Esploratori o Costruttori.
+            </p>
+            <p className="guide-station-instructions">
+              Per registrare il sistema, vai in{" "}
+              <span className="guide-destination guide-destination-stations">
+                <Orbit aria-hidden="true" size={14} />
+                Stazioni
+              </span>
+              , premi questo pulsante, inserisci galassia e codice portale, quindi invia il modulo:
+            </p>
+            <AddStationButtonExample />
+            <p>Dopo l&apos;invio, comparirà la scheda della tua stazione, come nell&apos;esempio qui sotto.</p>
+            <RangerOwnStationExample sample={sample} />
+            <p>
+              Spunta i task che hai già completato e, se vuoi, crea missioni per Esploratori o Costruttori in quel
+              sistema cliccando su{" "}
+              <span
+                aria-label="Crea una missione"
+                className="guide-icon guide-quick-mission-icon"
+                style={{ color: "#72d1c4", borderColor: "#72d1c4" }}
+                title="Crea una missione"
+              >
+                <CirclePlus aria-hidden="true" size={16} />
+              </span>
+            </p>
+            <h2 id="guida-rapida-esploratore" style={{ color: "#4d9bff" }}>
+              <Search aria-hidden="true" size={20} />
+              Esploratore
+            </h2>
+            <p>L&apos;Esploratore ha più modi per crearsi una missione.</p>
+            <ol className="guide-numbered-list">
+              <li>
+                Primo metodo: vai in{" "}
+                <span className="guide-destination guide-destination-missions">
+                  <Crosshair aria-hidden="true" size={14} />
+                  Missioni
+                </span>{" "}
+                e prendi in carico una missione disponibile.
+                <ExplorerAvailableMissionExample sample={sample} />
+              </li>
+              <li>
+                Secondo metodo: vai in{" "}
+                <span className="guide-destination guide-destination-stations">
+                  <Orbit aria-hidden="true" size={14} />
+                  Stazioni
+                </span>
+                , seleziona il tab <strong className="guide-tab-name">«In attesa»</strong> e clicca sull&apos;icona{" "}
+                <span
+                  aria-label="Crea una missione"
+                  className="guide-icon guide-quick-mission-icon"
+                  style={{ color: "#72d1c4", borderColor: "#72d1c4" }}
+                  title="Crea una missione"
+                >
+                  <CirclePlus aria-hidden="true" size={16} />
+                </span>
+                <ExplorerAvailableStationExample sample={sample} />
+              </li>
+              <li>
+                <p className="guide-station-instructions">
+                  Terzo metodo: vai in{" "}
+                  <span className="guide-destination guide-destination-stations">
+                    <Orbit aria-hidden="true" size={14} />
+                    Stazioni
+                  </span>
+                  , premi questo pulsante, inserisci galassia e codice portale, quindi invia il modulo:
+                </p>
+                <AddStationButtonExample />
+                <p>Dopo l&apos;invio, comparirà la scheda della tua stazione, come nell&apos;esempio qui sotto.</p>
+                <RangerOwnStationExample sample={sample} />
+                <p>
+                  Spunta i task che hai già completato e creati una missione cliccando su{" "}
+                  <span
+                    aria-label="Crea una missione"
+                    className="guide-icon guide-quick-mission-icon"
+                    style={{ color: "#72d1c4", borderColor: "#72d1c4" }}
+                    title="Crea una missione"
+                  >
+                    <CirclePlus aria-hidden="true" size={16} />
+                  </span>
+                </p>
+              </li>
+              <li className="guide-numbered-list-spaced">
+                Quarto metodo: vai su{" "}
+                <span className="guide-destination guide-destination-planets">
+                  <Eclipse aria-hidden="true" size={14} />
+                  Pianeti
+                </span>
+                , filtra in base alle caratteristiche che ti interessano e clicca su{" "}
+                <span
+                  aria-label="Apri la stazione associata"
+                  className="guide-icon guide-quick-mission-icon"
+                  style={{ color: "#6cb4ff", borderColor: "#6cb4ff" }}
+                  title="Apri la stazione associata"
+                >
+                  <Orbit aria-hidden="true" size={16} />
+                </span>
+                <p>
+                  Il link ti porterà alla scheda della stazione per quel sistema. Se c&apos;è l&apos;icona{" "}
+                  <span
+                    aria-label="Assegnati la missione"
+                    className="guide-icon guide-quick-mission-icon guide-quick-mission-icon-spaced-right"
+                    style={{ color: "#72d1c4", borderColor: "#72d1c4" }}
+                    title="Assegnati la missione"
+                  >
+                    <CirclePlus aria-hidden="true" size={16} />
+                  </span>{" "}
+                  puoi assegnarti la missione.
+                </p>
+              </li>
+            </ol>
+            <p>
+              Dopo esserti creato la missione, la troverai nella pagina{" "}
+              <span className="guide-destination guide-destination-missions">
+                <Crosshair aria-hidden="true" size={14} />
+                Missioni
+              </span>
+            </p>
+            <ExplorerMissionProgressExamples sample={sample} />
+            <h2 id="guida-rapida-costruttore" style={{ color: "#ffb45d" }}>
+              <Hammer aria-hidden="true" size={20} />
+              Costruttore
+            </h2>
+            <p>Il Costruttore ha più modi per crearsi una missione.</p>
+            <ol className="guide-numbered-list">
+              <li>
+                Primo metodo: vai in{" "}
+                <span className="guide-destination guide-destination-missions">
+                  <Crosshair aria-hidden="true" size={14} />
+                  Missioni
+                </span>{" "}
+                e prendi in carico una missione disponibile.
+                <BuilderAvailableMissionExample sample={sample} />
+              </li>
+              <li>
+                Secondo metodo: vai in{" "}
+                <span className="guide-destination guide-destination-stations">
+                  <Orbit aria-hidden="true" size={14} />
+                  Stazioni
+                </span>
+                , seleziona il tab <strong className="guide-tab-name">«In attesa»</strong> e clicca sull&apos;icona{" "}
+                <span
+                  aria-label="Crea una missione"
+                  className="guide-icon guide-quick-mission-icon"
+                  style={{ color: "#72d1c4", borderColor: "#72d1c4" }}
+                  title="Crea una missione"
+                >
+                  <CirclePlus aria-hidden="true" size={16} />
+                </span>
+                <ExplorerAvailableStationExample sample={sample} />
+              </li>
+              <li>
+                <p className="guide-station-instructions">
+                  Terzo metodo: vai in{" "}
+                  <span className="guide-destination guide-destination-stations">
+                    <Orbit aria-hidden="true" size={14} />
+                    Stazioni
+                  </span>
+                  , premi questo pulsante, inserisci galassia e codice portale, quindi invia il modulo:
+                </p>
+                <AddStationButtonExample />
+                <p>Dopo l&apos;invio, comparirà la scheda della tua stazione, come nell&apos;esempio qui sotto.</p>
+                <RangerOwnStationExample sample={sample} />
+                <p>
+                  Spunta i task che hai già completato e creati una missione cliccando su{" "}
+                  <span
+                    aria-label="Crea una missione"
+                    className="guide-icon guide-quick-mission-icon"
+                    style={{ color: "#72d1c4", borderColor: "#72d1c4" }}
+                    title="Crea una missione"
+                  >
+                    <CirclePlus aria-hidden="true" size={16} />
+                  </span>
+                </p>
+              </li>
+              <li className="guide-numbered-list-spaced">
+                Quarto metodo: vai su{" "}
+                <span className="guide-destination guide-destination-planets">
+                  <Eclipse aria-hidden="true" size={14} />
+                  Pianeti
+                </span>
+                , filtra in base alle caratteristiche che ti interessano e clicca su{" "}
+                <span
+                  aria-label="Apri la stazione associata"
+                  className="guide-icon guide-quick-mission-icon"
+                  style={{ color: "#6cb4ff", borderColor: "#6cb4ff" }}
+                  title="Apri la stazione associata"
+                >
+                  <Orbit aria-hidden="true" size={16} />
+                </span>
+                <p>
+                  Il link ti porterà alla scheda della stazione per quel sistema. Se c&apos;è l&apos;icona{" "}
+                  <span
+                    aria-label="Assegnati la missione"
+                    className="guide-icon guide-quick-mission-icon guide-quick-mission-icon-spaced-right"
+                    style={{ color: "#72d1c4", borderColor: "#72d1c4" }}
+                    title="Assegnati la missione"
+                  >
+                    <CirclePlus aria-hidden="true" size={16} />
+                  </span>{" "}
+                  puoi assegnarti la missione.
+                </p>
+              </li>
+            </ol>
+            <p>
+              Dopo esserti creato la missione, la troverai nella pagina{" "}
+              <span className="guide-destination guide-destination-missions">
+                <Crosshair aria-hidden="true" size={14} />
+                Missioni
+              </span>
+            </p>
+            <BuilderMissionProgressExamples sample={sample} />
+          </section>
+
           <section id="nozioni-di-base">
             <h2>
               <Info aria-hidden="true" size={20} />
@@ -518,21 +786,6 @@ export default async function GuideRoute() {
                   </tbody>
                 </table>
               </div>
-            </section>
-
-            <section id="primo-accesso">
-              <h3>Primo accesso e profilo</h3>
-              <ul>
-                <li>
-                  Accedi con Google. L&apos;account resta <strong>in attesa</strong> finché un moderatore o un admin non
-                  lo approva; nel frattempo puoi solo completare il profilo.
-                </li>
-                <li>
-                  Profilo: nome in gioco, codice amico NMS (13 caratteri alfanumerici, i trattini sono ignorati), una o
-                  più piattaforme, specializzazione, contatti Telegram/Discord opzionali.
-                </li>
-                <li>Senza profilo completo non puoi prendere missioni né ricevere assegnazioni.</li>
-              </ul>
             </section>
           </section>
 

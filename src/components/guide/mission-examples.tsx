@@ -54,7 +54,13 @@ type Scenario = Readonly<{
 }>;
 
 const explorerScenarios: Scenario[] = [
-  { title: "Missione libera: puoi prenderla in carico", status: "pending", assigned: false, progress: 0, statuses: [] },
+  {
+    title: "Missione disponibile: puoi prenderla in carico",
+    status: "pending",
+    assigned: false,
+    progress: 0,
+    statuses: [],
+  },
   {
     title: "Missione assegnata a te, in attesa: puoi iniziarla",
     status: "pending",
@@ -88,7 +94,13 @@ const explorerScenarios: Scenario[] = [
 ];
 
 const rangerScenarios: Scenario[] = [
-  { title: "Missione libera: puoi prenderla in carico", status: "pending", assigned: false, progress: 0, statuses: [] },
+  {
+    title: "Missione disponibile: puoi prenderla in carico",
+    status: "pending",
+    assigned: false,
+    progress: 0,
+    statuses: [],
+  },
   {
     title: "Missione assegnata a te, in attesa: puoi iniziarla",
     status: "pending",
@@ -121,7 +133,13 @@ const rangerScenarios: Scenario[] = [
 ];
 
 const builderScenarios: Scenario[] = [
-  { title: "Missione libera: puoi prenderla in carico", status: "pending", assigned: false, progress: 0, statuses: [] },
+  {
+    title: "Missione disponibile: puoi prenderla in carico",
+    status: "pending",
+    assigned: false,
+    progress: 0,
+    statuses: [],
+  },
   {
     title: "Missione assegnata a te, in attesa: puoi iniziarla",
     status: "pending",
@@ -161,6 +179,38 @@ export function ExplorerMissionExamples({ sample }: Readonly<{ sample: Sample }>
   return <MissionExamples member={explorer} request="builder" sample={sample} scenarios={explorerScenarios} />;
 }
 
+export function ExplorerAvailableMissionExample({ sample }: Readonly<{ sample: Sample }>) {
+  return <MissionExamples member={explorer} sample={sample} scenarios={[explorerScenarios[0]]} showCaptions={false} />;
+}
+
+export function BuilderAvailableMissionExample({ sample }: Readonly<{ sample: Sample }>) {
+  return <MissionExamples member={builder} sample={sample} scenarios={[builderScenarios[0]]} showCaptions={false} />;
+}
+
+export function ExplorerMissionProgressExamples({ sample }: Readonly<{ sample: Sample }>) {
+  const captions = [
+    "Clicca su Inizia la missione",
+    "Spunta i task",
+    "Quando i task sono completi clicca su Completa Missione",
+    "A questo punto diventa completata",
+  ];
+  const scenarios = explorerScenarios.slice(1).map((scenario, index) => ({ ...scenario, title: captions[index] }));
+
+  return <MissionExamples member={explorer} request="builder" sample={sample} scenarios={scenarios} />;
+}
+
+export function BuilderMissionProgressExamples({ sample }: Readonly<{ sample: Sample }>) {
+  const captions = [
+    "Clicca su Inizia la missione",
+    "Spunta i task",
+    "Quando i task sono completi clicca su Completa Missione",
+    "A questo punto diventa completata",
+  ];
+  const scenarios = builderScenarios.slice(1).map((scenario, index) => ({ ...scenario, title: captions[index] }));
+
+  return <MissionExamples member={builder} request="explorer" sample={sample} scenarios={scenarios} />;
+}
+
 export function BuilderMissionExamples({ sample }: Readonly<{ sample: Sample }>) {
   return <MissionExamples member={builder} request="explorer" sample={sample} scenarios={builderScenarios} />;
 }
@@ -174,7 +224,14 @@ function MissionExamples({
   request,
   sample,
   scenarios,
-}: Readonly<{ member: AllianceMember; request?: "builder" | "explorer"; sample: Sample; scenarios: Scenario[] }>) {
+  showCaptions = true,
+}: Readonly<{
+  member: AllianceMember;
+  request?: "builder" | "explorer";
+  sample: Sample;
+  scenarios: Scenario[];
+  showCaptions?: boolean;
+}>) {
   const name = typeof sample.response.name === "string" ? sample.response.name : sample.portal;
   const disc = (sample.response.pictures as { disc?: unknown } | undefined)?.disc;
   const planetImageUrl = typeof disc === "string" ? `https://nmsalmanac.com/api${disc}` : "";
@@ -203,7 +260,7 @@ function MissionExamples({
         };
         return (
           <figure className="guide-example" key={scenario.title}>
-            <figcaption>{scenario.title}</figcaption>
+            {showCaptions && <figcaption>{scenario.title}</figcaption>}
             <div className="mission-card-grid">
               <MissionCardSimple
                 canManage={false}
