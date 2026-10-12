@@ -163,7 +163,7 @@ export async function registerMember(identity: Pick<AllianceMember, "email" | "n
   return { member, alliance: data.alliance };
 }
 
-// LOCAL_AUTH: a ogni accesso ripristina ruolo e approvazione dell'account di sviluppo e completa il profilo se vuoto.
+// LOCAL_AUTH: a ogni accesso ripristina ruolo, specializzazione e approvazione dell'account di sviluppo e completa il profilo se vuoto.
 export async function ensureLocalMember(account: LocalAccount) {
   const data = await readAccessData();
   const index = data.members.findIndex((member) => member.email === account.email);
@@ -179,7 +179,7 @@ export async function ensureLocalMember(account: LocalAccount) {
     ...(existingMember?.telegramName ? { telegramName: existingMember.telegramName } : {}),
     ...(existingMember?.discordName ? { discordName: existingMember.discordName } : {}),
     platforms: existingMember?.platforms.length ? existingMember.platforms : [...account.platforms],
-    specialty: existingMember?.specialty || account.specialty,
+    specialty: account.specialty,
     role: account.role,
     membershipStatus: "approved",
     simpleView: account.role === "user" || existingMember?.simpleView === true,

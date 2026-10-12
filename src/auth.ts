@@ -30,9 +30,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   }, ...(localAuth ? [Credentials({
     id: "local",
     name: "Local",
-    credentials: { email: {} },
+    credentials: { email: {}, specialty: {} },
     async authorize(credentials) {
-      const account = isLocalAuthEnabled() ? findLocalAccount(credentials?.email) : undefined;
+      const account = isLocalAuthEnabled() ? findLocalAccount(credentials?.email, credentials?.specialty) : undefined;
       if (!account) return null;
       await ensureLocalMember(account);
       return { id: account.email, name: account.name, email: account.email, image: "" };
