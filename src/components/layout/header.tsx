@@ -9,7 +9,14 @@ import { getViewSwitchDestination } from "@/lib/view-navigation";
 import { useLocale } from "@/components/providers/locale-provider";
 import { LanguageSelector } from "@/components/shared/language-selector";
 
-export function Header({ currentMember, settings, sectionTitle = "Missions", onAdminOpen, onProfileOpen, onProfileSaved }: Readonly<{
+export function Header({
+  currentMember,
+  settings,
+  sectionTitle = "Missions",
+  onAdminOpen,
+  onProfileOpen,
+  onProfileSaved,
+}: Readonly<{
   currentMember: AllianceMember;
   settings: AllianceSettings;
   sectionTitle?: string;
@@ -66,25 +73,73 @@ export function Header({ currentMember, settings, sectionTitle = "Missions", onA
     }
   }
 
-  const viewToggleLabel = currentMember.simpleView ? "navigation.switch_to_extended_view" : "navigation.switch_to_simple_view";
+  const viewToggleLabel = currentMember.simpleView
+    ? "navigation.switch_to_extended_view"
+    : "navigation.switch_to_simple_view";
   const displayRole = currentMember.displayRole ?? currentMember.role;
   let roleLabel = t("members.member_role_label");
   if (displayRole === "admin") roleLabel = t("admin.administrator");
   else if (displayRole === "moderator") roleLabel = t("common.moderator");
   return (
     <header className="topbar">
-      <div className="breadcrumb"><strong>{t(sectionTitle)}</strong></div>
+      <div className="breadcrumb">
+        <strong>{t(sectionTitle)}</strong>
+      </div>
       <div className="topbar-tools">
         <LanguageSelector />
-        <span className="account-label">{currentMember.nmsName || currentMember.name} · {roleLabel}</span>
-        {onProfileSaved && displayRole !== "user" && <button aria-label={t(viewToggleLabel)} aria-pressed={currentMember.simpleView === true} className={`square-button header-view-toggle${currentMember.simpleView ? " selected" : ""}`} disabled={savingView} onClick={() => void toggleSimpleView()} data-tooltip={t(viewToggleLabel)} type="button"><LayoutList size={16} /></button>}
-        {onProfileOpen && <button aria-label={t("profile.my_profile")} className="square-button" onClick={onProfileOpen} data-tooltip={t("profile.my_profile")} type="button"><UserRound size={16} /></button>}
-        {currentMember.role === "admin" && onAdminOpen && <button aria-label={t("admin.alliance_settings")} className="square-button" onClick={onAdminOpen} data-tooltip={t("admin.alliance_settings")} type="button"><Settings2 size={16} /></button>}
-        <button aria-label={t("navigation.sign_out")} className="square-button" onClick={() => signOut({ callbackUrl: "/" })} data-tooltip={t("navigation.sign_out")} type="button"><LogOut size={16} /></button>
+        <span className="account-label">
+          {currentMember.nmsName || currentMember.name} · {roleLabel}
+        </span>
+        {onProfileSaved && displayRole !== "user" && (
+          <button
+            aria-label={t(viewToggleLabel)}
+            aria-pressed={currentMember.simpleView === true}
+            className={`square-button header-view-toggle${currentMember.simpleView ? " selected" : ""}`}
+            disabled={savingView}
+            onClick={() => void toggleSimpleView()}
+            data-tooltip={t(viewToggleLabel)}
+            type="button"
+          >
+            <LayoutList size={16} />
+          </button>
+        )}
+        {onProfileOpen && (
+          <button
+            aria-label={t("profile.my_profile")}
+            className="square-button"
+            onClick={onProfileOpen}
+            data-tooltip={t("profile.my_profile")}
+            type="button"
+          >
+            <UserRound size={16} />
+          </button>
+        )}
+        {currentMember.role === "admin" && onAdminOpen && (
+          <button
+            aria-label={t("admin.alliance_settings")}
+            className="square-button"
+            onClick={onAdminOpen}
+            data-tooltip={t("admin.alliance_settings")}
+            type="button"
+          >
+            <Settings2 size={16} />
+          </button>
+        )}
+        <button
+          aria-label={t("navigation.sign_out")}
+          className="square-button"
+          onClick={() => signOut({ callbackUrl: "/" })}
+          data-tooltip={t("navigation.sign_out")}
+          type="button"
+        >
+          <LogOut size={16} />
+        </button>
         <span className="top-avatar">
-          {currentMember.image
-            ? <span style={{ backgroundImage: `url("${currentMember.image}")` }} />
-            : (currentMember.nmsName || currentMember.name).slice(0, 2).toUpperCase()}
+          {currentMember.image ? (
+            <span style={{ backgroundImage: `url("${currentMember.image}")` }} />
+          ) : (
+            (currentMember.nmsName || currentMember.name).slice(0, 2).toUpperCase()
+          )}
         </span>
       </div>
     </header>

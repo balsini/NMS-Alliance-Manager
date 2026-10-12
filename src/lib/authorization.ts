@@ -2,7 +2,9 @@ import { auth } from "@/auth";
 import { getMissingAuthConfiguration } from "@/lib/local-auth";
 import { registerMember, type AllianceMember, type MemberRole } from "@/lib/access-store";
 
-export async function getCurrentMember(options: Readonly<{ allowPending?: boolean; allowBlocked?: boolean }> = {}): Promise<AllianceMember | null> {
+export async function getCurrentMember(
+  options: Readonly<{ allowPending?: boolean; allowBlocked?: boolean }> = {},
+): Promise<AllianceMember | null> {
   if (getMissingAuthConfiguration().some((key) => key !== "ALLIANCE_ADMIN_EMAIL")) return null;
   const session = await auth();
   const email = session?.user?.email;
@@ -16,9 +18,7 @@ export async function getCurrentMember(options: Readonly<{ allowPending?: boolea
   if (member.membershipStatus === "blocked" && !options.allowBlocked) return null;
   if (member.membershipStatus === "pending" && !options.allowPending) return null;
   // La vista semplice limita admin e moderatori alle funzioni dell'utente normale, anche lato server.
-  return member.simpleView && member.role !== "user"
-    ? { ...member, role: "user", displayRole: member.role }
-    : member;
+  return member.simpleView && member.role !== "user" ? { ...member, role: "user", displayRole: member.role } : member;
 }
 
 const roleLevel: Record<MemberRole, number> = { user: 0, moderator: 1, admin: 2 };

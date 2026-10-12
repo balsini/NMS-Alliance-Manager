@@ -1,10 +1,7 @@
 import { isEmailAddress, type AllianceMember } from "@/lib/member-types";
 import type { Mission } from "@/lib/missions";
 
-export function serializeMission(
-  mission: Mission,
-  members: readonly AllianceMember[],
-): Mission {
+export function serializeMission(mission: Mission, members: readonly AllianceMember[]): Mission {
   const assignedMember = members.find((candidate) => candidate.publicId === mission.assignedMemberId);
   const stationOwner = members.find((candidate) => candidate.publicId === mission.stationOwnerMemberId);
   const creator = members.find((candidate) => candidate.publicId === mission.createdByMemberId);
@@ -21,7 +18,10 @@ export function serializeMission(
     createdByMemberId: creator?.publicId ?? mission.createdByMemberId,
     stationOwnerName: safeName(mission.stationOwnerName, stationOwner?.nmsName || stationOwner?.name),
     stationOwnerMemberId: stationOwner?.publicId ?? mission.stationOwnerMemberId,
-    assignedTo: safeName(mission.assignedTo, assignedMember?.nmsName || assignedMember?.name || (mission.assignedMemberId ? "Former member" : "")),
+    assignedTo: safeName(
+      mission.assignedTo,
+      assignedMember?.nmsName || assignedMember?.name || (mission.assignedMemberId ? "Former member" : ""),
+    ),
     assignedMemberId: assignedMember?.publicId ?? mission.assignedMemberId,
   };
 }

@@ -66,7 +66,11 @@ export function isMissionSystemStatus(value: unknown): value is MissionSystemSta
 export const systemProgressCap = 80;
 
 export function systemProgressFloor(statuses: readonly MissionSystemStatus[], specialty: string) {
-  const roleStatuses = missionSystemStatuses.filter((status) => status !== "data_error" && missionSystemStatusRoles[status] === specialty);
+  const roleStatuses = missionSystemStatuses.filter(
+    (status) => status !== "data_error" && missionSystemStatusRoles[status] === specialty,
+  );
   if (roleStatuses.length === 0) return 0;
-  return Math.round(systemProgressCap * roleStatuses.filter((status) => statuses.includes(status)).length / roleStatuses.length);
+  return Math.round(
+    (systemProgressCap * roleStatuses.filter((status) => statuses.includes(status)).length) / roleStatuses.length,
+  );
 }

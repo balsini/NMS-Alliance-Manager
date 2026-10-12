@@ -22,10 +22,11 @@ export type PrivateMessage = Readonly<{
   createdAt: string;
 }>;
 
-type StoredPrivateMessage = PrivateMessage & Readonly<{
-  senderEmail?: string;
-  recipientEmail?: string;
-}>;
+type StoredPrivateMessage = PrivateMessage &
+  Readonly<{
+    senderEmail?: string;
+    recipientEmail?: string;
+  }>;
 
 const blobPath = "alliance-manager/private-messages.json";
 const localPath = path.join(process.cwd(), "data", "private-messages.json");
@@ -49,10 +50,22 @@ function parseMessages(value: unknown): StoredPrivateMessage[] {
       (!message.recipientMemberId && !message.recipientEmail && message.subjectType !== "help") ||
       typeof message.body !== "string" ||
       (message.subject !== undefined && (typeof message.subject !== "string" || message.subject.length > 160)) ||
-      (message.subjectType !== undefined && message.subjectType !== "planet" && message.subjectType !== "mission" && message.subjectType !== "help") ||
-      (message.portal !== undefined && (typeof message.portal !== "string" || !/^[0-9A-F]{12}$/i.test(message.portal))) ||
-      (message.galaxy !== undefined && (typeof message.galaxy !== "number" || !Number.isInteger(message.galaxy) || message.galaxy < 0 || message.galaxy > 255)) ||
-      (message.planetNumber !== undefined && (typeof message.planetNumber !== "number" || !Number.isInteger(message.planetNumber) || message.planetNumber < 0 || message.planetNumber > 6)) ||
+      (message.subjectType !== undefined &&
+        message.subjectType !== "planet" &&
+        message.subjectType !== "mission" &&
+        message.subjectType !== "help") ||
+      (message.portal !== undefined &&
+        (typeof message.portal !== "string" || !/^[0-9A-F]{12}$/i.test(message.portal))) ||
+      (message.galaxy !== undefined &&
+        (typeof message.galaxy !== "number" ||
+          !Number.isInteger(message.galaxy) ||
+          message.galaxy < 0 ||
+          message.galaxy > 255)) ||
+      (message.planetNumber !== undefined &&
+        (typeof message.planetNumber !== "number" ||
+          !Number.isInteger(message.planetNumber) ||
+          message.planetNumber < 0 ||
+          message.planetNumber > 6)) ||
       (message.missionCode !== undefined && typeof message.missionCode !== "string") ||
       (message.unread !== undefined && typeof message.unread !== "boolean") ||
       typeof message.createdAt !== "string"
@@ -83,9 +96,10 @@ async function readMessages(): Promise<PrivateMessage[]> {
   const membersByEmail = new Map(access.members.map((member) => [member.email.toLowerCase(), member.publicId]));
   let needsMigration = false;
   const messages = stored.map(({ senderEmail, recipientEmail, ...message }) => {
-    const senderMemberId = message.senderMemberId ??
-      (senderEmail ? membersByEmail.get(senderEmail.trim().toLowerCase()) : undefined);
-    const recipientMemberId = message.recipientMemberId ??
+    const senderMemberId =
+      message.senderMemberId ?? (senderEmail ? membersByEmail.get(senderEmail.trim().toLowerCase()) : undefined);
+    const recipientMemberId =
+      message.recipientMemberId ??
       (recipientEmail ? membersByEmail.get(recipientEmail.trim().toLowerCase()) : undefined);
     if (senderEmail !== undefined || recipientEmail !== undefined) needsMigration = true;
     return {
@@ -108,8 +122,8 @@ export async function readHelpRequests(): Promise<PrivateMessage[]> {
 
 export async function deleteHelpRequest(requestId: string): Promise<boolean> {
   const messages = await readMessages();
-  const retained = messages.filter((message) =>
-    !(message.subjectType === "help" && (message.id === requestId || message.threadId === requestId)),
+  const retained = messages.filter(
+    (message) => !(message.subjectType === "help" && (message.id === requestId || message.threadId === requestId)),
   );
   if (retained.length === messages.length) return false;
   await writeMessages(retained);
@@ -118,7 +132,9 @@ export async function deleteHelpRequest(requestId: string): Promise<boolean> {
 
 export async function saveHelpReply(senderMemberId: string, body: string, requestId: string): Promise<boolean> {
   const messages = await readMessages();
-  const request = messages.find((message) => message.id === requestId && message.subjectType === "help" && !message.replyToId);
+  const request = messages.find(
+    (message) => message.id === requestId && message.subjectType === "help" && !message.replyToId,
+  );
   if (!request) return false;
   messages.push({
     id: randomUUID(),
@@ -221,11 +237,13 @@ export async function saveHelpRequest(
 
 export async function reassignPrivateMessageMember(fromMemberId: string, toMemberId: string): Promise<void> {
   const messages = await readMessages();
-  await writeMessages(messages.map((message) => ({
-    ...message,
-    ...(message.senderMemberId === fromMemberId ? { senderMemberId: toMemberId } : {}),
-    ...(message.recipientMemberId === fromMemberId ? { recipientMemberId: toMemberId } : {}),
-  })));
+  await writeMessages(
+    messages.map((message) => ({
+      ...message,
+      ...(message.senderMemberId === fromMemberId ? { senderMemberId: toMemberId } : {}),
+      ...(message.recipientMemberId === fromMemberId ? { recipientMemberId: toMemberId } : {}),
+    })),
+  );
 }
 
 export async function markPrivateMessagesRead(memberId: string, messageIds: readonly string[]): Promise<void> {

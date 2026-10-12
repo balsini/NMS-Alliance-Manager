@@ -2,7 +2,17 @@
 
 import { useState, type SubmitEvent } from "react";
 import { Compass, Hammer, Search, Check, CircleAlert, X } from "lucide-react";
-import { formatNmsFriendCode, isValidNmsFriendCode, memberSpecialties, normalizeNmsFriendCode, nmsPlatforms, type AllianceMember, type MemberRole, type MemberSpecialty, type NmsPlatform } from "@/lib/member-types";
+import {
+  formatNmsFriendCode,
+  isValidNmsFriendCode,
+  memberSpecialties,
+  normalizeNmsFriendCode,
+  nmsPlatforms,
+  type AllianceMember,
+  type MemberRole,
+  type MemberSpecialty,
+  type NmsPlatform,
+} from "@/lib/member-types";
 import { useLocale } from "@/components/providers/locale-provider";
 
 const roleLabels: Record<MemberRole, string> = {
@@ -17,7 +27,14 @@ const specialtyLabels: Record<MemberSpecialty, string> = {
   explorer: "common.explorer",
 };
 
-export function MemberProfilePanel({ member, onClose, onSaved, createOffline = false, editOffline = false, editMember = false }: Readonly<{
+export function MemberProfilePanel({
+  member,
+  onClose,
+  onSaved,
+  createOffline = false,
+  editOffline = false,
+  editMember = false,
+}: Readonly<{
   member: AllianceMember;
   onClose: () => void;
   onSaved: (profile: AllianceMember) => void;
@@ -44,9 +61,9 @@ export function MemberProfilePanel({ member, onClose, onSaved, createOffline = f
   }
 
   function togglePlatform(platform: NmsPlatform) {
-    setPlatforms((current) => current.includes(platform)
-      ? current.filter((item) => item !== platform)
-      : [...current, platform]);
+    setPlatforms((current) =>
+      current.includes(platform) ? current.filter((item) => item !== platform) : [...current, platform],
+    );
   }
 
   async function submit(event: SubmitEvent<HTMLFormElement>) {
@@ -58,7 +75,17 @@ export function MemberProfilePanel({ member, onClose, onSaved, createOffline = f
       const response = await fetch(offlineMode || editMember ? "/api/admin/members" : "/api/profile", {
         method: offlineMode ? "POST" : "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nmsName, nmsCode, telegramName, discordName, platforms, specialty, ...(offlineMode || editMember ? {} : { simpleView }),...(editMember ? { action: "profile", email: member.email } : {}), ...(editOffline ? { action: "update", offlineId: member.publicId } : {}) }),
+        body: JSON.stringify({
+          nmsName,
+          nmsCode,
+          telegramName,
+          discordName,
+          platforms,
+          specialty,
+          ...(offlineMode || editMember ? {} : { simpleView }),
+          ...(editMember ? { action: "profile", email: member.email } : {}),
+          ...(editOffline ? { action: "update", offlineId: member.publicId } : {}),
+        }),
       });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error ?? "Unable to save the profile.");
@@ -76,21 +103,58 @@ export function MemberProfilePanel({ member, onClose, onSaved, createOffline = f
     <div className="dialog-backdrop">
       <dialog aria-labelledby="profile-title" aria-modal="true" className="mission-dialog profile-dialog" open>
         <div className="dialog-heading">
-          <div><span className="eyebrow">{t("profile.member_profile")}</span><h2 id="profile-title">{createOffline ? t("members.add_offline_player") : editOffline ? t("members.edit_offline_player") : editMember ? t("members.edit_member_profile") : t("profile.my_nms_profile")}</h2></div>
-          <button aria-label={t("common.close")} className="icon-button" onClick={close} type="button"><X size={18} /></button>
+          <div>
+            <span className="eyebrow">{t("profile.member_profile")}</span>
+            <h2 id="profile-title">
+              {createOffline
+                ? t("members.add_offline_player")
+                : editOffline
+                  ? t("members.edit_offline_player")
+                  : editMember
+                    ? t("members.edit_member_profile")
+                    : t("profile.my_nms_profile")}
+            </h2>
+          </div>
+          <button aria-label={t("common.close")} className="icon-button" onClick={close} type="button">
+            <X size={18} />
+          </button>
         </div>
         <form onSubmit={submit}>
-          {!offlineMode && <div className="profile-identity">
-            <span className="profile-google-avatar">{member.image ? <span style={{ backgroundImage: `url("${member.image}")` }} /> : member.name.slice(0, 1).toUpperCase()}</span>
-            <span><strong>{member.email}</strong><small>{t("admin.role_assigned_by_administrator_role", { role: t(roleLabels[member.role]) })}</small></span>
-          </div>}
+          {!offlineMode && (
+            <div className="profile-identity">
+              <span className="profile-google-avatar">
+                {member.image ? (
+                  <span style={{ backgroundImage: `url("${member.image}")` }} />
+                ) : (
+                  member.name.slice(0, 1).toUpperCase()
+                )}
+              </span>
+              <span>
+                <strong>{member.email}</strong>
+                <small>{t("admin.role_assigned_by_administrator_role", { role: t(roleLabels[member.role]) })}</small>
+              </span>
+            </div>
+          )}
           {offlineMode && <p className="form-hint">{t("members.offline_player_hint")}</p>}
           <label className="field full-field">
             <span>{t("common.in_game_name")}</span>
-            <input autoComplete="nickname" maxLength={40} onChange={(event) => setNmsName(event.target.value)} placeholder={t("common.in_game_name")} required value={nmsName} />
+            <input
+              autoComplete="nickname"
+              maxLength={40}
+              onChange={(event) => setNmsName(event.target.value)}
+              placeholder={t("common.in_game_name")}
+              required
+              value={nmsName}
+            />
           </label>
           <label className="field full-field">
-            <span>{t("profile.nms_friend_code_label")} <small>{t("common.13_alphanumeric_characters")}{offlineMode ? " · opzionale" : ""}</small></span>
+            <span>
+              {t("profile.nms_friend_code_label")}{" "}
+              <small>
+                {t("common.13_alphanumeric_characters")}
+                {offlineMode ? " · opzionale" : ""}
+              </small>
+            </span>
             <input
               autoComplete="off"
               autoCapitalize="characters"
@@ -103,45 +167,104 @@ export function MemberProfilePanel({ member, onClose, onSaved, createOffline = f
             />
           </label>
           <label className="field full-field">
-            <span>{t("profile.telegram_name_label")} <small>{t("profile.optional")}</small></span>
-            <input autoComplete="off" maxLength={40} onChange={(event) => setTelegramName(event.target.value)} placeholder="@username" value={telegramName} />
+            <span>
+              {t("profile.telegram_name_label")} <small>{t("profile.optional")}</small>
+            </span>
+            <input
+              autoComplete="off"
+              maxLength={40}
+              onChange={(event) => setTelegramName(event.target.value)}
+              placeholder="@username"
+              value={telegramName}
+            />
           </label>
           <label className="field full-field">
-            <span>{t("profile.discord_name_label")} <small>{t("profile.optional")}</small></span>
-            <input autoComplete="off" maxLength={40} onChange={(event) => setDiscordName(event.target.value)} placeholder="username" value={discordName} />
+            <span>
+              {t("profile.discord_name_label")} <small>{t("profile.optional")}</small>
+            </span>
+            <input
+              autoComplete="off"
+              maxLength={40}
+              onChange={(event) => setDiscordName(event.target.value)}
+              placeholder="username"
+              value={discordName}
+            />
           </label>
           <fieldset className="platform-fieldset">
-            <legend>{t("profile.platforms_label")} <small>{t("common.select_all_that_you_use")}</small></legend>
+            <legend>
+              {t("profile.platforms_label")} <small>{t("common.select_all_that_you_use")}</small>
+            </legend>
             <div className="platform-options">
-              {nmsPlatforms.map((platform) => <label className="platform-option" key={platform}>
-                <input checked={platforms.includes(platform)} onChange={() => togglePlatform(platform)} type="checkbox" />
-                <span>{platform}</span>
-              </label>)}
+              {nmsPlatforms.map((platform) => (
+                <label className="platform-option" key={platform}>
+                  <input
+                    checked={platforms.includes(platform)}
+                    onChange={() => togglePlatform(platform)}
+                    type="checkbox"
+                  />
+                  <span>{platform}</span>
+                </label>
+              ))}
             </div>
           </fieldset>
           <fieldset className="specialty-fieldset">
-            <legend>{t("common.how_do_you_play")} <small>{t("profile.choose_your_specialty")}</small></legend>
+            <legend>
+              {t("common.how_do_you_play")} <small>{t("profile.choose_your_specialty")}</small>
+            </legend>
             <div className="specialty-options" role="radiogroup" aria-label={t("profile.nms_specialty")}>
               {memberSpecialties.map((item) => {
                 const Icon = item === "builder" ? Hammer : item === "ranger" ? Compass : Search;
-                return <label className={`specialty-option ${specialty === item ? "selected" : ""}`} key={item}>
-                  <input checked={specialty === item} name="specialty" onChange={() => setSpecialty(item)} type="radio" value={item} />
-                  <Icon size={18} />
-                  <span>{t(specialtyLabels[item])}</span>
-                </label>;
+                return (
+                  <label className={`specialty-option ${specialty === item ? "selected" : ""}`} key={item}>
+                    <input
+                      checked={specialty === item}
+                      name="specialty"
+                      onChange={() => setSpecialty(item)}
+                      type="radio"
+                      value={item}
+                    />
+                    <Icon size={18} />
+                    <span>{t(specialtyLabels[item])}</span>
+                  </label>
+                );
               })}
             </div>
           </fieldset>
-          {!offlineMode && !editMember && (member.displayRole ?? member.role) !== "user" && <label className="message-acknowledgement">
-            <input checked={simpleView} onChange={(event) => setSimpleView(event.target.checked)} type="checkbox" />
-            <span>{t("profile.simple_view")}</span>
-          </label>}
-          {error && <p className="form-error"><CircleAlert size={15} />{t(error)}</p>}
-          {saved && <p className="address-validation address-valid"><Check size={14} />{t("profile.profile_saved")}</p>}
+          {!offlineMode && !editMember && (member.displayRole ?? member.role) !== "user" && (
+            <label className="message-acknowledgement">
+              <input checked={simpleView} onChange={(event) => setSimpleView(event.target.checked)} type="checkbox" />
+              <span>{t("profile.simple_view")}</span>
+            </label>
+          )}
+          {error && (
+            <p className="form-error">
+              <CircleAlert size={15} />
+              {t(error)}
+            </p>
+          )}
+          {saved && (
+            <p className="address-validation address-valid">
+              <Check size={14} />
+              {t("profile.profile_saved")}
+            </p>
+          )}
           <div className="dialog-actions">
             <span className="action-spacer" />
-            <button className="quiet-button" onClick={close} type="button">{t("common.close")}</button>
-            <button className="primary-button" disabled={busy || !nmsName.trim() || (offlineMode ? nmsCode.length > 0 && !isValidNmsFriendCode(nmsCode) : !isValidNmsFriendCode(nmsCode)) || !specialty} type="submit">{busy ? t("common.saving") : t("profile.save_profile")}</button>
+            <button className="quiet-button" onClick={close} type="button">
+              {t("common.close")}
+            </button>
+            <button
+              className="primary-button"
+              disabled={
+                busy ||
+                !nmsName.trim() ||
+                (offlineMode ? nmsCode.length > 0 && !isValidNmsFriendCode(nmsCode) : !isValidNmsFriendCode(nmsCode)) ||
+                !specialty
+              }
+              type="submit"
+            >
+              {busy ? t("common.saving") : t("profile.save_profile")}
+            </button>
           </div>
         </form>
       </dialog>

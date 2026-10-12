@@ -1,4 +1,17 @@
-import { Check, CirclePlus, Compass, FileText, Hammer, Info, Orbit, Pencil, RotateCcw, Search, ShieldPlus, Trash2 } from "lucide-react";
+import {
+  Check,
+  CirclePlus,
+  Compass,
+  FileText,
+  Hammer,
+  Info,
+  Orbit,
+  Pencil,
+  RotateCcw,
+  Search,
+  ShieldPlus,
+  Trash2,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type { Mission, MissionSpecialty } from "@/lib/missions";
@@ -9,9 +22,8 @@ import { type MemberMessageContext } from "@/components/modals/member-card-dialo
 import { useLocale } from "@/components/providers/locale-provider";
 import type { StationOwnerOption } from "@/components/modals/mission-form";
 
-
 export function asRecord(value: unknown): Record<string, unknown> | null {
-  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null;
+  return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
 }
 
 export function isMissionAssignee(mission: Mission, member: AllianceMember): boolean {
@@ -36,7 +48,20 @@ export const requestTooltipKeys = {
   explorer_builder: "missions.create_ranger_mission",
 } as const;
 
-export function MissionRowAction({ mission, currentMember, canManage, requestedSpecialty = null, onCreateRanger, onEdit, onDeleteMission, onClaim, onComplete, onReopen, onStart, tasksDone = true }: Readonly<{
+export function MissionRowAction({
+  mission,
+  currentMember,
+  canManage,
+  requestedSpecialty = null,
+  onCreateRanger,
+  onEdit,
+  onDeleteMission,
+  onClaim,
+  onComplete,
+  onReopen,
+  onStart,
+  tasksDone = true,
+}: Readonly<{
   mission: Mission;
   currentMember: AllianceMember;
   canManage: boolean;
@@ -51,55 +76,147 @@ export function MissionRowAction({ mission, currentMember, canManage, requestedS
   tasksDone?: boolean;
 }>) {
   const { t } = useLocale();
-  const requestButton = requestedSpecialty && onCreateRanger && <button aria-label={t(requestTooltipKeys[requestedSpecialty])} className={`row-action row-action-${requestedSpecialty}`} data-tooltip={t(requestTooltipKeys[requestedSpecialty])} onClick={() => onCreateRanger(mission)} type="button">{requestedSpecialty === "builder" ? <Hammer size={15} /> : requestedSpecialty === "ranger" ? <Compass size={15} /> : requestedSpecialty === "explorer" ? <Search size={15} /> : <ShieldPlus size={15} />}</button>;
+  const requestButton = requestedSpecialty && onCreateRanger && (
+    <button
+      aria-label={t(requestTooltipKeys[requestedSpecialty])}
+      className={`row-action row-action-${requestedSpecialty}`}
+      data-tooltip={t(requestTooltipKeys[requestedSpecialty])}
+      onClick={() => onCreateRanger(mission)}
+      type="button"
+    >
+      {requestedSpecialty === "builder" ? (
+        <Hammer size={15} />
+      ) : requestedSpecialty === "ranger" ? (
+        <Compass size={15} />
+      ) : requestedSpecialty === "explorer" ? (
+        <Search size={15} />
+      ) : (
+        <ShieldPlus size={15} />
+      )}
+    </button>
+  );
   if (mission.status === "completed" && (currentMember.simpleView === true || !canManage)) {
     if (mission.assignedMemberId === currentMember.publicId) {
-      return <span className="mission-row-actions">{requestButton}<button aria-label={t("missions.reopen_mission")} className="row-action row-action-reopen" data-tooltip={t("missions.reopen_mission")} onClick={() => onReopen(mission)} type="button"><RotateCcw size={15} /></button></span>;
+      return (
+        <span className="mission-row-actions">
+          {requestButton}
+          <button
+            aria-label={t("missions.reopen_mission")}
+            className="row-action row-action-reopen"
+            data-tooltip={t("missions.reopen_mission")}
+            onClick={() => onReopen(mission)}
+            type="button"
+          >
+            <RotateCcw size={15} />
+          </button>
+        </span>
+      );
     }
     return <span className="no-row-action">—</span>;
   }
   if (canManage) {
-    return <span className="mission-row-actions">
-      {requestButton}
-      {mission.status === "completed" && mission.assignedMemberId === currentMember.publicId && <button aria-label={t("missions.reopen_mission")} className="row-action row-action-reopen" data-tooltip={t("missions.reopen_mission")} onClick={() => onReopen(mission)} type="button"><RotateCcw size={15} /></button>}
-      <button aria-label={`${t("common.edit")} ${mission.title}`} className="row-action row-action-edit" data-tooltip={t("missions.edit_mission")} onClick={() => onEdit(mission)} type="button"><Pencil size={15} /></button>
-      <button aria-label={`${t("common.delete")} ${mission.title}`} className="row-action row-action-delete" data-tooltip={t("missions.delete_mission")} onClick={() => onDeleteMission(mission)} type="button"><Trash2 size={15} /></button>
-    </span>;
+    return (
+      <span className="mission-row-actions">
+        {requestButton}
+        {mission.status === "completed" && mission.assignedMemberId === currentMember.publicId && (
+          <button
+            aria-label={t("missions.reopen_mission")}
+            className="row-action row-action-reopen"
+            data-tooltip={t("missions.reopen_mission")}
+            onClick={() => onReopen(mission)}
+            type="button"
+          >
+            <RotateCcw size={15} />
+          </button>
+        )}
+        <button
+          aria-label={`${t("common.edit")} ${mission.title}`}
+          className="row-action row-action-edit"
+          data-tooltip={t("missions.edit_mission")}
+          onClick={() => onEdit(mission)}
+          type="button"
+        >
+          <Pencil size={15} />
+        </button>
+        <button
+          aria-label={`${t("common.delete")} ${mission.title}`}
+          className="row-action row-action-delete"
+          data-tooltip={t("missions.delete_mission")}
+          onClick={() => onDeleteMission(mission)}
+          type="button"
+        >
+          <Trash2 size={15} />
+        </button>
+      </span>
+    );
   }
   if (mission.assignedMemberId === currentMember.publicId && mission.status === "pending") {
-    return <button className="claim-button claim-button-progress mission-action-button" onClick={() => onStart(mission)} type="button">{t("missions.start_mission")}</button>;
+    return (
+      <button
+        className="claim-button claim-button-progress mission-action-button"
+        onClick={() => onStart(mission)}
+        type="button"
+      >
+        {t("missions.start_mission")}
+      </button>
+    );
   }
   if (mission.assignedMemberId === currentMember.publicId && mission.status !== "completed") {
-    return <button className="claim-button mission-action-button" disabled={!tasksDone} onClick={() => onComplete(mission)} type="button">{t("missions.complete_mission")}</button>;
+    return (
+      <button
+        className="claim-button mission-action-button"
+        disabled={!tasksDone}
+        onClick={() => onComplete(mission)}
+        type="button"
+      >
+        {t("missions.complete_mission")}
+      </button>
+    );
   }
   if (!mission.assignedMemberId && !mission.assignedTo.trim()) {
-    return <button className="claim-button claim-button-take mission-action-button" onClick={() => onClaim(mission)} type="button">{t("missions.claim")}</button>;
+    return (
+      <button
+        className="claim-button claim-button-take mission-action-button"
+        onClick={() => onClaim(mission)}
+        type="button"
+      >
+        {t("missions.claim")}
+      </button>
+    );
   }
   return <span className="no-row-action">—</span>;
 }
 
-export function MissionStationLink({ mission, canManage, stationOwners, stationOwnersLoaded }: Readonly<{
+export function MissionStationLink({
+  mission,
+  canManage,
+  stationOwners,
+  stationOwnersLoaded,
+}: Readonly<{
   mission: Mission;
   canManage: boolean;
   stationOwners: StationOwnerOption[];
   stationOwnersLoaded: boolean;
 }>) {
   const { t } = useLocale();
-  const stationExists = stationOwners.some((station) =>
-    station.portal === mission.systemAddress.toUpperCase() &&
-    station.galaxy === mission.galaxy,
+  const stationExists = stationOwners.some(
+    (station) => station.portal === mission.systemAddress.toUpperCase() && station.galaxy === mission.galaxy,
   );
   if (!canManage || !stationOwnersLoaded) return null;
   if (stationExists) {
     const params = new URLSearchParams({ search: mission.systemAddress });
     const label = t("missions.open_linked_station");
-    return <Link
-      aria-label={label}
-      className="member-icon-action mission-station-link member-station-filter"
-      data-tooltip={label}
-      href={`/stations?${params.toString()}`}
-      title={label}
-    ><Orbit size={14} /></Link>;
+    return (
+      <Link
+        aria-label={label}
+        className="member-icon-action mission-station-link member-station-filter"
+        data-tooltip={label}
+        href={`/stations?${params.toString()}`}
+        title={label}
+      >
+        <Orbit size={14} />
+      </Link>
+    );
   }
   const params = new URLSearchParams({
     createStation: "1",
@@ -108,38 +225,67 @@ export function MissionStationLink({ mission, canManage, stationOwners, stationO
   });
   if (mission.stationOwnerMemberId) params.set("ownerId", mission.stationOwnerMemberId);
   const label = t("stations.create_station_from_mission");
-  return <Link
-    aria-label={label}
-    className="member-icon-action member-station-filter mission-create-station"
-    data-tooltip={label}
-    href={`/stations?${params.toString()}`}
-    title={label}
-  ><CirclePlus size={15} /></Link>;
+  return (
+    <Link
+      aria-label={label}
+      className="member-icon-action member-station-filter mission-create-station"
+      data-tooltip={label}
+      href={`/stations?${params.toString()}`}
+      title={label}
+    >
+      <CirclePlus size={15} />
+    </Link>
+  );
 }
 
-export function AssigneeCell({ mission, members, currentMember, onOpenProfile }: Readonly<{
+export function AssigneeCell({
+  mission,
+  members,
+  currentMember,
+  onOpenProfile,
+}: Readonly<{
   mission: Mission;
   members: AllianceMember[];
   currentMember: AllianceMember;
   onOpenProfile: (memberId: string, context: MemberMessageContext) => void;
 }>) {
   const { t } = useLocale();
-  const assignedMember = members.find((member) => member.publicId === mission.assignedMemberId)
-    ?? (mission.assignedMemberId === currentMember.publicId ? currentMember : undefined);
+  const assignedMember =
+    members.find((member) => member.publicId === mission.assignedMemberId) ??
+    (mission.assignedMemberId === currentMember.publicId ? currentMember : undefined);
   const image = assignedMember?.image;
   const name = mission.assignedTo || t("missions.not_assigned");
   const memberId = mission.assignedMemberId || assignedMember?.publicId;
 
-  const content = <>
-    <MemberAvatar image={image} key={image || "fallback"} label={mission.assignedTo || "—"} />
-    <span className="assignee-name">{name}</span>
-  </>;
-  return memberId
-    ? <button aria-label={name} className="assignee-cell mission-member-link" data-tooltip={name} onClick={() => onOpenProfile(memberId, { type: "mission", missionCode: mission.id, subjectLabel: mission.title })} type="button">{content}</button>
-    : <span className="assignee-cell">{content}</span>;
+  const content = (
+    <>
+      <MemberAvatar image={image} key={image || "fallback"} label={mission.assignedTo || "—"} />
+      <span className="assignee-name">{name}</span>
+    </>
+  );
+  return memberId ? (
+    <button
+      aria-label={name}
+      className="assignee-cell mission-member-link"
+      data-tooltip={name}
+      onClick={() => onOpenProfile(memberId, { type: "mission", missionCode: mission.id, subjectLabel: mission.title })}
+      type="button"
+    >
+      {content}
+    </button>
+  ) : (
+    <span className="assignee-cell">{content}</span>
+  );
 }
 
-export function DiscovererCell({ memberId, name, image, portal, galaxy, onOpenProfile }: Readonly<{
+export function DiscovererCell({
+  memberId,
+  name,
+  image,
+  portal,
+  galaxy,
+  onOpenProfile,
+}: Readonly<{
   memberId?: string;
   name?: string;
   image?: string;
@@ -149,17 +295,35 @@ export function DiscovererCell({ memberId, name, image, portal, galaxy, onOpenPr
 }>) {
   const { t } = useLocale();
   const label = name || t("common.not_specified");
-  const content = <>
-    <MemberAvatar image={image} key={image || "fallback"} label={label} />
-    <span className="assignee-name">{label}</span>
-  </>;
+  const content = (
+    <>
+      <MemberAvatar image={image} key={image || "fallback"} label={label} />
+      <span className="assignee-name">{label}</span>
+    </>
+  );
 
-  return memberId
-    ? <button aria-label={label} className="assignee-cell mission-member-link" data-tooltip={label} onClick={() => onOpenProfile(memberId, { type: "planet", portal, galaxy, subjectLabel: "" })} type="button">{content}</button>
-    : <span className="assignee-cell">{content}</span>;
+  return memberId ? (
+    <button
+      aria-label={label}
+      className="assignee-cell mission-member-link"
+      data-tooltip={label}
+      onClick={() => onOpenProfile(memberId, { type: "planet", portal, galaxy, subjectLabel: "" })}
+      type="button"
+    >
+      {content}
+    </button>
+  ) : (
+    <span className="assignee-cell">{content}</span>
+  );
 }
 
-export function MissionProgress({ mission, editable, minimum = 0, readOnlyFloor = 0, onChange }: Readonly<{
+export function MissionProgress({
+  mission,
+  editable,
+  minimum = 0,
+  readOnlyFloor = 0,
+  onChange,
+}: Readonly<{
   mission: Mission;
   editable: boolean;
   minimum?: number;
@@ -191,41 +355,63 @@ export function MissionProgress({ mission, editable, minimum = 0, readOnlyFloor 
     });
   }
 
-  if (mission.targetSpecialty !== "ranger" && mission.targetSpecialty !== "explorer" && mission.targetSpecialty !== "builder") return null;
+  if (
+    mission.targetSpecialty !== "ranger" &&
+    mission.targetSpecialty !== "explorer" &&
+    mission.targetSpecialty !== "builder"
+  )
+    return null;
 
   const shownProgress = editable ? progress : mission.progress === 0 ? readOnlyFloor : mission.progress;
 
-  return <div className={`progress-cell progress-cell-${mission.targetSpecialty}${editable ? " progress-cell-editable" : ""}`}>
-    {editable
-      ? <input
-        aria-label={t("missions.progress_for_mission", { title: mission.title })}
-        max={100}
-        min={0}
-        onBlur={(event) => commitProgress(Number(event.currentTarget.value))}
-        onChange={(event) => setDraft({ source: mission.progress, value: Math.max(Number(event.target.value), minimum) })}
-        onKeyUp={(event) => commitProgress(Number(event.currentTarget.value))}
-        onPointerUp={(event) => commitProgress(Number(event.currentTarget.value))}
-        type="range"
-        value={progress}
-      />
-      : <div aria-hidden="true" className="progress-track"><span style={{ width: `${shownProgress}%` }} /></div>}
-    <span>{shownProgress}%</span>
-  </div>;
+  return (
+    <div
+      className={`progress-cell progress-cell-${mission.targetSpecialty}${editable ? " progress-cell-editable" : ""}`}
+    >
+      {editable ? (
+        <input
+          aria-label={t("missions.progress_for_mission", { title: mission.title })}
+          max={100}
+          min={0}
+          onBlur={(event) => commitProgress(Number(event.currentTarget.value))}
+          onChange={(event) =>
+            setDraft({ source: mission.progress, value: Math.max(Number(event.target.value), minimum) })
+          }
+          onKeyUp={(event) => commitProgress(Number(event.currentTarget.value))}
+          onPointerUp={(event) => commitProgress(Number(event.currentTarget.value))}
+          type="range"
+          value={progress}
+        />
+      ) : (
+        <div aria-hidden="true" className="progress-track">
+          <span style={{ width: `${shownProgress}%` }} />
+        </div>
+      )}
+      <span>{shownProgress}%</span>
+    </div>
+  );
 }
 
-export function MissionNotesButton({ mission, onView }: Readonly<{
+export function MissionNotesButton({
+  mission,
+  onView,
+}: Readonly<{
   mission: Mission;
   onView: (mission: Mission) => void;
 }>) {
   const { t } = useLocale();
   if (!mission.notes?.trim()) return null;
-  return <button
-    aria-label={t("missions.view_notes_for_mission", { title: mission.title })}
-    className="mission-notes-button"
-    data-tooltip={t("missions.view_mission_notes")}
-    onClick={() => onView(mission)}
-    type="button"
-  ><FileText size={14} /></button>;
+  return (
+    <button
+      aria-label={t("missions.view_notes_for_mission", { title: mission.title })}
+      className="mission-notes-button"
+      data-tooltip={t("missions.view_mission_notes")}
+      onClick={() => onView(mission)}
+      type="button"
+    >
+      <FileText size={14} />
+    </button>
+  );
 }
 
 export type PlanetNotes = Readonly<{ title: string; portal: string; notes: string[] }>;
@@ -242,27 +428,33 @@ export function readPlanetNotes(mission: Mission): Promise<string[]> {
 
   const request = fetch(`/api/missions/${encodeURIComponent(mission.id)}/planet-notes`, {
     cache: "no-store",
-  }).then(async (response) => {
-    const body: unknown = await response.json();
-    if (!response.ok) {
-      const message = body && typeof body === "object" && "error" in body ? body.error : null;
-      throw new Error(typeof message === "string" ? message : "Unable to read planet notes.");
-    }
-    const note = asRecord(body)?.note;
-    return typeof note === "string" && note.trim() ? [note.trim()] : [];
-  }).then((notes) => {
-    if (planetNotesRequests.get(key) === request) planetNotesRequests.delete(key);
-    planetNotesCache.set(key, { notes, expiresAt: Date.now() + planetNotesCacheMs });
-    return notes;
-  }).catch((error: unknown) => {
-    if (planetNotesRequests.get(key) === request) planetNotesRequests.delete(key);
-    throw error;
-  });
+  })
+    .then(async (response) => {
+      const body: unknown = await response.json();
+      if (!response.ok) {
+        const message = body && typeof body === "object" && "error" in body ? body.error : null;
+        throw new Error(typeof message === "string" ? message : "Unable to read planet notes.");
+      }
+      const note = asRecord(body)?.note;
+      return typeof note === "string" && note.trim() ? [note.trim()] : [];
+    })
+    .then((notes) => {
+      if (planetNotesRequests.get(key) === request) planetNotesRequests.delete(key);
+      planetNotesCache.set(key, { notes, expiresAt: Date.now() + planetNotesCacheMs });
+      return notes;
+    })
+    .catch((error: unknown) => {
+      if (planetNotesRequests.get(key) === request) planetNotesRequests.delete(key);
+      throw error;
+    });
   planetNotesRequests.set(key, request);
   return request;
 }
 
-export function PlanetNotesButton({ mission, onView }: Readonly<{
+export function PlanetNotesButton({
+  mission,
+  onView,
+}: Readonly<{
   mission: Mission;
   onView: (notes: PlanetNotes) => void;
 }>) {
@@ -284,29 +476,42 @@ export function PlanetNotesButton({ mission, onView }: Readonly<{
   }, [mission]);
 
   if (!hasNotes) return null;
-  return <button
-    aria-label={t("planet.view_notes_for_planet", { title: mission.title })}
-    className="planet-notes-button"
-    data-tooltip={t("planet.view_planet_notes")}
-    onClick={() => void readPlanetNotes(mission)
-      .then((notes) => onView({ title: mission.title, portal: mission.systemAddress, notes }))
-      .catch(() => undefined)}
-    type="button"
-  ><Info size={14} /></button>;
+  return (
+    <button
+      aria-label={t("planet.view_notes_for_planet", { title: mission.title })}
+      className="planet-notes-button"
+      data-tooltip={t("planet.view_planet_notes")}
+      onClick={() =>
+        void readPlanetNotes(mission)
+          .then((notes) => onView({ title: mission.title, portal: mission.systemAddress, notes }))
+          .catch(() => undefined)
+      }
+      type="button"
+    >
+      <Info size={14} />
+    </button>
+  );
 }
 
 export function MemberAvatar({ image, label }: Readonly<{ image?: string; label: string }>) {
   const [imageFailed, setImageFailed] = useState(false);
   const initials = label.slice(0, 2).toUpperCase() || "—";
 
-  return <span aria-hidden="true" className={`assignee-avatar ${image && !imageFailed ? "assignee-avatar-image" : ""}`}>
-    {image && !imageFailed
-      ? <Image alt="" height={21} onError={() => setImageFailed(true)} src={image} unoptimized width={21} />
-      : initials}
-  </span>;
+  return (
+    <span aria-hidden="true" className={`assignee-avatar ${image && !imageFailed ? "assignee-avatar-image" : ""}`}>
+      {image && !imageFailed ? (
+        <Image alt="" height={21} onError={() => setImageFailed(true)} src={image} unoptimized width={21} />
+      ) : (
+        initials
+      )}
+    </span>
+  );
 }
 
-export function MissionPlanetThumbnail({ mission, imageUrl: fixedImageUrl }: Readonly<{ mission: Mission; imageUrl?: string }>) {
+export function MissionPlanetThumbnail({
+  mission,
+  imageUrl: fixedImageUrl,
+}: Readonly<{ mission: Mission; imageUrl?: string }>) {
   const [fetchedImageUrl, setImageUrl] = useState("");
   const imageUrl = fixedImageUrl ?? fetchedImageUrl;
   const [imageFailed, setImageFailed] = useState(false);
@@ -314,7 +519,14 @@ export function MissionPlanetThumbnail({ mission, imageUrl: fixedImageUrl }: Rea
   const validPortalAddress = /^[0-9a-f]{12}$/i.test(address);
 
   useEffect(() => {
-    if (fixedImageUrl !== undefined || !validPortalAddress || !Number.isInteger(mission.galaxy) || mission.galaxy < 0 || mission.galaxy > 255) return;
+    if (
+      fixedImageUrl !== undefined ||
+      !validPortalAddress ||
+      !Number.isInteger(mission.galaxy) ||
+      mission.galaxy < 0 ||
+      mission.galaxy > 255
+    )
+      return;
     const controller = new AbortController();
     const params = new URLSearchParams({ address, galaxy: String(mission.galaxy) });
 
@@ -341,20 +553,40 @@ export function MissionPlanetThumbnail({ mission, imageUrl: fixedImageUrl }: Rea
 
   const completed = mission.status === "completed";
   if (imageUrl && !imageFailed) {
-    return <span aria-hidden="true" className={`mission-card-planet-thumb${completed ? " mission-card-planet-thumb-done" : ""}`}>
-      <Image alt="" height={56} onError={() => setImageFailed(true)} src={imageUrl} unoptimized width={56} />
-    </span>;
+    return (
+      <span
+        aria-hidden="true"
+        className={`mission-card-planet-thumb${completed ? " mission-card-planet-thumb-done" : ""}`}
+      >
+        <Image alt="" height={56} onError={() => setImageFailed(true)} src={imageUrl} unoptimized width={56} />
+      </span>
+    );
   }
 
-  return <span aria-hidden="true" className={`mission-card-planet-thumb mission-card-planet-fallback${completed ? " mission-card-planet-thumb-done" : ""}`}>
-    {completed ? <Check size={15} /> : <Compass size={15} />}
-  </span>;
+  return (
+    <span
+      aria-hidden="true"
+      className={`mission-card-planet-thumb mission-card-planet-fallback${completed ? " mission-card-planet-thumb-done" : ""}`}
+    >
+      {completed ? <Check size={15} /> : <Compass size={15} />}
+    </span>
+  );
 }
 
 export function NewMissionRibbon({ mission }: Readonly<{ mission: Mission }>) {
   const { t } = useLocale();
-  if (mission.status === "completed") return <span className="station-new-ribbon-clip"><span className="station-new-ribbon station-completed-ribbon">{t("missions.status_completed")}</span></span>;
-  if (!mission.assignedMemberId?.trim() && !mission.assignedTo.trim()) return <span className="station-new-ribbon-clip"><span className="station-new-ribbon station-available-ribbon">{t("missions.available_ribbon")}</span></span>;
+  if (mission.status === "completed")
+    return (
+      <span className="station-new-ribbon-clip">
+        <span className="station-new-ribbon station-completed-ribbon">{t("missions.status_completed")}</span>
+      </span>
+    );
+  if (!mission.assignedMemberId?.trim() && !mission.assignedTo.trim())
+    return (
+      <span className="station-new-ribbon-clip">
+        <span className="station-new-ribbon station-available-ribbon">{t("missions.available_ribbon")}</span>
+      </span>
+    );
   return null;
 }
 
@@ -383,4 +615,3 @@ export type MissionCardProps = Readonly<{
   getDiscovererImage: (memberId?: string) => string | undefined;
   planetImageUrl?: string;
 }>;
-

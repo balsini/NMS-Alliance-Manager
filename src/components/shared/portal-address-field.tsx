@@ -23,12 +23,24 @@ const glyphAsset = (glyph: string) => `/glyphs/glyph-mask-${glyph}.png`;
 export function GlyphStrip({ address, large = false }: Readonly<{ address: string; large?: boolean }>) {
   const { t } = useLocale();
   return (
-    <span aria-label={t("stations.glyphs_entered_count_of_12", { count: address.length })} className={`glyph-strip ${large ? "glyph-strip-large" : ""}`}>
+    <span
+      aria-label={t("stations.glyphs_entered_count_of_12", { count: address.length })}
+      className={`glyph-strip ${large ? "glyph-strip-large" : ""}`}
+    >
       {Array.from({ length: 12 }, (_, index) => {
         const glyph = address[index];
         return (
           <span aria-hidden="true" className={`glyph-slot ${glyph ? "glyph-slot-filled" : ""}`} key={index}>
-            {glyph && <Image alt="" height={large ? 24 : 16} loading={large ? "eager" : "lazy"} src={glyphAsset(glyph)} unoptimized width={large ? 24 : 16} />}
+            {glyph && (
+              <Image
+                alt=""
+                height={large ? 24 : 16}
+                loading={large ? "eager" : "lazy"}
+                src={glyphAsset(glyph)}
+                unoptimized
+                width={large ? 24 : 16}
+              />
+            )}
           </span>
         );
       })}
@@ -36,7 +48,11 @@ export function GlyphStrip({ address, large = false }: Readonly<{ address: strin
   );
 }
 
-function PortalBreakdown({ address, decoded, lookup }: Readonly<{
+function PortalBreakdown({
+  address,
+  decoded,
+  lookup,
+}: Readonly<{
   address: string;
   decoded: ReturnType<typeof decodePortalAddress>;
   lookup: SystemAddressLookup | null;
@@ -69,7 +85,15 @@ function PortalBreakdown({ address, decoded, lookup }: Readonly<{
         const value = almanacError ? part.width : raw.length;
 
         return (
-          <div aria-label={t(part.label)} aria-valuemax={part.width} aria-valuemin={0} aria-valuenow={value} className={`portal-decode-segment portal-decode-${state}`} key={part.label} role="progressbar">
+          <div
+            aria-label={t(part.label)}
+            aria-valuemax={part.width}
+            aria-valuemin={0}
+            aria-valuenow={value}
+            className={`portal-decode-segment portal-decode-${state}`}
+            key={part.label}
+            role="progressbar"
+          >
             <div className="portal-decode-progress">
               <span style={{ width: `${almanacError ? 100 : progress}%` }} />
             </div>
@@ -80,7 +104,12 @@ function PortalBreakdown({ address, decoded, lookup }: Readonly<{
   );
 }
 
-export function PortalValidation({ address, decoded, lookup, id = "portal-address-validation" }: Readonly<{
+export function PortalValidation({
+  address,
+  decoded,
+  lookup,
+  id = "portal-address-validation",
+}: Readonly<{
   id?: string;
   address: string;
   decoded: ReturnType<typeof decodePortalAddress>;
@@ -125,7 +154,14 @@ export function PortalValidation({ address, decoded, lookup, id = "portal-addres
         {statusIcon}
         <span className="address-validation-text">
           {statusText}
-          {lookupLink && <> <a href="https://nmsalmanac.com" rel="noreferrer" target="_blank">NMS Almanac</a></>}
+          {lookupLink && (
+            <>
+              {" "}
+              <a href="https://nmsalmanac.com" rel="noreferrer" target="_blank">
+                NMS Almanac
+              </a>
+            </>
+          )}
         </span>
       </output>
       {address.length > 0 && <PortalBreakdown address={address} decoded={decoded} lookup={lookup} />}
@@ -133,7 +169,13 @@ export function PortalValidation({ address, decoded, lookup, id = "portal-addres
   );
 }
 
-export function SystemAddressField({ address, galaxy, onChange, onStateChange, onLookupResolved }: Readonly<{
+export function SystemAddressField({
+  address,
+  galaxy,
+  onChange,
+  onStateChange,
+  onLookupResolved,
+}: Readonly<{
   address: string;
   galaxy?: number;
   onChange: (value: string) => void;
@@ -145,8 +187,10 @@ export function SystemAddressField({ address, galaxy, onChange, onStateChange, o
   const decoded = decodePortalAddress(address);
   const valid = decoded !== null && decoded.errors.length === 0;
   const emitLookupResult = useEffectEvent((lookupResult: SystemAddressLookup) => onLookupResolved?.(lookupResult));
-  const matchingLookup = valid && galaxy !== undefined && lookup?.address === address && lookup.galaxy === galaxy ? lookup : null;
-  const visibleLookup = matchingLookup ?? (valid && galaxy !== undefined ? { address, galaxy, status: "checking" as const } : null);
+  const matchingLookup =
+    valid && galaxy !== undefined && lookup?.address === address && lookup.galaxy === galaxy ? lookup : null;
+  const visibleLookup =
+    matchingLookup ?? (valid && galaxy !== undefined ? { address, galaxy, status: "checking" as const } : null);
   const appendGlyph = (glyph: string) => onChange(`${address}${glyph}`.slice(0, 12));
 
   useEffect(() => {
@@ -159,18 +203,27 @@ export function SystemAddressField({ address, galaxy, onChange, onStateChange, o
         const params = new URLSearchParams({ address, galaxy: String(galaxy) });
         const response = await fetch(`/api/missions/verify-system?${params}`, { signal: controller.signal });
         const result: unknown = await response.json();
-        if (!response.ok || !result || typeof result !== "object" || !("found" in result) || typeof result.found !== "boolean") {
+        if (
+          !response.ok ||
+          !result ||
+          typeof result !== "object" ||
+          !("found" in result) ||
+          typeof result.found !== "boolean"
+        ) {
           throw new Error("System lookup unavailable");
         }
         const found = result.found === true;
-        const systemLabel = "systemLabel" in result && typeof result.systemLabel === "string"
-          ? result.systemLabel
-          : null;
-        const planetType = "planetType" in result && typeof result.planetType === "string"
-          ? result.planetType
-          : null;
+        const systemLabel =
+          "systemLabel" in result && typeof result.systemLabel === "string" ? result.systemLabel : null;
+        const planetType = "planetType" in result && typeof result.planetType === "string" ? result.planetType : null;
         if (active) {
-          const lookupResult = { address, galaxy, status: found ? "found" as const : "not-found" as const, systemLabel, planetType };
+          const lookupResult = {
+            address,
+            galaxy,
+            status: found ? ("found" as const) : ("not-found" as const),
+            systemLabel,
+            planetType,
+          };
           setLookup(lookupResult);
           emitLookupResult(lookupResult);
         }
@@ -197,7 +250,9 @@ export function SystemAddressField({ address, galaxy, onChange, onStateChange, o
   return (
     <div className="portal-field full-field">
       <div className="portal-field-heading">
-        <span>{t("stations.system_portal_code")} <b>{address.length}/12</b></span>
+        <span>
+          {t("stations.system_portal_code")} <b>{address.length}/12</b>
+        </span>
         <span>{t("stations.nms_glyphs_hex_address")}</span>
       </div>
       <GlyphStrip address={address} large />
@@ -208,18 +263,54 @@ export function SystemAddressField({ address, galaxy, onChange, onStateChange, o
           aria-invalid={!valid}
           autoComplete="off"
           maxLength={12}
-          onChange={(event) => onChange(event.target.value.toUpperCase().replace(/[^0-9A-F]/g, "").slice(0, 12))}
+          onChange={(event) =>
+            onChange(
+              event.target.value
+                .toUpperCase()
+                .replace(/[^0-9A-F]/g, "")
+                .slice(0, 12),
+            )
+          }
           pattern="[0-9A-Fa-f]{12}"
           placeholder={t("stations.12_portal_glyphs")}
           required
           spellCheck={false}
           value={address}
         />
-        <button aria-label={t("stations.remove_last_glyph")} className="square-button" disabled={!address} onClick={() => onChange(address.slice(0, -1))} title={t("stations.remove_last_glyph")} type="button"><ArrowLeft size={16} /></button>
-        <button aria-label={t("system.clear_address")} className="square-button" disabled={!address} onClick={() => onChange("")} title={t("system.clear_address")} type="button"><X size={16} /></button>
+        <button
+          aria-label={t("stations.remove_last_glyph")}
+          className="square-button"
+          disabled={!address}
+          onClick={() => onChange(address.slice(0, -1))}
+          title={t("stations.remove_last_glyph")}
+          type="button"
+        >
+          <ArrowLeft size={16} />
+        </button>
+        <button
+          aria-label={t("system.clear_address")}
+          className="square-button"
+          disabled={!address}
+          onClick={() => onChange("")}
+          title={t("system.clear_address")}
+          type="button"
+        >
+          <X size={16} />
+        </button>
       </div>
       <div aria-label={t("stations.portal_glyph_keypad")} className="glyph-keypad">
-        {glyphCharacters.map((glyph) => <button aria-label={t("stations.enter_glyph_glyph", { glyph })} disabled={address.length >= 12} key={glyph} onClick={() => appendGlyph(glyph)} title={t("stations.glyph_glyph", { glyph })} type="button"><Image alt="" height={24} loading="eager" src={glyphAsset(glyph)} unoptimized width={24} /></button>)}
+        {glyphCharacters.map((glyph) => (
+          <button
+            aria-label={t("stations.enter_glyph_glyph", { glyph })}
+            disabled={address.length >= 12}
+            key={glyph}
+            onClick={() => appendGlyph(glyph)}
+            title={t("stations.glyph_glyph", { glyph })}
+            type="button"
+          >
+            <Image alt="" height={24} loading="eager" src={glyphAsset(glyph)} unoptimized width={24} />
+          </button>
+        ))}
       </div>
       <PortalValidation address={address} decoded={decoded} lookup={visibleLookup} />
     </div>

@@ -1,3 +1,8 @@
+---
+title: Manuale utente – Vista semplice
+description: Guida per gli utenti che usano la vista semplice dell app
+---
+
 # Manuale utente – Vista semplice
 
 ## Legenda dei pulsanti

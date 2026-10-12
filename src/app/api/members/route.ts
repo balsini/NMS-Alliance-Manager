@@ -10,14 +10,23 @@ export async function GET(request: Request) {
   const searchParams = new URL(request.url).searchParams;
   const requestedIds = searchParams.get("ids");
   if (requestedIds) {
-    const ids = new Set(requestedIds.split(",").map((id) => id.trim()).filter(Boolean));
-    return NextResponse.json(data.members
-      .filter((profile) => profile.membershipStatus === "approved" && ids.has(profile.publicId))
-      .map(({ publicId, image }) => ({ publicId, image })));
+    const ids = new Set(
+      requestedIds
+        .split(",")
+        .map((id) => id.trim())
+        .filter(Boolean),
+    );
+    return NextResponse.json(
+      data.members
+        .filter((profile) => profile.membershipStatus === "approved" && ids.has(profile.publicId))
+        .map(({ publicId, image }) => ({ publicId, image })),
+    );
   }
   const publicId = searchParams.get("id")?.trim();
   if (publicId) {
-    const profile = data.members.find((candidate) => candidate.publicId === publicId && candidate.membershipStatus === "approved");
+    const profile = data.members.find(
+      (candidate) => candidate.publicId === publicId && candidate.membershipStatus === "approved",
+    );
     if (!profile) return NextResponse.json({ error: "Profilo membro non trovato." }, { status: 404 });
     return NextResponse.json({
       publicId: profile.publicId,
@@ -33,18 +42,43 @@ export async function GET(request: Request) {
       ...(hasRole(member, "moderator") ? { nmsCode: profile.nmsCode, role: profile.role } : {}),
     });
   }
-  if (!hasRole(member, "moderator")) return NextResponse.json({ error: "Permesso moderator richiesto." }, { status: 403 });
-  return NextResponse.json(data.members.filter((item) => item.membershipStatus === "approved" && item.nmsName && (item.offline || isValidNmsFriendCode(item.nmsCode)) && item.specialty).map(({ publicId, email, name, image, nmsName, nmsCode, telegramName, discordName, platforms, specialty, role }) => ({
-    publicId,
-    email,
-    name,
-    image,
-    nmsName,
-    nmsCode,
-    telegramName: telegramName ?? "",
-    discordName: discordName ?? "",
-    platforms,
-    specialty,
-    role,
-  })));
+  if (!hasRole(member, "moderator"))
+    return NextResponse.json({ error: "Permesso moderator richiesto." }, { status: 403 });
+  return NextResponse.json(
+    data.members
+      .filter(
+        (item) =>
+          item.membershipStatus === "approved" &&
+          item.nmsName &&
+          (item.offline || isValidNmsFriendCode(item.nmsCode)) &&
+          item.specialty,
+      )
+      .map(
+        ({
+          publicId,
+          email,
+          name,
+          image,
+          nmsName,
+          nmsCode,
+          telegramName,
+          discordName,
+          platforms,
+          specialty,
+          role,
+        }) => ({
+          publicId,
+          email,
+          name,
+          image,
+          nmsName,
+          nmsCode,
+          telegramName: telegramName ?? "",
+          discordName: discordName ?? "",
+          platforms,
+          specialty,
+          role,
+        }),
+      ),
+  );
 }

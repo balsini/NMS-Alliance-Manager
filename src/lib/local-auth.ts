@@ -1,8 +1,4 @@
-import type {
-  MemberRole,
-  MemberSpecialty,
-  NmsPlatform,
-} from "@/lib/member-types";
+import type { MemberRole, MemberSpecialty, NmsPlatform } from "@/lib/member-types";
 
 export type LocalAccount = Readonly<{
   email: string;
@@ -88,11 +84,7 @@ export const localAccounts: readonly LocalAccount[] = [
 
 // Mai attivo in produzione o su Vercel, anche se LOCAL_AUTH è impostato per errore.
 export function isLocalAuthEnabled() {
-  return (
-    process.env.LOCAL_AUTH === "true" &&
-    process.env.NODE_ENV !== "production" &&
-    !process.env.VERCEL
-  );
+  return process.env.LOCAL_AUTH === "true" && process.env.NODE_ENV !== "production" && !process.env.VERCEL;
 }
 
 export function findLocalAccount(email: unknown) {
@@ -120,10 +112,7 @@ export function getLocalAccountOptions(): LocalAccountOption[] | undefined {
 
 export function getMissingAuthConfiguration() {
   if (isLocalAuthEnabled()) return [];
-  return [
-    "AUTH_SECRET",
-    "AUTH_GOOGLE_ID",
-    "AUTH_GOOGLE_SECRET",
-    "ALLIANCE_ADMIN_EMAIL",
-  ].filter((key) => !process.env[key]);
+  return ["AUTH_SECRET", "AUTH_GOOGLE_ID", "AUTH_GOOGLE_SECRET", "ALLIANCE_ADMIN_EMAIL"].filter(
+    (key) => !process.env[key],
+  );
 }

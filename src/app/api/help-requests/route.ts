@@ -77,7 +77,14 @@ export async function POST(request: Request) {
   const galaxy = payload.galaxy;
   if (!message) return NextResponse.json({ error: "profile.message_text_required" }, { status: 400 });
   if (message.length > 2000) return NextResponse.json({ error: "profile.message_text_too_long" }, { status: 400 });
-  if (!subject || subject.length > 160 || typeof galaxy !== "number" || !Number.isInteger(galaxy) || galaxy < 0 || galaxy > 255) {
+  if (
+    !subject ||
+    subject.length > 160 ||
+    typeof galaxy !== "number" ||
+    !Number.isInteger(galaxy) ||
+    galaxy < 0 ||
+    galaxy > 255
+  ) {
     return NextResponse.json({ error: "help.request_invalid" }, { status: 400 });
   }
   const decoded = decodePortalAddress(portal);

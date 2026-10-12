@@ -47,7 +47,14 @@ async function fetchHelpRequests(signal: AbortSignal): Promise<HelpRequest[]> {
   return body as HelpRequest[];
 }
 
-export function HelpRequestsPage({ currentMember, alliance, missionCount, stationCount, userCount, offlineCount }: Readonly<{
+export function HelpRequestsPage({
+  currentMember,
+  alliance,
+  missionCount,
+  stationCount,
+  userCount,
+  offlineCount,
+}: Readonly<{
   currentMember: AllianceMember;
   alliance: AllianceSettings;
   missionCount: number;
@@ -101,7 +108,8 @@ export function HelpRequestsPage({ currentMember, alliance, missionCount, statio
     fetchHelpRequests(controller.signal)
       .then(setRequests)
       .catch((error_: unknown) => {
-        if (!controller.signal.aborted) setError(error_ instanceof Error ? error_.message : "help.error_unable_to_read");
+        if (!controller.signal.aborted)
+          setError(error_ instanceof Error ? error_.message : "help.error_unable_to_read");
       })
       .finally(() => {
         if (!controller.signal.aborted) setLoading(false);
@@ -124,9 +132,11 @@ export function HelpRequestsPage({ currentMember, alliance, missionCount, statio
         const key = result && typeof result === "object" && "error" in result ? result.error : null;
         throw new Error(typeof key === "string" ? key : "help.request_unable_to_delete");
       }
-      setRequests((current) => current
-        .filter((entry) => entry.id !== id)
-        .map((entry) => ({ ...entry, replies: entry.replies.filter((reply) => reply.id !== id) })));
+      setRequests((current) =>
+        current
+          .filter((entry) => entry.id !== id)
+          .map((entry) => ({ ...entry, replies: entry.replies.filter((reply) => reply.id !== id) })),
+      );
       window.dispatchEvent(new Event("help-requests-changed"));
     } catch (error_: unknown) {
       setError(error_ instanceof Error ? error_.message : "help.request_unable_to_delete");
@@ -139,84 +149,161 @@ export function HelpRequestsPage({ currentMember, alliance, missionCount, statio
     const date = new Date(value);
     return Number.isNaN(date.getTime())
       ? value
-      : new Intl.DateTimeFormat(locale === "it" ? "it-IT" : "en-US", { dateStyle: "medium", timeStyle: "short" }).format(date);
+      : new Intl.DateTimeFormat(locale === "it" ? "it-IT" : "en-US", {
+          dateStyle: "medium",
+          timeStyle: "short",
+        }).format(date);
   }
 
-  return <div className="app-shell">
-    <Sidebar activeSection="aiuto" currentMember={member} missionCount={missionCount} settings={settings} stationCount={stationCount} offlineCount={offlineCount} userCount={userCount} />
-    <section className="main-panel">
-      <Header currentMember={member} onAdminOpen={() => setAdminOpen(true)} onProfileOpen={() => setProfileOpen(true)} onProfileSaved={(profile) => setMember((current) => ({ ...current, ...profile }))} sectionTitle="help.help_requests" settings={settings} />
-      <Hero settings={settings} subtitle={t("help.page_description")} title="help.help_requests" />
-      <main className="content-wrap messages-page">
-        <MessageList empty={requests.length === 0} emptyLabel={t("help.no_requests")} error={error} loading={loading}>
-          {requests.map((request) => <MessageCard
-            body={request.body}
-            createdAt={request.createdAt}
-            deleteLabel={t("help.delete_request")}
-            deleting={deletingId === request.id}
-            form={replyingTo === request.id ? <MessageReplyForm
-              acknowledged={replyAcknowledged}
-              error={replyError}
-              onAcknowledgedChange={setReplyAcknowledged}
-              onCancel={() => setReplyingTo("")}
-              onChange={setReplyBody}
-              onSubmit={(event) => void sendReply(event, request.id)}
-              rows={3}
-              sending={replySending}
-              subject={request.subject || t("messages.no_subject")}
-              value={replyBody}
-            /> : undefined}
-            formattedDate={formatDate(request.createdAt)}
-            key={request.id}
-            onDelete={request.senderMemberId === member.publicId || member.role === "admin" || member.role === "moderator" ? () => void deleteRequest(request.id, false) : undefined}
-            onReply={replyingTo !== request.id ? () => {
-              setReplyError("");
-              setReplyBody("");
-              setReplyAcknowledged(false);
-              setReplyingTo(request.id);
-            } : undefined}
-            participants={<>{t("messages.from")} <strong>{request.senderName}</strong></>}
-            replies={request.replies.length > 0 ? <ul className="message-thread-children">
-              {request.replies.map((reply) => <MessageCard
-                body={reply.body}
-                createdAt={reply.createdAt}
+  return (
+    <div className="app-shell">
+      <Sidebar
+        activeSection="aiuto"
+        currentMember={member}
+        missionCount={missionCount}
+        settings={settings}
+        stationCount={stationCount}
+        offlineCount={offlineCount}
+        userCount={userCount}
+      />
+      <section className="main-panel">
+        <Header
+          currentMember={member}
+          onAdminOpen={() => setAdminOpen(true)}
+          onProfileOpen={() => setProfileOpen(true)}
+          onProfileSaved={(profile) => setMember((current) => ({ ...current, ...profile }))}
+          sectionTitle="help.help_requests"
+          settings={settings}
+        />
+        <Hero settings={settings} subtitle={t("help.page_description")} title="help.help_requests" />
+        <main className="content-wrap messages-page">
+          <MessageList empty={requests.length === 0} emptyLabel={t("help.no_requests")} error={error} loading={loading}>
+            {requests.map((request) => (
+              <MessageCard
+                body={request.body}
+                createdAt={request.createdAt}
                 deleteLabel={t("help.delete_request")}
-                deleting={deletingId === reply.id}
-                formattedDate={formatDate(reply.createdAt)}
-                key={reply.id}
-                onDelete={reply.senderMemberId === member.publicId || member.role === "admin" || member.role === "moderator" ? () => void deleteRequest(reply.id, true) : undefined}
-                participants={<>{t("messages.from")} <strong className={reply.senderMemberId === member.publicId ? "current-member" : undefined}>{reply.senderName}</strong></>}
-              />)}
-            </ul> : undefined}
-            subjectActions={<>
-              {request.missionCode && <Link
-                aria-label={t("messages.open_mission")}
-                className="member-icon-action message-subject-link member-link-action"
-                href={`/missions?search=${encodeURIComponent(request.missionCode)}`}
-                title={t("messages.open_mission")}
-              ><Crosshair size={15} /></Link>}
-              {request.portal && request.galaxy !== undefined && <button
-                aria-label={t("planet.open_planet_details")}
-                className="member-icon-action message-subject-link member-planet-action"
-                onClick={() => setOpenRequest(request)}
-                title={t("planet.open_planet_details")}
-                type="button"
-              ><Eclipse size={15} /></button>}
-            </>}
-            title={request.subject || t("messages.no_subject")}
-          />)}
-        </MessageList>
-      </main>
-    </section>
-    {openRequest?.portal && openRequest.galaxy !== undefined && <PlanetCard
-      contextLabel={galaxyLabel(openRequest.galaxy)}
-      galaxy={openRequest.galaxy}
-      key={`${openRequest.portal}:${openRequest.galaxy}`}
-      onClose={() => setOpenRequest(null)}
-      portal={openRequest.portal}
-      title={openRequest.subject || t("planet.fallback_name")}
-    />}
-    {adminOpen && member.role === "admin" && <AdminPanel onClose={() => setAdminOpen(false)} onSaved={setSettings} />}
-    {profileOpen && <MemberProfilePanel member={member} onClose={() => setProfileOpen(false)} onSaved={(profile) => setMember((current) => ({ ...current, ...profile }))} />}
-  </div>;
+                deleting={deletingId === request.id}
+                form={
+                  replyingTo === request.id ? (
+                    <MessageReplyForm
+                      acknowledged={replyAcknowledged}
+                      error={replyError}
+                      onAcknowledgedChange={setReplyAcknowledged}
+                      onCancel={() => setReplyingTo("")}
+                      onChange={setReplyBody}
+                      onSubmit={(event) => void sendReply(event, request.id)}
+                      rows={3}
+                      sending={replySending}
+                      subject={request.subject || t("messages.no_subject")}
+                      value={replyBody}
+                    />
+                  ) : undefined
+                }
+                formattedDate={formatDate(request.createdAt)}
+                key={request.id}
+                onDelete={
+                  request.senderMemberId === member.publicId || member.role === "admin" || member.role === "moderator"
+                    ? () => void deleteRequest(request.id, false)
+                    : undefined
+                }
+                onReply={
+                  replyingTo !== request.id
+                    ? () => {
+                        setReplyError("");
+                        setReplyBody("");
+                        setReplyAcknowledged(false);
+                        setReplyingTo(request.id);
+                      }
+                    : undefined
+                }
+                participants={
+                  <>
+                    {t("messages.from")} <strong>{request.senderName}</strong>
+                  </>
+                }
+                replies={
+                  request.replies.length > 0 ? (
+                    <ul className="message-thread-children">
+                      {request.replies.map((reply) => (
+                        <MessageCard
+                          body={reply.body}
+                          createdAt={reply.createdAt}
+                          deleteLabel={t("help.delete_request")}
+                          deleting={deletingId === reply.id}
+                          formattedDate={formatDate(reply.createdAt)}
+                          key={reply.id}
+                          onDelete={
+                            reply.senderMemberId === member.publicId ||
+                            member.role === "admin" ||
+                            member.role === "moderator"
+                              ? () => void deleteRequest(reply.id, true)
+                              : undefined
+                          }
+                          participants={
+                            <>
+                              {t("messages.from")}{" "}
+                              <strong
+                                className={reply.senderMemberId === member.publicId ? "current-member" : undefined}
+                              >
+                                {reply.senderName}
+                              </strong>
+                            </>
+                          }
+                        />
+                      ))}
+                    </ul>
+                  ) : undefined
+                }
+                subjectActions={
+                  <>
+                    {request.missionCode && (
+                      <Link
+                        aria-label={t("messages.open_mission")}
+                        className="member-icon-action message-subject-link member-link-action"
+                        href={`/missions?search=${encodeURIComponent(request.missionCode)}`}
+                        title={t("messages.open_mission")}
+                      >
+                        <Crosshair size={15} />
+                      </Link>
+                    )}
+                    {request.portal && request.galaxy !== undefined && (
+                      <button
+                        aria-label={t("planet.open_planet_details")}
+                        className="member-icon-action message-subject-link member-planet-action"
+                        onClick={() => setOpenRequest(request)}
+                        title={t("planet.open_planet_details")}
+                        type="button"
+                      >
+                        <Eclipse size={15} />
+                      </button>
+                    )}
+                  </>
+                }
+                title={request.subject || t("messages.no_subject")}
+              />
+            ))}
+          </MessageList>
+        </main>
+      </section>
+      {openRequest?.portal && openRequest.galaxy !== undefined && (
+        <PlanetCard
+          contextLabel={galaxyLabel(openRequest.galaxy)}
+          galaxy={openRequest.galaxy}
+          key={`${openRequest.portal}:${openRequest.galaxy}`}
+          onClose={() => setOpenRequest(null)}
+          portal={openRequest.portal}
+          title={openRequest.subject || t("planet.fallback_name")}
+        />
+      )}
+      {adminOpen && member.role === "admin" && <AdminPanel onClose={() => setAdminOpen(false)} onSaved={setSettings} />}
+      {profileOpen && (
+        <MemberProfilePanel
+          member={member}
+          onClose={() => setProfileOpen(false)}
+          onSaved={(profile) => setMember((current) => ({ ...current, ...profile }))}
+        />
+      )}
+    </div>
+  );
 }

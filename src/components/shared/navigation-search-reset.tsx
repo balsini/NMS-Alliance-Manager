@@ -1,6 +1,14 @@
 "use client";
 
-import { createContext, useCallback, useContext, useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useState,
+  type Dispatch,
+  type ReactNode,
+  type SetStateAction,
+} from "react";
 
 type NavigationSearchResetContextValue = Readonly<{
   resetVersion: number;
@@ -25,15 +33,18 @@ export function useNavigationSearchState(initialValue: string): readonly [string
   if (!context) throw new Error("useNavigationSearchState must be used inside NavigationSearchResetProvider");
   const [state, setState] = useState(() => ({ value: initialValue, resetVersion: context.resetVersion }));
   const search = state.resetVersion === context.resetVersion ? state.value : "";
-  const setSearch = useCallback<Dispatch<SetStateAction<string>>>((nextValue) => {
-    setState((current) => {
-      const currentValue = current.resetVersion === context.resetVersion ? current.value : "";
-      return {
-        value: typeof nextValue === "function" ? nextValue(currentValue) : nextValue,
-        resetVersion: context.resetVersion,
-      };
-    });
-  }, [context.resetVersion]);
+  const setSearch = useCallback<Dispatch<SetStateAction<string>>>(
+    (nextValue) => {
+      setState((current) => {
+        const currentValue = current.resetVersion === context.resetVersion ? current.value : "";
+        return {
+          value: typeof nextValue === "function" ? nextValue(currentValue) : nextValue,
+          resetVersion: context.resetVersion,
+        };
+      });
+    },
+    [context.resetVersion],
+  );
 
   return [search, setSearch];
 }

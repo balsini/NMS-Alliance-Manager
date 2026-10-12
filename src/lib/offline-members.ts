@@ -27,12 +27,14 @@ export async function linkOfflineMember(offlineId: string, targetId: string): Pr
   }
 
   const missions = await readMissions();
-  await writeMissions(missions.map((mission) => ({
-    ...mission,
-    ...(mission.createdByMemberId === offlineId ? { createdByMemberId: targetId } : {}),
-    ...(mission.stationOwnerMemberId === offlineId ? { stationOwnerMemberId: targetId } : {}),
-    ...(mission.assignedMemberId === offlineId ? { assignedMemberId: targetId } : {}),
-  })));
+  await writeMissions(
+    missions.map((mission) => ({
+      ...mission,
+      ...(mission.createdByMemberId === offlineId ? { createdByMemberId: targetId } : {}),
+      ...(mission.stationOwnerMemberId === offlineId ? { stationOwnerMemberId: targetId } : {}),
+      ...(mission.assignedMemberId === offlineId ? { assignedMemberId: targetId } : {}),
+    })),
+  );
   await reassignStationOwner(offlineId, targetId);
   await reassignPrivateMessageMember(offlineId, targetId);
 

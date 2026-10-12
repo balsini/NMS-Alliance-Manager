@@ -16,7 +16,14 @@ export default async function OfflinePlayersRoute() {
   const allianceName = accessData.alliance.name;
   const allianceLogoUrl = accessData.alliance.logoUrl;
   const requiredConfiguration = getMissingAuthConfiguration();
-  if (requiredConfiguration.length > 0) return <LoginScreen allianceLogoUrl={allianceLogoUrl} allianceName={allianceName} missingConfiguration={requiredConfiguration} />;
+  if (requiredConfiguration.length > 0)
+    return (
+      <LoginScreen
+        allianceLogoUrl={allianceLogoUrl}
+        allianceName={allianceName}
+        missingConfiguration={requiredConfiguration}
+      />
+    );
 
   const session = await auth();
   if (!session?.user?.email) return <LoginScreen allianceLogoUrl={allianceLogoUrl} allianceName={allianceName} />;
@@ -27,15 +34,22 @@ export default async function OfflinePlayersRoute() {
   if (member.role !== "admin" && member.role !== "moderator") redirect("/");
 
   const [missions, stations] = await Promise.all([readMissions(), readAllStationPortals()]);
-  const missionOwnerIds = new Set(missions.flatMap((mission) => [mission.assignedMemberId, mission.createdByMemberId, mission.stationOwnerMemberId].filter(Boolean) as string[]));
+  const missionOwnerIds = new Set(
+    missions.flatMap(
+      (mission) =>
+        [mission.assignedMemberId, mission.createdByMemberId, mission.stationOwnerMemberId].filter(Boolean) as string[],
+    ),
+  );
   const stationOwnerIds = new Set(stations.map((station) => station.ownerId));
-  return <OfflinePlayersPage
-    memberActivity={{ missionOwnerIds: [...missionOwnerIds], stationOwnerIds: [...stationOwnerIds] }}
-    alliance={accessData.alliance}
-    currentMember={member}
-    missionCount={missions.length}
-    sidebarStationCount={stations.length}
-    sidebarOfflineCount={accessData.members.filter((item) => item.offline).length}
-    sidebarUserCount={accessData.members.filter((item) => !item.offline).length}
-  />;
+  return (
+    <OfflinePlayersPage
+      memberActivity={{ missionOwnerIds: [...missionOwnerIds], stationOwnerIds: [...stationOwnerIds] }}
+      alliance={accessData.alliance}
+      currentMember={member}
+      missionCount={missions.length}
+      sidebarStationCount={stations.length}
+      sidebarOfflineCount={accessData.members.filter((item) => item.offline).length}
+      sidebarUserCount={accessData.members.filter((item) => !item.offline).length}
+    />
+  );
 }

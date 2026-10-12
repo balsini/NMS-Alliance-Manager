@@ -10,7 +10,9 @@ import { readAllStationPortals, readStationPortals } from "@/lib/stations-store"
 
 export const dynamic = "force-dynamic";
 
-export default async function StationsRoute({ searchParams }: Readonly<{
+export default async function StationsRoute({
+  searchParams,
+}: Readonly<{
   searchParams: Promise<{
     search?: string | string[];
     portal?: string | string[];
@@ -23,7 +25,14 @@ export default async function StationsRoute({ searchParams }: Readonly<{
   const allianceName = accessData.alliance.name;
   const allianceLogoUrl = accessData.alliance.logoUrl;
   const missingConfiguration = getMissingAuthConfiguration();
-  if (missingConfiguration.length > 0) return <LoginScreen allianceLogoUrl={allianceLogoUrl} allianceName={allianceName} missingConfiguration={missingConfiguration} />;
+  if (missingConfiguration.length > 0)
+    return (
+      <LoginScreen
+        allianceLogoUrl={allianceLogoUrl}
+        allianceName={allianceName}
+        missingConfiguration={missingConfiguration}
+      />
+    );
 
   const session = await auth();
   if (!session?.user?.email) return <LoginScreen allianceLogoUrl={allianceLogoUrl} allianceName={allianceName} />;
@@ -34,8 +43,11 @@ export default async function StationsRoute({ searchParams }: Readonly<{
 
   const [missions, stations] = await Promise.all([
     readMissions(),
-    member.role === "admin" || member.role === "moderator" ||
-      member.specialty === "explorer" || member.specialty === "builder" || member.specialty === "ranger"
+    member.role === "admin" ||
+    member.role === "moderator" ||
+    member.specialty === "explorer" ||
+    member.specialty === "builder" ||
+    member.specialty === "ranger"
       ? readAllStationPortals()
       : readStationPortals(member.publicId),
   ]);
@@ -45,27 +57,46 @@ export default async function StationsRoute({ searchParams }: Readonly<{
   const galaxy = typeof params.galaxy === "string" && /^\d+$/.test(params.galaxy) ? Number(params.galaxy) : -1;
   const ownerId = typeof params.ownerId === "string" ? params.ownerId : "";
   const canCreateStation = params.createStation === "1" && (member.role === "admin" || member.role === "moderator");
-  const initialCreateStation = canCreateStation && /^[0-9A-F]{12}$/.test(portal) && Number.isInteger(galaxy) && galaxy >= 0 && galaxy <= 255
-    ? {
-      portal,
-      galaxy,
-      ownerId: accessData.members.some((candidate) => candidate.publicId === ownerId && candidate.membershipStatus === "approved")
-        ? ownerId
-        : member.publicId,
-    }
-    : null;
-  const initialStation = !initialCreateStation && /^[0-9A-F]{12}$/.test(portal) && Number.isInteger(galaxy) && galaxy >= 0 && galaxy <= 255 && ownerId
-    ? { portal, galaxy, ownerId }
-    : null;
-  return <StationsPage
-    alliance={accessData.alliance}
-    currentMember={member}
-    initialSearch={initialSearch}
-    initialCreateStation={initialCreateStation}
-    initialStation={initialStation}
-    missionCount={missions.length}
-    sidebarStationCount={stations.length}
-    sidebarOfflineCount={member.role === "admin" || member.role === "moderator" ? accessData.members.filter((item) => item.offline).length : undefined}
-    sidebarUserCount={member.role === "admin" || member.role === "moderator" ? accessData.members.filter((item) => !item.offline).length : undefined}
-  />;
+  const initialCreateStation =
+    canCreateStation && /^[0-9A-F]{12}$/.test(portal) && Number.isInteger(galaxy) && galaxy >= 0 && galaxy <= 255
+      ? {
+          portal,
+          galaxy,
+          ownerId: accessData.members.some(
+            (candidate) => candidate.publicId === ownerId && candidate.membershipStatus === "approved",
+          )
+            ? ownerId
+            : member.publicId,
+        }
+      : null;
+  const initialStation =
+    !initialCreateStation &&
+    /^[0-9A-F]{12}$/.test(portal) &&
+    Number.isInteger(galaxy) &&
+    galaxy >= 0 &&
+    galaxy <= 255 &&
+    ownerId
+      ? { portal, galaxy, ownerId }
+      : null;
+  return (
+    <StationsPage
+      alliance={accessData.alliance}
+      currentMember={member}
+      initialSearch={initialSearch}
+      initialCreateStation={initialCreateStation}
+      initialStation={initialStation}
+      missionCount={missions.length}
+      sidebarStationCount={stations.length}
+      sidebarOfflineCount={
+        member.role === "admin" || member.role === "moderator"
+          ? accessData.members.filter((item) => item.offline).length
+          : undefined
+      }
+      sidebarUserCount={
+        member.role === "admin" || member.role === "moderator"
+          ? accessData.members.filter((item) => !item.offline).length
+          : undefined
+      }
+    />
+  );
 }

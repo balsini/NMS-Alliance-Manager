@@ -15,7 +15,8 @@ function normalizeAlmanacIndex(value: unknown): AlmanacResponseIndex {
 
   const index: AlmanacResponseIndex = {};
   for (const [portalCode, galaxies] of Object.entries(value)) {
-    if (!/^[0-9A-F]{12}$/i.test(portalCode) || !galaxies || typeof galaxies !== "object" || Array.isArray(galaxies)) continue;
+    if (!/^[0-9A-F]{12}$/i.test(portalCode) || !galaxies || typeof galaxies !== "object" || Array.isArray(galaxies))
+      continue;
     const galaxyResponses: Record<string, AlmanacResponse> = {};
     for (const [galaxy, response] of Object.entries(galaxies)) {
       if (!/^\d+$/.test(galaxy) || !response || typeof response !== "object" || Array.isArray(response)) continue;
@@ -67,20 +68,26 @@ export async function readAlmanacResponse(portalCode: string, galaxy: number): P
 
 export async function readAlmanacResponses(portalCodes: string[]): Promise<Record<string, CachedAlmanacPlanet[]>> {
   const index = await readAlmanacIndex();
-  return Object.fromEntries(portalCodes.map((portalCode) => {
-    const responses = Object.entries(index[portalCode.toUpperCase()] ?? {})
-      .flatMap(([galaxy, response]) => {
-        const galaxyIndex = Number(galaxy);
-        return Number.isInteger(galaxyIndex) && galaxyIndex >= 0 && galaxyIndex <= 255
-          ? [{ galaxy: galaxyIndex, response }]
-          : [];
-      })
-      .sort((left, right) => left.galaxy - right.galaxy);
-    return [portalCode.toUpperCase(), responses];
-  }));
+  return Object.fromEntries(
+    portalCodes.map((portalCode) => {
+      const responses = Object.entries(index[portalCode.toUpperCase()] ?? {})
+        .flatMap(([galaxy, response]) => {
+          const galaxyIndex = Number(galaxy);
+          return Number.isInteger(galaxyIndex) && galaxyIndex >= 0 && galaxyIndex <= 255
+            ? [{ galaxy: galaxyIndex, response }]
+            : [];
+        })
+        .sort((left, right) => left.galaxy - right.galaxy);
+      return [portalCode.toUpperCase(), responses];
+    }),
+  );
 }
 
-export async function writeAlmanacResponse(portalCode: string, galaxy: number, response: AlmanacResponse): Promise<void> {
+export async function writeAlmanacResponse(
+  portalCode: string,
+  galaxy: number,
+  response: AlmanacResponse,
+): Promise<void> {
   const index = await readAlmanacIndex();
   const canonicalCode = portalCode.toUpperCase();
   index[canonicalCode] ??= {};
@@ -92,7 +99,9 @@ export async function readAlmanacCache(): Promise<(portalCode: string, galaxy: n
   return (portalCode, galaxy) => index[portalCode.toUpperCase()]?.[String(galaxy)] ?? null;
 }
 
-export async function writeAlmanacResponses(entries: ReadonlyArray<Readonly<{ portalCode: string; galaxy: number; response: AlmanacResponse }>>): Promise<void> {
+export async function writeAlmanacResponses(
+  entries: ReadonlyArray<Readonly<{ portalCode: string; galaxy: number; response: AlmanacResponse }>>,
+): Promise<void> {
   if (entries.length === 0) return;
   const index = await readAlmanacIndex();
   for (const { portalCode, galaxy, response } of entries) {

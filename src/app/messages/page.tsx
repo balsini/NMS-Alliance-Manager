@@ -16,7 +16,13 @@ export default async function MessagesRoute() {
   const allianceLogoUrl = accessData.alliance.logoUrl;
   const missingConfiguration = getMissingAuthConfiguration();
   if (missingConfiguration.length > 0) {
-    return <LoginScreen allianceLogoUrl={allianceLogoUrl} allianceName={allianceName} missingConfiguration={missingConfiguration} />;
+    return (
+      <LoginScreen
+        allianceLogoUrl={allianceLogoUrl}
+        allianceName={allianceName}
+        missingConfiguration={missingConfiguration}
+      />
+    );
   }
 
   const session = await auth();
@@ -31,12 +37,14 @@ export default async function MessagesRoute() {
     readMissions(),
     isModerator ? readAllStationPortals() : readStationPortals(member.publicId),
   ]);
-  return <MessagesPage
-    alliance={accessData.alliance}
-    currentMember={member}
-    missionCount={missions.length}
-    stationCount={stations.length}
-    offlineCount={isModerator ? accessData.members.filter((item) => item.offline).length : undefined}
-    userCount={isModerator ? accessData.members.filter((item) => !item.offline).length : undefined}
-  />;
+  return (
+    <MessagesPage
+      alliance={accessData.alliance}
+      currentMember={member}
+      missionCount={missions.length}
+      stationCount={stations.length}
+      offlineCount={isModerator ? accessData.members.filter((item) => item.offline).length : undefined}
+      userCount={isModerator ? accessData.members.filter((item) => !item.offline).length : undefined}
+    />
+  );
 }

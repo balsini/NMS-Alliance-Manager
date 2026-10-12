@@ -57,20 +57,24 @@ export function translateAlmanacValue(locale: Locale, value: string) {
 }
 
 export function translate(locale: Locale, message: string, values?: Readonly<Record<string, string | number>>) {
-  const canonicalKey = translationIds.has(message) ? message : legacyAliases.get(message) ?? message;
+  const canonicalKey = translationIds.has(message) ? message : (legacyAliases.get(message) ?? message);
   let translated = localeEntries[locale][canonicalKey] ?? message;
-  const planetIndex = message.match(/^Planet index (\d+): allowed range is 0–6\.$/)
-    ?? message.match(/^Indice pianeta (\d+): ammessi da 0 a 6\.$/);
-  const coordinate = message.match(/^([XYZ]) coordinate ([\dA-F]+): unused value\.$/)
-    ?? message.match(/^Coordinata ([XYZ]) ([\dA-F]+): valore non utilizzato\.$/);
+  const planetIndex =
+    message.match(/^Planet index (\d+): allowed range is 0–6\.$/) ??
+    message.match(/^Indice pianeta (\d+): ammessi da 0 a 6\.$/);
+  const coordinate =
+    message.match(/^([XYZ]) coordinate ([\dA-F]+): unused value\.$/) ??
+    message.match(/^Coordinata ([XYZ]) ([\dA-F]+): valore non utilizzato\.$/);
   if (planetIndex) {
-    translated = locale === "it"
-      ? `Indice pianeta ${planetIndex[1]}: ammessi da 0 a 6.`
-      : `Planet index ${planetIndex[1]}: allowed range is 0–6.`;
+    translated =
+      locale === "it"
+        ? `Indice pianeta ${planetIndex[1]}: ammessi da 0 a 6.`
+        : `Planet index ${planetIndex[1]}: allowed range is 0–6.`;
   } else if (coordinate) {
-    translated = locale === "it"
-      ? `Coordinata ${coordinate[1]} ${coordinate[2]}: valore non utilizzato.`
-      : `${coordinate[1]} coordinate ${coordinate[2]}: unused value.`;
+    translated =
+      locale === "it"
+        ? `Coordinata ${coordinate[1]} ${coordinate[2]}: valore non utilizzato.`
+        : `${coordinate[1]} coordinate ${coordinate[2]}: unused value.`;
   }
   return values
     ? translated.replace(/\{(\w+)\}/g, (placeholder, key: string) => String(values[key] ?? placeholder))

@@ -3,12 +3,33 @@ import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { getBlobAuthOptions } from "@/lib/blob-config";
-import { isValidNmsFriendCode, memberRoles, memberSpecialties, membershipStatuses, normalizeNmsFriendCode, nmsPlatforms } from "@/lib/member-types";
-import type { AllianceMember, AllianceSettings, MemberRole, MemberSpecialty, MembershipStatus, NmsPlatform } from "@/lib/member-types";
+import {
+  isValidNmsFriendCode,
+  memberRoles,
+  memberSpecialties,
+  membershipStatuses,
+  normalizeNmsFriendCode,
+  nmsPlatforms,
+} from "@/lib/member-types";
+import type {
+  AllianceMember,
+  AllianceSettings,
+  MemberRole,
+  MemberSpecialty,
+  MembershipStatus,
+  NmsPlatform,
+} from "@/lib/member-types";
 import { isFixedLocalAccount, type LocalAccount } from "@/lib/local-auth";
 
 export { memberRoles, memberSpecialties, membershipStatuses, nmsPlatforms } from "@/lib/member-types";
-export type { AllianceMember, AllianceSettings, MemberRole, MemberSpecialty, MembershipStatus, NmsPlatform } from "@/lib/member-types";
+export type {
+  AllianceMember,
+  AllianceSettings,
+  MemberRole,
+  MemberSpecialty,
+  MembershipStatus,
+  NmsPlatform,
+} from "@/lib/member-types";
 
 export type AccessData = {
   members: AllianceMember[];
@@ -38,9 +59,14 @@ function normalizeAccessData(value: unknown): AccessData {
       bannerUrl: typeof storedAlliance?.bannerUrl === "string" ? storedAlliance.bannerUrl : "",
       discordUrl: typeof storedAlliance?.discordUrl === "string" ? storedAlliance.discordUrl : "",
       telegramUrl: typeof storedAlliance?.telegramUrl === "string" ? storedAlliance.telegramUrl : "",
-      heroGradientMode: storedAlliance?.heroGradientMode === "none" || storedAlliance?.heroGradientMode === "left" || storedAlliance?.heroGradientMode === "full"
-        ? storedAlliance.heroGradientMode
-        : storedAlliance?.heroGradientEnabled === false ? "none" : "full",
+      heroGradientMode:
+        storedAlliance?.heroGradientMode === "none" ||
+        storedAlliance?.heroGradientMode === "left" ||
+        storedAlliance?.heroGradientMode === "full"
+          ? storedAlliance.heroGradientMode
+          : storedAlliance?.heroGradientEnabled === false
+            ? "none"
+            : "full",
     },
   };
 }
@@ -48,13 +74,15 @@ function normalizeAccessData(value: unknown): AccessData {
 function normalizeMember(value: unknown): AllianceMember | null {
   if (!value || typeof value !== "object") return null;
   const member = value as Partial<AllianceMember>;
-  if (typeof member.email !== "string" || typeof member.name !== "string" || typeof member.image !== "string") return null;
+  if (typeof member.email !== "string" || typeof member.name !== "string" || typeof member.image !== "string")
+    return null;
   const platforms = Array.isArray(member.platforms)
     ? member.platforms.filter((platform): platform is NmsPlatform => nmsPlatforms.includes(platform as NmsPlatform))
     : [];
-  const role = memberRoles.includes(member.role as MemberRole) ? member.role as MemberRole : "user";
+  const role = memberRoles.includes(member.role as MemberRole) ? (member.role as MemberRole) : "user";
   return {
-    publicId: typeof member.publicId === "string" && publicIdPattern.test(member.publicId) ? member.publicId : randomUUID(),
+    publicId:
+      typeof member.publicId === "string" && publicIdPattern.test(member.publicId) ? member.publicId : randomUUID(),
     email: member.email,
     name: member.name,
     image: member.image,
@@ -63,10 +91,12 @@ function normalizeMember(value: unknown): AllianceMember | null {
     ...(typeof member.telegramName === "string" && member.telegramName ? { telegramName: member.telegramName } : {}),
     ...(typeof member.discordName === "string" && member.discordName ? { discordName: member.discordName } : {}),
     platforms,
-    specialty: memberSpecialties.includes(member.specialty as MemberSpecialty) ? member.specialty as MemberSpecialty : "",
+    specialty: memberSpecialties.includes(member.specialty as MemberSpecialty)
+      ? (member.specialty as MemberSpecialty)
+      : "",
     role,
     membershipStatus: membershipStatuses.includes(member.membershipStatus as MembershipStatus)
-      ? member.membershipStatus as MembershipStatus
+      ? (member.membershipStatus as MembershipStatus)
       : "pending",
     approvedBy: typeof member.approvedBy === "string" ? member.approvedBy : "",
     approvedAt: typeof member.approvedAt === "string" ? member.approvedAt : "",
@@ -78,9 +108,13 @@ function normalizeMember(value: unknown): AllianceMember | null {
 
 function needsPublicIdMigration(value: unknown): boolean {
   if (!value || typeof value !== "object" || !("members" in value) || !Array.isArray(value.members)) return false;
-  return value.members.some((member) =>
-    !member || typeof member !== "object" || !("publicId" in member) ||
-    typeof member.publicId !== "string" || !publicIdPattern.test(member.publicId),
+  return value.members.some(
+    (member) =>
+      !member ||
+      typeof member !== "object" ||
+      !("publicId" in member) ||
+      typeof member.publicId !== "string" ||
+      !publicIdPattern.test(member.publicId),
   );
 }
 
@@ -130,13 +164,19 @@ export async function registerMember(identity: Pick<AllianceMember, "email" | "n
   const data = await readAccessData();
   const index = data.members.findIndex((member) => member.email === email);
   const adminEmail = process.env.ALLIANCE_ADMIN_EMAIL?.trim().toLowerCase();
-  const role: MemberRole = email === adminEmail ? "admin" : data.members[index]?.role ?? "user";
+  const role: MemberRole = email === adminEmail ? "admin" : (data.members[index]?.role ?? "user");
   const existingMember = data.members[index];
-  const membershipStatus = email === adminEmail ? "approved" : existingMember?.membershipStatus ?? "pending";
-  const approvedBy = email === adminEmail ? email : existingMember?.approvedBy ?? "";
+  const membershipStatus = email === adminEmail ? "approved" : (existingMember?.membershipStatus ?? "pending");
+  const approvedBy = email === adminEmail ? email : (existingMember?.approvedBy ?? "");
   const approvedAt = membershipStatus === "approved" ? existingMember?.approvedAt || new Date().toISOString() : "";
   const recentlySeen = existingMember && Date.now() - Date.parse(existingMember.lastLogin) < 15 * 60 * 1000;
-  if (recentlySeen && existingMember.name === (identity.name || email) && existingMember.image === identity.image && existingMember.role === role && existingMember.membershipStatus === membershipStatus) {
+  if (
+    recentlySeen &&
+    existingMember.name === (identity.name || email) &&
+    existingMember.image === identity.image &&
+    existingMember.role === role &&
+    existingMember.membershipStatus === membershipStatus
+  ) {
     return { member: existingMember, alliance: data.alliance };
   }
   const member: AllianceMember = {
@@ -196,7 +236,11 @@ export async function ensureLocalMember(account: LocalAccount) {
 
 export type ProfileConflict = "name" | "code";
 
-function findProfileConflict(members: AllianceMember[], profile: MemberProfileInput, excludeEmail = ""): ProfileConflict | null {
+function findProfileConflict(
+  members: AllianceMember[],
+  profile: MemberProfileInput,
+  excludeEmail = "",
+): ProfileConflict | null {
   const name = profile.nmsName.trim().toLowerCase();
   const code = normalizeNmsFriendCode(profile.nmsCode);
   const others = members.filter((member) => member.email !== excludeEmail);
@@ -205,7 +249,10 @@ function findProfileConflict(members: AllianceMember[], profile: MemberProfileIn
   return null;
 }
 
-export async function createOfflineMember(profile: MemberProfileInput, createdBy: string): Promise<AllianceMember | ProfileConflict> {
+export async function createOfflineMember(
+  profile: MemberProfileInput,
+  createdBy: string,
+): Promise<AllianceMember | ProfileConflict> {
   const data = await readAccessData();
   const conflict = findProfileConflict(data.members, profile);
   if (conflict) return conflict;
@@ -232,7 +279,10 @@ export async function createOfflineMember(profile: MemberProfileInput, createdBy
   return member;
 }
 
-export async function updateOfflineMember(publicId: string, profile: MemberProfileInput): Promise<AllianceMember | ProfileConflict | null> {
+export async function updateOfflineMember(
+  publicId: string,
+  profile: MemberProfileInput,
+): Promise<AllianceMember | ProfileConflict | null> {
   const data = await readAccessData();
   const member = data.members.find((item) => item.publicId === publicId && item.offline);
   if (!member) return null;
@@ -248,7 +298,12 @@ export async function updateOfflineMember(publicId: string, profile: MemberProfi
   return member;
 }
 
-export async function updateMemberApproval(email: string, approvedBy: string, membershipStatus: MembershipStatus, actorRole: MemberRole) {
+export async function updateMemberApproval(
+  email: string,
+  approvedBy: string,
+  membershipStatus: MembershipStatus,
+  actorRole: MemberRole,
+) {
   const normalizedEmail = email.trim().toLowerCase();
   const adminEmail = process.env.ALLIANCE_ADMIN_EMAIL?.trim().toLowerCase();
   if (!normalizedEmail || !membershipStatuses.includes(membershipStatus) || normalizedEmail === adminEmail) return null;
@@ -299,22 +354,30 @@ function contactFields(profile: MemberProfileInput) {
 
 function applyContactFields(member: AllianceMember, profile: MemberProfileInput) {
   const { telegramName, discordName } = contactFields(profile);
-  if (telegramName) member.telegramName = telegramName; else delete member.telegramName;
-  if (discordName) member.discordName = discordName; else delete member.discordName;
+  if (telegramName) member.telegramName = telegramName;
+  else delete member.telegramName;
+  if (discordName) member.discordName = discordName;
+  else delete member.discordName;
 }
 
 export function isMemberProfileInput(value: unknown, allowEmptyCode = false): value is MemberProfileInput {
   if (!value || typeof value !== "object") return false;
   const profile = value as Record<string, unknown>;
-  return typeof profile.nmsName === "string" &&
-    profile.nmsName.trim().length > 0 && profile.nmsName.trim().length <= 40 &&
-    typeof profile.nmsCode === "string" && (isValidNmsFriendCode(profile.nmsCode) || (allowEmptyCode && !profile.nmsCode.trim())) &&
+  return (
+    typeof profile.nmsName === "string" &&
+    profile.nmsName.trim().length > 0 &&
+    profile.nmsName.trim().length <= 40 &&
+    typeof profile.nmsCode === "string" &&
+    (isValidNmsFriendCode(profile.nmsCode) || (allowEmptyCode && !profile.nmsCode.trim())) &&
     Array.isArray(profile.platforms) &&
-    (profile.telegramName === undefined || (typeof profile.telegramName === "string" && profile.telegramName.trim().length <= 40)) &&
-    (profile.discordName === undefined || (typeof profile.discordName === "string" && profile.discordName.trim().length <= 40)) &&
+    (profile.telegramName === undefined ||
+      (typeof profile.telegramName === "string" && profile.telegramName.trim().length <= 40)) &&
+    (profile.discordName === undefined ||
+      (typeof profile.discordName === "string" && profile.discordName.trim().length <= 40)) &&
     profile.platforms.every((platform) => nmsPlatforms.includes(platform as NmsPlatform)) &&
     memberSpecialties.includes(profile.specialty as MemberSpecialty) &&
-    (profile.simpleView === undefined || typeof profile.simpleView === "boolean");
+    (profile.simpleView === undefined || typeof profile.simpleView === "boolean")
+  );
 }
 
 export async function updateMemberProfile(email: string, profile: MemberProfileInput) {

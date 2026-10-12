@@ -57,7 +57,8 @@ export function StationSystemCoreInfo({ portal, galaxy }: Readonly<{ portal: str
 
   return (
     <span className="station-card-system-core">
-      {t("system.planets_count", { count: summary.planetCount })} · {t("system.star_type_label", {
+      {t("system.planets_count", { count: summary.planetCount })} ·{" "}
+      {t("system.star_type_label", {
         type: t(starTypeLabels[summary.starType]),
       })}
     </span>

@@ -1,4 +1,9 @@
-import { readAlmanacCache, readAlmanacResponse, writeAlmanacResponse, writeAlmanacResponses } from "@/lib/almanac-store";
+import {
+  readAlmanacCache,
+  readAlmanacResponse,
+  writeAlmanacResponse,
+  writeAlmanacResponses,
+} from "@/lib/almanac-store";
 
 async function fetchAlmanacPlanet(address: string, galaxy: number): Promise<Record<string, unknown> | null> {
   const response = await fetch(`https://nmsalmanac.com/api/planets/${address}?galaxy=${galaxy + 1}`, {
@@ -13,8 +18,14 @@ async function fetchAlmanacPlanet(address: string, galaxy: number): Promise<Reco
   }
 
   const planet: unknown = await response.json();
-  if (!planet || typeof planet !== "object" || Array.isArray(planet) ||
-    !("portal" in planet) || typeof planet.portal !== "string" || planet.portal.toUpperCase() !== address) {
+  if (
+    !planet ||
+    typeof planet !== "object" ||
+    Array.isArray(planet) ||
+    !("portal" in planet) ||
+    typeof planet.portal !== "string" ||
+    planet.portal.toUpperCase() !== address
+  ) {
     console.error("NMS Almanac returned invalid planet data", { address, galaxy });
     throw new Error("planet.almanac_lookup_failed");
   }
@@ -50,15 +61,17 @@ export async function lookupAlmanacPlanets(
 
   const fetched: { portalCode: string; galaxy: number; response: Record<string, unknown> }[] = [];
   for (let index = 0; index < missing.length; index += 6) {
-    await Promise.all(missing.slice(index, index + 6).map(async ({ address, galaxy, key }) => {
-      try {
-        const planet = await fetchAlmanacPlanet(address, galaxy);
-        results.set(key, { planet, failed: false });
-        if (planet) fetched.push({ portalCode: address, galaxy, response: planet });
-      } catch {
-        results.set(key, { planet: null, failed: true });
-      }
-    }));
+    await Promise.all(
+      missing.slice(index, index + 6).map(async ({ address, galaxy, key }) => {
+        try {
+          const planet = await fetchAlmanacPlanet(address, galaxy);
+          results.set(key, { planet, failed: false });
+          if (planet) fetched.push({ portalCode: address, galaxy, response: planet });
+        } catch {
+          results.set(key, { planet: null, failed: true });
+        }
+      }),
+    );
   }
   try {
     await writeAlmanacResponses(fetched);

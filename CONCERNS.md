@@ -1,3 +1,8 @@
+---
+title: Concerns
+description: Things noticed during code changes that look wrong or risky and need a closer look
+---
+
 # Concerns
 
 Things noticed during code changes that look wrong or risky and need a closer look. Remove an entry once it has been resolved or ruled out.
