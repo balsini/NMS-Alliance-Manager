@@ -10,10 +10,14 @@ npm run dev     # Next.js dev server (Turbopack) on http://localhost:3000
 npm test        # Unit tests (Vitest)
 npm run test:coverage   # Same, with a coverage report for src/lib in coverage/ (git-ignored)
 npm run lint    # ESLint
+npm run format  # Prettier (write)
+npm run format:check  # Prettier (check only)
 npm run build   # Production build (also runs the TypeScript type check)
 ```
 
 Unit tests live next to the code (`*.test.ts` / `*.test.tsx`) and cover the pure logic in `src/lib/`. Use `renderWithLocale()` from `src/test/render-with-locale.tsx` to render a component inside `LocaleProvider`. Modules that read or write storage (`access-store.ts`, `store.ts`, `*-store.ts`) are not covered yet. **`src/lib/nms-core/` is vendored third-party code: don't write tests for it** (it is excluded in `vitest.config.mts`). Verify changes with `npm test`, `npm run lint` and `npm run build`.
+
+Formatting uses Prettier (`prettier.config.mjs`, `.prettierignore`), wired into ESLint through `eslint-config-prettier`. The existing code was never formatted with it, so don't run `npm run format` on the whole repo inside an unrelated change: format only the files you create or edit (`npx prettier --write <files>`). Markdown, CSS in `src/styles/`, `public/`, `data/` and `nms-core` are ignored.
 
 Local auth needs `.env.local` (see `.env.example`). The quick option is `LOCAL_AUTH=true`: the login screen then offers fixed development accounts (`src/lib/local-auth.ts`: admin, moderator, and one normal user per specialty), each pre-approved with a complete profile, no Google variables are needed, and storage is forced to `data/`. `isLocalAuthEnabled()` ignores the flag when `NODE_ENV=production` or `VERCEL` is set, so it never affects a build or deploy. For real Google login, set `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTH_URL=http://localhost:3000/api/auth`, `ALLIANCE_ADMIN_EMAIL`. If any of these is missing (and local mode is off), pages render the login screen listing what's missing; the list comes from `getMissingAuthConfiguration()`. The configured admin email is auto-approved.
 

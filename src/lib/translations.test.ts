@@ -52,8 +52,9 @@ describe("translation catalogs", () => {
     const flat = (catalog: typeof english) => Object.assign({}, ...Object.values(catalog)) as Record<string, string>;
     const englishText = flat(english);
     const italianText = flat(italian);
-    const mismatched = Object.keys(englishText).filter((key) => key in italianText
-      && placeholders(englishText[key]).join() !== placeholders(italianText[key]).join());
+    const mismatched = Object.keys(englishText).filter(
+      (key) => key in italianText && placeholders(englishText[key]).join() !== placeholders(italianText[key]).join(),
+    );
     expect(mismatched).toEqual([]);
   });
 });

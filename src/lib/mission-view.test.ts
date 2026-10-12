@@ -56,7 +56,10 @@ describe("serializeMission", () => {
 
   it("falls back to the account name when there is no in-game name", () => {
     const members = [makeMember({ publicId: "c1", name: "Creator" })];
-    const result = serializeMission(makeMission({ createdByMemberId: "c1", createdByName: "creator@example.com" }), members);
+    const result = serializeMission(
+      makeMission({ createdByMemberId: "c1", createdByName: "creator@example.com" }),
+      members,
+    );
     expect(result.createdByName).toBe("Creator");
   });
 

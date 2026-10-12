@@ -15,7 +15,9 @@ export default function NotFound() {
       <section className="not-found-panel">
         <div className="not-found-mark">
           <Radar size={34} strokeWidth={1.4} />
-          <span><Orbit size={15} /></span>
+          <span>
+            <Orbit size={15} />
+          </span>
         </div>
         <p className="not-found-code">404 · {t("errors.signal_lost")}</p>
         <h1>{t("errors.page_not_found")}</h1>

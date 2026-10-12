@@ -1,6 +1,12 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { isValidNmsFriendCode } from "@/lib/member-types";
-import { editableLocalAccounts, findLocalAccount, getLocalAccountOptions, isFixedLocalAccount, localAccounts } from "./local-auth";
+import {
+  editableLocalAccounts,
+  findLocalAccount,
+  getLocalAccountOptions,
+  isFixedLocalAccount,
+  localAccounts,
+} from "./local-auth";
 
 describe("localAccounts", () => {
   it.each(["email", "nmsName", "nmsCode"] as const)("has a unique %s for every account", (field) => {
