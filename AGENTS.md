@@ -45,6 +45,7 @@ Each `src/app/<section>/page.tsx` is a thin server component. It loads access da
 - System addresses are 12 hex glyphs plus a galaxy index (0–255) (`galaxies.ts`, `planet-addresses.ts`, `components/shared/portal-address-field.tsx`). Glyph images are in `public/glyphs/`.
 - Addresses are verified against the external NMS Almanac API (`almanac-lookup.ts`, limited to 500 requests/hour). Responses are cached permanently by portal code and galaxy through `almanac-store.ts`. A 404 or an unavailable API must not block saving. `systemVerified` is reset when the address or galaxy changes.
 - `src/lib/nms-core/` is vendored MIT JS (pinned upstream commit), loaded client-side to compute planet count and star type. Don't edit it casually.
+- Everything about files and development is written in English: code comments, test names, scripts, config and workflow files, commit messages and developer docs. Only user-facing text (UI strings and `docs/manuale-utente.md`) is Italian.
 
 ### i18n
 
@@ -59,3 +60,13 @@ Each `src/app/<section>/page.tsx` is a thin server component. It loads access da
 - `TODO.md`: features and work that are still missing. Add an item when you find a gap.
 - **IDs:** each entry heading starts with a unique ID made of a type prefix (`C-` for concerns, `T-` for TODOs) and 6 random lowercase alphanumeric characters, e.g. `## C-uu5uon: Title`. Generate the characters with `LC_ALL=C tr -dc 'a-z0-9' </dev/urandom | head -c 6` instead of making them up, because invented "random" strings repeat. Before using an ID, check that it doesn't appear in either file or in history (`git log --all --grep <id>`). IDs are never reused, even after an entry is removed. Refer to other entries by ID.
 - **Commits:** a commit that addresses an entry references its ID in a trailer at the end of the message: `Fixes: C-uu5uon` when it resolves the entry, `Refs: T-v68hfw` for partial progress. Use one trailer per ID. In the same commit, remove a resolved entry from its file, or update it to show what remains.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

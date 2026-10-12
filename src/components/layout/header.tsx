@@ -5,6 +5,7 @@ import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Settings2, LayoutList, LogOut, UserRound } from "lucide-react";
 import type { AllianceMember, AllianceSettings } from "@/lib/access-store";
+import { getViewSwitchDestination } from "@/lib/view-navigation";
 import { useLocale } from "@/components/providers/locale-provider";
 import { LanguageSelector } from "@/components/shared/language-selector";
 
@@ -52,9 +53,9 @@ export function Header({ currentMember, settings, sectionTitle = "Missions", onA
         }),
       });
       if (response.ok) {
-        const extendedViewOnlyRoutes = ["/users", "/offline-players"];
-        if (enablingSimpleView && extendedViewOnlyRoutes.some((route) => window.location.pathname === route || window.location.pathname.startsWith(`${route}/`))) {
-          router.replace("/stations");
+        const destination = getViewSwitchDestination(window.location.pathname, enablingSimpleView);
+        if (destination) {
+          router.replace(destination);
           return;
         }
         window.location.reload();
